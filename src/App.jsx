@@ -23,6 +23,7 @@ import { useOnline } from './lib/useOnline.js';
 import { useGeolocation } from './lib/useGeolocation.js';
 import { useQuakeAlerts } from './features/alerts/useQuakeAlerts.js';
 import { arm } from './lib/alarm.js';
+import { useTheme } from './lib/useTheme.js';
 
 function useToast() {
   const [toast, setToast] = useState(null);
@@ -41,6 +42,7 @@ export default function App() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [toast, showToast] = useToast();
   const [soundOn, setSoundOn] = useState(false);
+  const { theme, toggle: toggleTheme } = useTheme();
   const { alert, dismiss } = useQuakeAlerts(all, soundOn);
 
   const toggleSound = () => {
@@ -126,6 +128,10 @@ export default function App() {
             </button>
             <button className="alert-toggle" onClick={enablePush}>
               🔔 Notify me even when the app is closed
+            </button>
+            <div className="sec-label" style={{ margin: '14px 16px 0' }}>Appearance</div>
+            <button className="alert-toggle" onClick={toggleTheme}>
+              {theme === 'dark' ? '☀️ Switch to light mode' : '🌙 Switch to dark mode'}
             </button>
             <section className="reveal">
               <SectionLabel>Help others stay safe</SectionLabel>

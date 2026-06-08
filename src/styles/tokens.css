@@ -23,3 +23,26 @@
   --font:"Sora",ui-sans-serif,system-ui,sans-serif;
   --mono:var(--font);
 }
+
+/* dark theme — warm charcoal to match the ember/seismic identity */
+:root[data-theme="dark"]{
+  --bone:#0E0B08;
+  --paper:#15110C;
+  --card:#1E1812;
+  --ink:#F4EEE3;
+  --ink-soft:#B6AC9C;
+  --ink-faint:#867C6D;
+  --line:rgba(244,238,227,.12);
+  --line-strong:rgba(244,238,227,.22);
+  --ember:#E85A23;
+  --ember-deep:#F26A38;
+  --ember-wash:#2A1A10;
+  --c-damage:#C0822A;
+  --c-road:#D6A23A;
+  --c-fire:#E85A23;
+  --c-help:#E24B4B;
+  --c-safe:#4E9E54;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.4), 0 2px 8px rgba(0,0,0,.3);
+  --shadow-md:0 8px 30px rgba(0,0,0,.5), 0 2px 6px rgba(0,0,0,.4);
+  --shadow-lg:0 24px 60px rgba(0,0,0,.6);
+}

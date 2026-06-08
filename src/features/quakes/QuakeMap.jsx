@@ -28,6 +28,10 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
   const [showReports, setShowReports] = useState(true);
   const [expanded, setExpanded] = useState(false);
   const mapRef = useRef(null);
+  const dark = typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark';
+  const tileUrl = dark
+    ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+    : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
 
   // Leaflet must recompute its size when the container resizes (expand/collapse).
   // Fire several times so it settles regardless of layout/transition timing.
@@ -60,8 +64,8 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
       <MapContainer ref={mapRef} center={REGION.center} zoom={9} zoomControl={false}
         attributionControl={false} style={{ height: '100%', width: '100%' }}>
         <AttributionControl position="topright" prefix={false} />
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+        <TileLayer key={dark ? 'dark' : 'light'}
+          url={tileUrl}
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
           maxZoom={19} />
         <FollowUser user={user} />
