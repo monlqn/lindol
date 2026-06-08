@@ -60,14 +60,14 @@ export default function App() {
     <div className={`app${online ? '' : ' off'}`}>
       <AlertBanner alert={alert} onDismiss={dismiss} />
       <StatusBar online={online} updatedAt={updatedAt} />
-      <Masthead quakes={all} />
-      <button className="alert-toggle" onClick={toggleSound}>
-        {soundOn ? '🔔 Aftershock alarm: ON' : '🔕 Enable aftershock alarm'}
-      </button>
-      <button className="alert-toggle" onClick={enablePush}>
-        🔔 Notify me even when the app is closed
-      </button>
       <div className="scroll">
+        <Masthead quakes={all} />
+        <button className="alert-toggle" onClick={toggleSound}>
+          {soundOn ? '🔔 Aftershock alarm: ON' : '🔕 Enable aftershock alarm'}
+        </button>
+        <button className="alert-toggle" onClick={enablePush}>
+          🔔 Notify me even when the app is closed
+        </button>
         {!online && <OfflineBanner updatedAt={updatedAt} />}
         {pendingCount > 0 && (
           <div className="offline-banner" style={{ display: 'flex' }}>
