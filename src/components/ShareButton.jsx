@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const SHARE_TITLE = 'LINDÓL — Southern Mindanao Live Earthquake Watch';
 const SHARE_TEXT = 'Live earthquakes, aftershocks & safety for Southern Mindanao. Stay informed:';
@@ -8,6 +8,18 @@ export default function ShareButton() {
   const [copied, setCopied] = useState(false);
   const url = typeof window !== 'undefined' ? window.location.href : '';
   const enc = encodeURIComponent;
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function handlePointerDown(e) {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [open]);
 
   async function handleShare() {
     if (typeof navigator !== 'undefined' && navigator.share) {
@@ -38,8 +50,8 @@ export default function ShareButton() {
   ];
 
   return (
-    <div className="share">
-      <button className="share-btn" onClick={handleShare}>
+    <div className="share" ref={containerRef}>
+      <button type="button" className="share-btn" onClick={handleShare} aria-expanded={open} aria-haspopup="true">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
           <path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" />
@@ -51,7 +63,7 @@ export default function ShareButton() {
           {links.map((l) => (
             <a key={l.label} className="share-opt" href={l.href} target="_blank" rel="noopener noreferrer">{l.label}</a>
           ))}
-          <button className="share-opt" onClick={copyLink}>{copied ? 'Link copied!' : 'Copy link'}</button>
+          <button type="button" className="share-opt" onClick={copyLink}>{copied ? 'Link copied!' : 'Copy link'}</button>
         </div>
       )}
     </div>
