@@ -1,7 +1,14 @@
 import { useState } from 'react';
 
-export default function SensitivePhoto({ url }) {
+// Photos show normally; only ones flagged as "graphic" (report.sensitive) are gated
+// behind a tap-to-view blur.
+export default function SensitivePhoto({ url, sensitive = false }) {
   const [revealed, setRevealed] = useState(false);
+
+  if (!sensitive) {
+    return <div className="photo revealed" style={{ backgroundImage: `url('${url}')` }} />;
+  }
+
   return (
     <div className={`photo${revealed ? ' revealed' : ''}`}
       style={{ backgroundImage: `url('${url}')` }}

@@ -11,6 +11,7 @@ export function normalizeRow(r) {
     photoUrl: r.photo_url ?? null,
     status: r.status,
     flagCount: r.flag_count ?? 0,
+    sensitive: r.sensitive ?? false,
   };
 }
 

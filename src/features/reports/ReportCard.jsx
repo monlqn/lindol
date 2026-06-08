@@ -76,7 +76,7 @@ export default function ReportCard({ report, onFlag, highlight }) {
       </header>
 
       {report.photoUrl
-        ? <div className="ig-photo"><SensitivePhoto url={report.photoUrl} /></div>
+        ? <div className="ig-photo"><SensitivePhoto url={report.photoUrl} sensitive={report.sensitive} /></div>
         : <div className="ig-noimg" style={{ borderColor: color }}><span style={{ color }}>{label}</span></div>}
 
       <div className="ig-actions">
