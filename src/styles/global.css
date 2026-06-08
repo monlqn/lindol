@@ -161,3 +161,21 @@ section{padding:18px 16px}
 .reveal:nth-child(2){animation-delay:.13s}
 .reveal:nth-child(3){animation-delay:.21s}
 .reveal:nth-child(4){animation-delay:.29s}
+
+/* ---------- social share ---------- */
+.share-cta{background:var(--card); border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:var(--shadow-sm); padding:16px}
+.share-cta p{font-size:13.5px; color:var(--ink-soft); line-height:1.45; margin-bottom:12px}
+.share{position:relative; display:inline-block}
+.share-btn{display:inline-flex; align-items:center; gap:9px; border:0; cursor:pointer;
+  background:var(--ember); color:#fff; font-family:var(--font); font-weight:700; font-size:14.5px;
+  padding:12px 18px; border-radius:12px; box-shadow:var(--shadow-sm); transition:.15s}
+.share-btn:hover{background:var(--ember-deep)}
+.share-menu{position:absolute; bottom:calc(100% + 8px); left:0; display:flex; flex-direction:column;
+  min-width:170px; background:var(--card); border:1px solid var(--line); border-radius:12px;
+  box-shadow:var(--shadow-md); overflow:hidden; z-index:50}
+.share-opt{padding:11px 14px; font-size:13.5px; font-weight:600; color:var(--ink); text-align:left;
+  background:none; border:0; border-bottom:1px solid var(--line); cursor:pointer; font-family:var(--font);
+  text-decoration:none; display:block}
+.share-opt:last-child{border-bottom:0}
+.share-opt:hover{background:var(--ember-wash); color:var(--ember-deep)}

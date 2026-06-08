@@ -3,6 +3,7 @@ import Masthead from './components/Masthead.jsx';
 import OfflineBanner from './components/OfflineBanner.jsx';
 import SectionLabel from './components/SectionLabel.jsx';
 import ReportButtonStub from './components/ReportButtonStub.jsx';
+import ShareButton from './components/ShareButton.jsx';
 import QuakeHero from './features/quakes/QuakeHero.jsx';
 import QuakeMap from './features/quakes/QuakeMap.jsx';
 import SafetyPanel from './features/safety/SafetyPanel.jsx';
@@ -33,6 +34,14 @@ export default function App() {
         <section className="reveal">
           <SectionLabel>Safety · works offline</SectionLabel>
           <SafetyPanel />
+        </section>
+
+        <section className="reveal">
+          <SectionLabel>Help others stay safe</SectionLabel>
+          <div className="share-cta">
+            <p>Know someone in the area? Share LINDÓL so they get live earthquake info and safety guidance — even offline.</p>
+            <ShareButton />
+          </div>
         </section>
       </div>
       <ReportButtonStub />

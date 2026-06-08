@@ -1,0 +1,59 @@
+import { useState } from 'react';
+
+const SHARE_TITLE = 'LINDÓL — Southern Mindanao Live Earthquake Watch';
+const SHARE_TEXT = 'Live earthquakes, aftershocks & safety for Southern Mindanao. Stay informed:';
+
+export default function ShareButton() {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const url = typeof window !== 'undefined' ? window.location.href : '';
+  const enc = encodeURIComponent;
+
+  async function handleShare() {
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({ title: SHARE_TITLE, text: SHARE_TEXT, url });
+      } catch {
+        /* user cancelled the native sheet — no-op */
+      }
+    } else {
+      setOpen((o) => !o);
+    }
+  }
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* clipboard blocked — ignore */
+    }
+  }
+
+  const links = [
+    { label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}` },
+    { label: 'X', href: `https://twitter.com/intent/tweet?text=${enc(SHARE_TEXT)}&url=${enc(url)}` },
+    { label: 'Threads', href: `https://www.threads.net/intent/post?text=${enc(SHARE_TEXT + ' ' + url)}` },
+  ];
+
+  return (
+    <div className="share">
+      <button className="share-btn" onClick={handleShare}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+          <path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" />
+        </svg>
+        Share LINDÓL
+      </button>
+      {open && (
+        <div className="share-menu">
+          {links.map((l) => (
+            <a key={l.label} className="share-opt" href={l.href} target="_blank" rel="noopener noreferrer">{l.label}</a>
+          ))}
+          <button className="share-opt" onClick={copyLink}>{copied ? 'Link copied!' : 'Copy link'}</button>
+        </div>
+      )}
+    </div>
+  );
+}
