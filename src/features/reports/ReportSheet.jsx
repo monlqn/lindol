@@ -102,6 +102,7 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast }) {
         </div>
         <div className="cam-hint">Camera only · no gallery uploads — keeps reports trustworthy</div>
 
+        <p className="post-note">By posting, your photo and exact location are shared publicly on the live map. Photos are automatically deleted after 14 days.</p>
         <button className="submit" disabled={!canSubmit} onClick={submit}>
           {!cat ? 'Choose a category to continue' : !coords ? 'Waiting for location…' : busy ? 'Posting…' : 'Post report to the map'}
         </button>

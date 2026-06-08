@@ -1,6 +1,6 @@
 const MAX_BYTES = 20 * 1024 * 1024;
-const MAX_DIM = 1280;
-const QUALITY = 0.7;
+const MAX_DIM = 1024;
+const QUALITY = 0.6;
 
 // Returns an error string if the file is unusable, else null.
 export function rejectFile(file) {
