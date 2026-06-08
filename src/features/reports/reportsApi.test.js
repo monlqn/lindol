@@ -27,9 +27,15 @@ describe('fetchRecentReports', () => {
 });
 
 describe('flagReport', () => {
-  it('calls the flag_report rpc', async () => {
+  it('calls the flag_report rpc with device id and reason', async () => {
     const rpc = vi.fn().mockResolvedValue({ error: null });
-    await flagReport({ rpc }, 'rid-1');
-    expect(rpc).toHaveBeenCalledWith('flag_report', { rid: 'rid-1' });
+    await flagReport({ rpc }, 'rid-1', 'dev-1', 'fake');
+    expect(rpc).toHaveBeenCalledWith('flag_report', { rid: 'rid-1', dev: 'dev-1', reason: 'fake' });
+  });
+
+  it('passes null reason when none given', async () => {
+    const rpc = vi.fn().mockResolvedValue({ error: null });
+    await flagReport({ rpc }, 'rid-1', 'dev-1');
+    expect(rpc).toHaveBeenCalledWith('flag_report', { rid: 'rid-1', dev: 'dev-1', reason: null });
   });
 });

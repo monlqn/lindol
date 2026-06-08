@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabaseConfigured } from '../../lib/supabase.js';
-import { signIn, signOut, getSession, fetchModerationQueue, hideReport, restoreReport, deleteReport } from './adminApi.js';
+import { signIn, signOut, getSession, fetchModerationQueue, fetchFlagReasons, hideReport, restoreReport, deleteReport } from './adminApi.js';
+
+const RLABEL = { fake: 'fake', graphic: 'graphic', location: 'wrong loc', spam: 'spam', other: 'other', unspecified: 'no reason' };
 
 export default function AdminPage() {
   const [session, setSession] = useState(null);
@@ -8,11 +10,18 @@ export default function AdminPage() {
   const [pw, setPw] = useState('');
   const [err, setErr] = useState('');
   const [rows, setRows] = useState([]);
+  const [reasons, setReasons] = useState({});
 
   useEffect(() => { getSession().then(setSession); }, []);
   useEffect(() => { if (session) load(); }, [session]);
 
-  async function load() { try { setRows(await fetchModerationQueue()); } catch (e) { setErr(String(e.message || e)); } }
+  async function load() {
+    try {
+      const data = await fetchModerationQueue();
+      setRows(data);
+      setReasons(await fetchFlagReasons(data.map((r) => r.id)));
+    } catch (e) { setErr(String(e.message || e)); }
+  }
   async function doLogin(e) {
     e.preventDefault(); setErr('');
     try { await signIn(email, pw); setSession(await getSession()); }
@@ -51,6 +60,14 @@ export default function AdminPage() {
             <span className="cat-tag" style={{ background: 'var(--ink)' }}>{r.category}</span>
             <span className="rp-dist">flags: {r.flagCount} · {r.status}</span>
           </div>
+          {reasons[r.id] && (
+            <div className="rp-body" style={{ paddingBottom: 6, fontSize: 12, color: 'var(--ink-faint)' }}>
+              {Object.entries(reasons[r.id])
+                .sort((a, b) => b[1] - a[1])
+                .map(([k, c]) => `${c}× ${RLABEL[k] || k}`)
+                .join('  ·  ')}
+            </div>
+          )}
           {r.photoUrl && <div className="photo revealed" style={{ backgroundImage: `url('${r.photoUrl}')` }} />}
           {r.note && <div className="rp-body">{r.note}</div>}
           <div className="rp-foot" style={{ gap: 10 }}>

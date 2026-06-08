@@ -48,8 +48,8 @@ export async function insertReport(client, { id, category, note, lat, lng, photo
   return normalizeRow(data);
 }
 
-export async function flagReport(client, rid, deviceId) {
-  // One device = one flag (server-enforced dedup in the flag_report RPC).
-  const { error } = await client.rpc('flag_report', { rid, dev: deviceId });
+export async function flagReport(client, rid, deviceId, reason) {
+  // One device = one flag (server-enforced dedup in the flag_report RPC); reason is stored.
+  const { error } = await client.rpc('flag_report', { rid, dev: deviceId, reason: reason ?? null });
   if (error) throw error;
 }

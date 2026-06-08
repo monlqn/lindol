@@ -6,6 +6,13 @@ import SensitivePhoto from '../../components/SensitivePhoto.jsx';
 
 const LABEL = Object.fromEntries(CATEGORIES.map((c) => [c.key, c.label]));
 const FKEY = 'lindol:flagged';
+const REASONS = [
+  { key: 'fake', label: '🚫 Fake / false' },
+  { key: 'graphic', label: '🩸 Graphic' },
+  { key: 'location', label: '📍 Wrong location' },
+  { key: 'spam', label: '🗑️ Spam' },
+  { key: 'other', label: '✏️ Other' },
+];
 
 function readFlagged() {
   try { return JSON.parse(localStorage.getItem(FKEY) || '[]'); } catch { return []; }
@@ -20,13 +27,15 @@ function rememberFlagged(id) {
 export default function ReportCard({ report, onFlag }) {
   const color = categoryColor(report.category);
   const [flagged, setFlagged] = useState(() => readFlagged().includes(report.id));
+  const [picking, setPicking] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const doFlag = () => {
+  const choose = (reasonKey) => {
     if (flagged) return;          // one flag per device — button locks after tapping
     rememberFlagged(report.id);
     setFlagged(true);
-    onFlag(report.id);
+    setPicking(false);
+    onFlag(report.id, reasonKey);
   };
 
   const doShare = async () => {
@@ -70,11 +79,22 @@ export default function ReportCard({ report, onFlag }) {
               </>
             )}
           </button>
-          <button className="flagbtn" onClick={doFlag} disabled={flagged}>
+          <button className="flagbtn" onClick={() => setPicking((p) => !p)} disabled={flagged}>
             {flagged ? '⚑ Flagged' : `⚑ Flag${report.flagCount ? ` · ${report.flagCount}` : ''}`}
           </button>
         </div>
       </div>
+      {picking && !flagged && (
+        <div className="flag-reasons">
+          <span className="fr-label">Why are you flagging this?</span>
+          <div className="fr-chips">
+            {REASONS.map((r) => (
+              <button key={r.key} className="fr-chip" onClick={() => choose(r.key)}>{r.label}</button>
+            ))}
+          </div>
+          <button className="fr-cancel" onClick={() => setPicking(false)}>Cancel</button>
+        </div>
+      )}
     </div>
   );
 }

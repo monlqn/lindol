@@ -62,13 +62,13 @@ export function useReports(user = REGION.defaultUser) {
     }
   }, [user[0], user[1]]);
 
-  const flag = useCallback(async (id) => {
+  const flag = useCallback(async (id, reason) => {
     setReports((prev) => prev.map((r) => (r.id === id ? { ...r, flagCount: r.flagCount + 1 } : r)));
     const [{ flagReport }, { getDeviceId }] = await Promise.all([
       import('./reportsApi.js'),
       import('../../lib/device.js'),
     ]);
-    try { await flagReport(supabase, id, getDeviceId()); } finally { refresh(); }
+    try { await flagReport(supabase, id, getDeviceId(), reason); } finally { refresh(); }
   }, [refresh]);
 
   return { reports, pendingCount, status, submit, flag, refresh };
