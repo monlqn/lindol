@@ -1,12 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
+import { getShareImageFile } from '../lib/share.js';
+import { renderShareCard } from '../lib/shareCard.js';
 
 const SHARE_TITLE = 'LINDOL — Southern Mindanao Live Earthquake Watch';
 const SHARE_TEXT = 'Live earthquakes, aftershocks & safety for Southern Mindanao. Stay informed:';
 
-export default function ShareButton() {
+export default function ShareButton({ stats }) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const url = typeof window !== 'undefined' ? window.location.href : '';
+  const url = typeof window !== 'undefined' ? `${window.location.origin}/` : 'https://lindol.app/';
   const enc = encodeURIComponent;
   const containerRef = useRef(null);
 
@@ -23,6 +25,15 @@ export default function ShareButton() {
 
   async function handleShare() {
     if (typeof navigator !== 'undefined' && navigator.share) {
+      // Attach the banner image so it shows even if the target hasn't cached our OG tags.
+      try {
+        // A freshly rendered card with live data, falling back to the static banner.
+        const file = (await renderShareCard(stats || {})) || (await getShareImageFile());
+        if (file && navigator.canShare?.({ files: [file] })) {
+          await navigator.share({ title: SHARE_TITLE, text: `${SHARE_TEXT} ${url}`, files: [file] });
+          return;
+        }
+      } catch { /* fall through to a plain link share */ }
       try {
         await navigator.share({ title: SHARE_TITLE, text: SHARE_TEXT, url });
       } catch {

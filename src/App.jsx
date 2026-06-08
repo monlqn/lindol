@@ -18,6 +18,7 @@ import AdminPage from './features/admin/AdminPage.jsx';
 import IntroOverlay from './components/IntroOverlay.jsx';
 import InstallPrompt from './components/InstallPrompt.jsx';
 import UpdatePrompt from './components/UpdatePrompt.jsx';
+import EarlyWarningTip from './components/EarlyWarningTip.jsx';
 import { useQuakes } from './features/quakes/useQuakes.js';
 import { useReports } from './features/reports/useReports.js';
 import { useOnline } from './lib/useOnline.js';
@@ -40,9 +41,12 @@ export default function App() {
   const user = useGeolocation();
   const { latest, mainshock, aftershocks, all, status, updatedAt } = useQuakes(user);
   const { reports, pendingCount, submit, flag } = useReports(user);
-  const [tab, setTab] = useState(
-    () => (typeof window !== 'undefined' && window.location.hash === '#reports' ? 'reports' : 'home'),
-  );
+  const [tab, setTab] = useState(() => {
+    if (typeof window === 'undefined') return 'home';
+    if (new URLSearchParams(window.location.search).get('r') || window.location.hash === '#reports') return 'reports';
+    return 'home';
+  });
+  const [focusedReport, setFocusedReport] = useState(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [toast, showToast] = useToast();
   const [soundOn, setSoundOn] = useState(() => {
@@ -77,6 +81,23 @@ export default function App() {
     const rearm = () => arm();
     window.addEventListener('pointerdown', rearm, { once: true });
     return () => window.removeEventListener('pointerdown', rearm);
+  }, []);
+
+  // Open a deep-linked report (?r=<id>) even if it isn't near the viewer.
+  useEffect(() => {
+    let id = null;
+    try { id = new URLSearchParams(window.location.search).get('r'); } catch { /* ignore */ }
+    if (!id) return;
+    (async () => {
+      try {
+        const [{ fetchReportById }, { supabase }] = await Promise.all([
+          import('./features/reports/reportsApi.js'),
+          import('./lib/supabase.js'),
+        ]);
+        const r = await fetchReportById(supabase, id);
+        if (r) setFocusedReport(r);
+      } catch { /* ignore */ }
+    })();
   }, []);
 
   const enablePush = async () => {
@@ -135,7 +156,7 @@ export default function App() {
             )}
             <section className="reveal">
               <SectionLabel>Citizen reports · near you</SectionLabel>
-              <ReportFeed reports={reports} onFlag={flag} />
+              <ReportFeed reports={reports} onFlag={flag} focused={focusedReport} />
             </section>
           </>
         )}
@@ -159,6 +180,7 @@ export default function App() {
             <button className="alarm-test" onClick={previewAlarm}>🔊 Test the alarm sound</button>
             <p className="alarm-note">The alarm loops until you dismiss it. Keep your ringer on and volume up — a web app can’t override Silent mode or raise your phone’s volume.</p>
             <p className="ew-note"><b>ℹ️ Awareness tool, not early warning.</b> Alerts arrive minutes after a quake is detected (USGS). If you feel shaking, don’t wait for an alert — Drop, Cover, Hold On immediately.</p>
+            <EarlyWarningTip />
             <ToggleRow label="Notify when app is closed" desc="Push alerts for M4.5+ quakes near you, even when LINDOL is closed"
               on={pushEnabled} onClick={enablePush} />
             <ToggleRow label="Dark mode" desc="Easier on the eyes at night"
@@ -167,7 +189,7 @@ export default function App() {
               <SectionLabel>Help others stay safe</SectionLabel>
               <div className="share-cta">
                 <p>Know someone in the area? Share LINDOL so they get live earthquake info and safety guidance — even offline.</p>
-                <ShareButton />
+                <ShareButton stats={{ count: all.length, latestMag: latest?.mag, latestPlace: latest?.place }} />
               </div>
             </section>
             <footer className="credit">

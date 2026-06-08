@@ -25,6 +25,12 @@ export async function fetchRecentReports(client, { sinceHours = 48, limit = 200 
   return (data ?? []).slice(0, limit).map(normalizeRow);
 }
 
+export async function fetchReportById(client, id) {
+  const { data, error } = await client.from('reports').select('*').eq('id', id).maybeSingle();
+  if (error) throw error;
+  return data ? normalizeRow(data) : null;
+}
+
 export async function uploadPhoto(client, blob, id) {
   const path = `${id}.jpg`;
   const { error } = await client.storage.from('report-photos')
