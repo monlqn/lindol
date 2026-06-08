@@ -1,30 +1,43 @@
+import { useState } from 'react';
 import { MapContainer, TileLayer, Marker, CircleMarker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { REGION } from '../../config.js';
+import { reportIcon } from '../reports/reportMarkers.js';
 
-const epiIcon = L.divIcon({
-  className: '', iconSize: [20, 20], iconAnchor: [10, 10],
-  html: '<div class="epi"><div class="ring"></div><div class="core"></div></div>',
-});
-const afterIcon = L.divIcon({
-  className: '', iconSize: [11, 11], iconAnchor: [5, 5],
-  html: '<div class="after"></div>',
-});
+const epiIcon = L.divIcon({ className: '', iconSize: [20, 20], iconAnchor: [10, 10],
+  html: '<div class="epi"><div class="ring"></div><div class="core"></div></div>' });
+const afterIcon = L.divIcon({ className: '', iconSize: [11, 11], iconAnchor: [5, 5],
+  html: '<div class="after"></div>' });
 
-export default function QuakeMap({ mainshock, aftershocks = [], user = REGION.defaultUser }) {
+export default function QuakeMap({ mainshock, aftershocks = [], reports = [], user = REGION.defaultUser }) {
+  const [showQuakes, setShowQuakes] = useState(true);
+  const [showReports, setShowReports] = useState(true);
   return (
     <div className="mapwrap">
+      <div className="maptools">
+        <div className={`chip${showQuakes ? ' on' : ''}`} onClick={() => setShowQuakes((v) => !v)}>
+          <span className="sw" style={{ background: 'var(--ember)' }} />Quakes
+        </div>
+        <div className={`chip${showReports ? ' on' : ''}`} onClick={() => setShowReports((v) => !v)}>
+          <span className="sw" style={{ background: 'var(--c-help)' }} />Reports
+        </div>
+      </div>
       <MapContainer center={REGION.center} zoom={9} zoomControl={false}
         attributionControl={false} style={{ height: 280, width: '100%' }}>
         <TileLayer url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png" maxZoom={19} />
-        {mainshock && (
+        {showQuakes && mainshock && (
           <Marker position={[mainshock.lat, mainshock.lng]} icon={epiIcon}>
             <Popup><b>M{mainshock.mag.toFixed(1)}</b> · main shock</Popup>
           </Marker>
         )}
-        {aftershocks.map((q) => (
+        {showQuakes && aftershocks.map((q) => (
           <Marker key={q.id} position={[q.lat, q.lng]} icon={afterIcon}>
             <Popup>Aftershock M{q.mag.toFixed(1)}</Popup>
+          </Marker>
+        ))}
+        {showReports && reports.map((r) => (
+          <Marker key={r.id} position={[r.lat, r.lng]} icon={reportIcon(r.category)}>
+            <Popup>{r.note || r.category}</Popup>
           </Marker>
         ))}
         <CircleMarker center={user} radius={6}
@@ -34,7 +47,11 @@ export default function QuakeMap({ mainshock, aftershocks = [], user = REGION.de
       </MapContainer>
       <div className="legend">
         <span><i style={{ background: 'var(--ember)' }} />Epicenter</span>
-        <span><i style={{ background: 'rgba(224,82,27,.55)' }} />Aftershock</span>
+        <span><i style={{ background: 'var(--c-damage)' }} />Damage</span>
+        <span><i style={{ background: 'var(--c-road)' }} />Road</span>
+        <span><i style={{ background: 'var(--c-fire)' }} />Fire</span>
+        <span><i style={{ background: 'var(--c-help)' }} />Need help</span>
+        <span><i style={{ background: 'var(--c-safe)' }} />Safe</span>
       </div>
     </div>
   );
