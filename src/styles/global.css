@@ -345,8 +345,8 @@ textarea:focus{outline:none; border-color:var(--ember)}
 .install-x{flex:none; background:none; border:0; color:var(--ink-faint); font-size:13px; cursor:pointer; padding:4px}
 
 /* ---------- bottom tab nav ---------- */
-.bottomnav{flex:none; display:flex; align-items:center; border-top:1px solid var(--line);
-  background:var(--card); padding-bottom:env(safe-area-inset-bottom)}
+.bottomnav{flex:none; position:relative; z-index:1000; display:flex; align-items:center;
+  border-top:1px solid var(--line); background:var(--card); padding-bottom:env(safe-area-inset-bottom)}
 .navbtn{flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 0 7px;
   background:none; border:0; cursor:pointer; color:var(--ink-faint); font-family:var(--font);
   font-size:10px; font-weight:600; letter-spacing:.02em}
