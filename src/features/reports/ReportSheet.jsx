@@ -119,6 +119,13 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast }) {
           ))}
         </div>
 
+        {cat === 'help' && (
+          <div className="help-emergency">
+            <span>Life-threatening or trapped? <b>Call 911 now</b> — LINDOL notifies the community, not responders.</span>
+            <a className="call911 sm" href="tel:911">📞 911</a>
+          </div>
+        )}
+
         <textarea rows="2" placeholder="Add a short note (optional)…" value={note}
           maxLength={280} onChange={(e) => setNote(e.target.value)} />
 

@@ -333,6 +333,19 @@ textarea:focus{outline:none; border-color:var(--ember)}
   border:4px solid var(--card); margin:-18px 6px 0; cursor:pointer; display:grid; place-items:center;
   box-shadow:var(--shadow-md)}
 .nav-report:hover{background:var(--ember-deep)}
+
+/* ---------- emergency hotline ---------- */
+.emergency-card{background:var(--card); border:1.5px solid var(--c-help); border-radius:var(--r);
+  padding:15px; box-shadow:var(--shadow-sm)}
+.emergency-card p{font-size:13px; color:var(--ink-soft); line-height:1.45; margin-bottom:12px}
+.call911{display:flex; align-items:center; justify-content:center; gap:8px; background:var(--c-help);
+  color:#fff; text-decoration:none; font-family:var(--font); font-weight:700; font-size:16px;
+  padding:13px; border-radius:12px}
+.call911:hover{background:#a81f1f}
+.help-emergency{display:flex; align-items:center; gap:10px; background:#FDECEC;
+  border:1px solid rgba(204,42,42,.25); border-radius:11px; padding:10px 12px; margin-bottom:14px;
+  font-size:11.5px; color:#8a1f1f; line-height:1.35}
+.call911.sm{flex:none; padding:8px 12px; font-size:13px; border-radius:9px; white-space:nowrap}
 .leaflet-control-attribution{font-size:8.5px !important; background:rgba(252,250,244,.78) !important;
   color:var(--ink-faint) !important; padding:1px 5px !important; border-radius:0 0 0 6px}
 .leaflet-control-attribution a{color:var(--ink-soft) !important}

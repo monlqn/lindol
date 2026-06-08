@@ -112,6 +112,13 @@ export default function App() {
         {tab === 'safety' && (
           <>
             <section className="reveal">
+              <SectionLabel>Emergency</SectionLabel>
+              <div className="emergency-card">
+                <p>Life-threatening emergency? LINDOL alerts the community — it is <b>not</b> an emergency service. Call the national hotline now.</p>
+                <a className="call911" href="tel:911">📞 Call 911</a>
+              </div>
+            </section>
+            <section className="reveal">
               <SectionLabel>Safety · works offline</SectionLabel>
               <SafetyPanel />
             </section>
