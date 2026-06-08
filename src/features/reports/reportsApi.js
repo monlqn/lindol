@@ -14,8 +14,14 @@ export function normalizeRow(r) {
     sensitive: r.sensitive ?? false,
     state: r.state ?? 'open',
     confirmCount: r.confirm_count ?? 0,
+    resolveCount: r.resolve_count ?? 0,
     escalated: r.escalated ?? false,
   };
+}
+
+export async function voteReportResolve(client, rid, deviceId) {
+  const { error } = await client.rpc('vote_resolve', { rid, dev: deviceId });
+  if (error) throw error;
 }
 
 export async function escalateReport(client, rid) {

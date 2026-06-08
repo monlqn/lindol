@@ -53,7 +53,7 @@ function MainApp() {
   const online = useOnline();
   const user = useGeolocation();
   const { latest, mainshock, aftershocks, all, status, updatedAt } = useQuakes(user);
-  const { reports, pendingCount, submit, flag, confirm, resolve, escalate } = useReports(user);
+  const { reports, pendingCount, submit, flag, confirm, resolve, escalate, voteResolve } = useReports(user);
   const [tab, setTab] = useState(() => {
     if (typeof window === 'undefined') return 'home';
     if (new URLSearchParams(window.location.search).get('r') || window.location.hash === '#reports') return 'reports';
@@ -169,7 +169,8 @@ function MainApp() {
             )}
             <section className="reveal">
               <SectionLabel>Citizen reports · near you</SectionLabel>
-              <ReportFeed reports={reports} onFlag={flag} onConfirm={confirm} onResolve={resolve} onEscalate={escalate} focused={focusedReport} />
+              <ReportFeed reports={reports} onFlag={flag} onConfirm={confirm} onResolve={resolve}
+                onEscalate={escalate} onVoteResolve={voteResolve} focused={focusedReport} />
             </section>
           </>
         )}

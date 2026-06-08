@@ -8,6 +8,7 @@ import { renderReportCard } from '../../lib/reportCard.js';
 import { HOTLINES } from '../../config.js';
 
 const EKEY = 'lindol:escalated';
+const RVKEY = 'lindol:resolvevotes';
 
 const LABEL = Object.fromEntries(CATEGORIES.map((c) => [c.key, c.label]));
 const FKEY = 'lindol:flagged';
@@ -41,7 +42,7 @@ function rememberFlagged(id) {
   } catch { /* ignore */ }
 }
 
-export default function ReportCard({ report, onFlag, onConfirm, onResolve, onEscalate, highlight }) {
+export default function ReportCard({ report, onFlag, onConfirm, onResolve, onEscalate, onVoteResolve, highlight }) {
   const color = categoryColor(report.category);
   const label = LABEL[report.category] ?? 'Report';
   const state = report.state || 'open';
@@ -59,6 +60,14 @@ export default function ReportCard({ report, onFlag, onConfirm, onResolve, onEsc
     onConfirm?.(report.id);
   };
   const doResolve = () => onResolve?.(report.id, !resolved);
+
+  const [votedResolve, setVotedResolve] = useState(() => listHas(RVKEY, report.id));
+  const doVoteResolve = () => {
+    if (votedResolve || mine) return;
+    listAdd(RVKEY, report.id);
+    setVotedResolve(true);
+    onVoteResolve?.(report.id);
+  };
 
   const [escalating, setEscalating] = useState(false);
   const escalated = report.escalated || listHas(EKEY, report.id);
@@ -148,6 +157,11 @@ Live: ${window.location.origin}/r/${report.id}`;
           {!mine && !resolved && (
             <button className="ig-confirm" onClick={doConfirm} disabled={confirmed}>
               ✓ {confirmed ? 'Confirmed' : 'Confirm'}{report.confirmCount ? ` · ${report.confirmCount}` : ''}
+            </button>
+          )}
+          {!mine && !resolved && (
+            <button className="ig-vresolve" onClick={doVoteResolve} disabled={votedResolve} title="Vote that this is resolved">
+              ✅ {votedResolve ? 'Voted' : 'Resolved?'}{report.resolveCount ? ` · ${report.resolveCount}` : ''}
             </button>
           )}
           {(mine || resolved) && report.confirmCount > 0 && (

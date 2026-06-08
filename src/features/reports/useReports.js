@@ -95,5 +95,14 @@ export function useReports(user = REGION.defaultUser) {
     try { await escalateReport(supabase, id); } finally { refresh(); }
   }, [refresh]);
 
-  return { reports, pendingCount, status, submit, flag, confirm, resolve, escalate, refresh };
+  const voteResolve = useCallback(async (id) => {
+    setReports((prev) => prev.map((r) => (r.id === id ? { ...r, resolveCount: r.resolveCount + 1 } : r)));
+    const [{ voteReportResolve }, { getDeviceId }] = await Promise.all([
+      import('./reportsApi.js'),
+      import('../../lib/device.js'),
+    ]);
+    try { await voteReportResolve(supabase, id, getDeviceId()); } finally { refresh(); }
+  }, [refresh]);
+
+  return { reports, pendingCount, status, submit, flag, confirm, resolve, escalate, voteResolve, refresh };
 }

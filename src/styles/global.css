@@ -321,6 +321,11 @@ section{padding:18px 16px}
   background:var(--card); color:var(--ink-soft); transition:.15s}
 .ig-confirm:hover{border-color:var(--c-safe); color:var(--c-safe)}
 .ig-confirm:disabled{cursor:default; border-color:var(--c-safe); color:var(--c-safe); opacity:.85}
+.ig-vresolve{display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-family:inherit;
+  font-size:12.5px; font-weight:600; padding:7px 13px; border-radius:999px; border:1px solid var(--line);
+  background:var(--card); color:var(--ink-soft); transition:.15s}
+.ig-vresolve:hover{border-color:var(--c-safe); color:var(--c-safe)}
+.ig-vresolve:disabled{cursor:default; border-color:var(--c-safe); color:var(--c-safe); opacity:.85}
 .ig-resolve{margin-left:auto}
 .ig-resolve:hover{border-color:var(--c-safe); color:var(--c-safe)}
 .ig-resolve.on{color:var(--c-safe); border-color:var(--c-safe)}
