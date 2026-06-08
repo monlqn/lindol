@@ -8,6 +8,7 @@ body{
   -webkit-font-smoothing:antialiased;
   display:flex; justify-content:center;
   min-height:100vh;
+  min-height:100dvh;
   overflow-x:hidden;
 }
 
@@ -29,6 +30,7 @@ body::after{ /* grain */
   position:relative; z-index:1;
   width:100%; max-width:var(--app-w);
   min-height:100vh;
+  min-height:100dvh;
   background:var(--paper);
   box-shadow:var(--shadow-lg);
   border-left:1px solid var(--line);

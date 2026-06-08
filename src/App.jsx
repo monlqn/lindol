@@ -14,6 +14,7 @@ import AdminPage from './features/admin/AdminPage.jsx';
 import { useQuakes } from './features/quakes/useQuakes.js';
 import { useReports } from './features/reports/useReports.js';
 import { useOnline } from './lib/useOnline.js';
+import { useGeolocation } from './lib/useGeolocation.js';
 
 function useToast() {
   const [toast, setToast] = useState(null);
@@ -25,8 +26,9 @@ export default function App() {
   if (typeof window !== 'undefined' && window.location.hash === '#admin') return <AdminPage />;
 
   const online = useOnline();
-  const { mainshock, aftershocks, all, status, updatedAt } = useQuakes();
-  const { reports, pendingCount, submit, flag } = useReports();
+  const user = useGeolocation();
+  const { mainshock, aftershocks, all, status, updatedAt } = useQuakes(user);
+  const { reports, pendingCount, submit, flag } = useReports(user);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [toast, showToast] = useToast();
 
@@ -49,7 +51,7 @@ export default function App() {
 
         <section className="reveal">
           <SectionLabel>Live map · {all.length} quakes · {reports.length} reports</SectionLabel>
-          <QuakeMap mainshock={mainshock} aftershocks={aftershocks} reports={reports} />
+          <QuakeMap mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} />
         </section>
 
         <section className="reveal">
