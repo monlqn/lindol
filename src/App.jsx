@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { subscribeToPush } from './lib/push.js';
+import { savePushSubscription } from './features/alerts/pushApi.js';
 import AlertBanner from './components/AlertBanner.jsx';
 import StatusBar from './components/StatusBar.jsx';
 import Masthead from './components/Masthead.jsx';
@@ -42,6 +44,18 @@ export default function App() {
     setSoundOn((v) => !v);
   };
 
+  const enablePush = async () => {
+    try {
+      const key = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+      if (!key) return showToast('Push not configured yet', '#CC2A2A');
+      const sub = await subscribeToPush(key);
+      await savePushSubscription(sub);
+      showToast('You'll be notified of aftershocks', '#3F7D43');
+    } catch (e) {
+      showToast(e.message || 'Could not enable notifications', '#CC2A2A');
+    }
+  };
+
   return (
     <div className={`app${online ? '' : ' off'}`}>
       <AlertBanner alert={alert} onDismiss={dismiss} />
@@ -49,6 +63,9 @@ export default function App() {
       <Masthead quakes={all} />
       <button className="alert-toggle" onClick={toggleSound}>
         {soundOn ? '🔔 Aftershock alarm: ON' : '🔕 Enable aftershock alarm'}
+      </button>
+      <button className="alert-toggle" onClick={enablePush}>
+        🔔 Notify me even when the app is closed
       </button>
       <div className="scroll">
         {!online && <OfflineBanner updatedAt={updatedAt} />}
