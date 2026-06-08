@@ -17,6 +17,9 @@ import ReportFeed from './features/reports/ReportFeed.jsx';
 import AdminPage from './features/admin/AdminPage.jsx';
 import IntroOverlay from './components/IntroOverlay.jsx';
 import Tour from './components/Tour.jsx';
+import Lightbox from './components/Lightbox.jsx';
+import PullToRefresh from './components/PullToRefresh.jsx';
+import { useTick } from './lib/useTick.js';
 import InstallPrompt from './components/InstallPrompt.jsx';
 import UpdatePrompt from './components/UpdatePrompt.jsx';
 import EarlyWarningTip from './components/EarlyWarningTip.jsx';
@@ -55,7 +58,13 @@ function MainApp() {
   const online = useOnline();
   const user = useGeolocation();
   const { latest, mainshock, aftershocks, all, status, updatedAt } = useQuakes(user);
-  const { reports, pendingCount, submit, flag, confirm, resolve, escalate, voteResolve } = useReports(user);
+  const [toast, showToast] = useToast();
+  const [lightbox, setLightbox] = useState(null);
+  useTick(30000);
+  const { reports, pendingCount, submit, flag, confirm, resolve, escalate, voteResolve, refresh } = useReports(
+    user,
+    () => showToast('📍 New report just came in nearby', '#3F7D43'),
+  );
   const [tab, setTab] = useState(() => {
     if (typeof window === 'undefined') return 'home';
     if (new URLSearchParams(window.location.search).get('r') || window.location.hash === '#reports') return 'reports';
@@ -71,7 +80,6 @@ function MainApp() {
     setTourReport(false); setOnboard('done');
   };
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [toast, showToast] = useToast();
   const [soundOn, setSoundOn] = useState(() => {
     try { return localStorage.getItem('lindol:alarm') === '1'; } catch { return false; }
   });
@@ -153,7 +161,7 @@ function MainApp() {
           <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} />
         </div>
       ) : (
-      <div className="scroll" key={tab}>
+      <PullToRefresh className="scroll" key={tab} onRefresh={refresh}>
         {tab === 'home' && (
           <>
             <Masthead quakes={all} />
@@ -182,9 +190,12 @@ function MainApp() {
               </div>
             )}
             <section className="reveal">
-              <SectionLabel>Citizen reports · near you</SectionLabel>
+              <div className="feed-head">
+                <SectionLabel>Citizen reports · near you</SectionLabel>
+                <span className="livetag"><span className="live-dot" />live</span>
+              </div>
               <ReportFeed reports={reports} onFlag={flag} onConfirm={confirm} onResolve={resolve}
-                onEscalate={escalate} onVoteResolve={voteResolve} focused={focusedReport} />
+                onEscalate={escalate} onVoteResolve={voteResolve} onOpenPhoto={setLightbox} focused={focusedReport} />
             </section>
           </>
         )}
@@ -242,7 +253,7 @@ function MainApp() {
             </footer>
           </>
         )}
-      </div>
+      </PullToRefresh>
       )}
 
       <BottomNav active={tab} onChange={setTab} onReport={() => setSheetOpen(true)} pulseReport={tourReport} />
@@ -254,6 +265,7 @@ function MainApp() {
           <span>{toast.msg}</span>
         </div>
       )}
+      <Lightbox url={lightbox} onClose={() => setLightbox(null)} />
       <UpdatePrompt />
       {onboard === 'intro' && <IntroOverlay onStartTour={() => setOnboard('tour')} onSkip={finishOnboard} />}
       {onboard === 'tour' && <Tour onTab={setTab} onReportPulse={setTourReport} onDone={finishOnboard} />}

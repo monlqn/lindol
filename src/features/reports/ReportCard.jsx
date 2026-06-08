@@ -42,7 +42,7 @@ function rememberFlagged(id) {
   } catch { /* ignore */ }
 }
 
-export default function ReportCard({ report, onFlag, onConfirm, onResolve, onEscalate, onVoteResolve, highlight }) {
+export default function ReportCard({ report, onFlag, onConfirm, onResolve, onEscalate, onVoteResolve, onOpenPhoto, highlight }) {
   const color = categoryColor(report.category);
   const label = LABEL[report.category] ?? 'Report';
   const state = report.state || 'open';
@@ -134,7 +134,7 @@ Live: ${window.location.origin}/r/${report.id}`;
       </header>
 
       {report.photoUrl
-        ? <div className="ig-photo"><SensitivePhoto url={report.photoUrl} sensitive={report.sensitive} /></div>
+        ? <div className="ig-photo"><SensitivePhoto url={report.photoUrl} sensitive={report.sensitive} onExpand={onOpenPhoto} /></div>
         : <div className="ig-noimg" style={{ borderColor: color }}><span style={{ color }}>{label}</span></div>}
 
       <div className="ig-actions">

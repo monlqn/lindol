@@ -2,17 +2,20 @@ import { useState } from 'react';
 
 // Photos show normally; only ones flagged as "graphic" (report.sensitive) are gated
 // behind a tap-to-view blur.
-export default function SensitivePhoto({ url, sensitive = false }) {
+export default function SensitivePhoto({ url, sensitive = false, onExpand }) {
   const [revealed, setRevealed] = useState(false);
 
   if (!sensitive) {
-    return <div className="photo revealed" style={{ backgroundImage: `url('${url}')` }} />;
+    return (
+      <div className="photo revealed" style={{ backgroundImage: `url('${url}')` }}
+        onClick={() => onExpand?.(url)} />
+    );
   }
 
   return (
     <div className={`photo${revealed ? ' revealed' : ''}`}
       style={{ backgroundImage: `url('${url}')` }}
-      onClick={() => setRevealed(true)}>
+      onClick={() => (revealed ? onExpand?.(url) : setRevealed(true))}>
       <div className="gate">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" />

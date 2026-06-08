@@ -70,6 +70,7 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
         <div className={`chip${showReports ? ' on' : ''}`} onClick={() => setShowReports((v) => !v)}>
           <span className="sw" style={{ background: 'var(--c-help)' }} />Reports
         </div>
+        <span className="map-live"><span className="live-dot" />LIVE</span>
       </div>
       <div className="map-canvas" style={{ height: fill ? '100%' : expanded ? '78vh' : 280, width: '100%' }}>
       <MapContainer ref={mapRef} center={REGION.center} zoom={7} zoomControl={false}

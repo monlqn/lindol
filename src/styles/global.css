@@ -70,6 +70,21 @@ body::after{ /* grain */
 .scroll{flex:1; min-height:0; width:100%; overflow-y:auto; overflow-x:hidden; scrollbar-width:none;
   -webkit-overflow-scrolling:touch; padding-bottom:46px}
 .scroll::-webkit-scrollbar{width:0}
+.ptr{display:flex; align-items:center; justify-content:center; overflow:hidden; transition:opacity .15s; color:var(--ember-deep)}
+.ptr-ic{font-size:20px; display:inline-block; font-weight:700}
+.ptr-ic.spin{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.feed-head{display:flex; align-items:center; justify-content:space-between}
+.livetag{display:inline-flex; align-items:center; gap:5px; margin-right:16px; font-family:var(--mono);
+  font-size:10px; text-transform:uppercase; letter-spacing:.06em; font-weight:700; color:var(--c-safe)}
+.map-live{display:inline-flex; align-items:center; gap:5px; font-family:var(--mono); font-size:10px;
+  font-weight:700; letter-spacing:.06em; color:var(--c-safe); padding:7px 11px; border-radius:999px;
+  border:1px solid var(--line-strong); background:rgba(252,250,244,.92); backdrop-filter:blur(6px)}
+.lightbox{position:fixed; inset:0; z-index:1600; background:rgba(0,0,0,.92); display:flex;
+  align-items:center; justify-content:center; padding:16px; animation:rise .2s both}
+.lightbox img{max-width:100%; max-height:100%; border-radius:8px; object-fit:contain}
+.lb-close{position:absolute; top:calc(env(safe-area-inset-top, 0px) + 12px); right:14px; width:40px; height:40px;
+  border-radius:50%; background:rgba(255,255,255,.16); color:#fff; border:0; font-size:18px; cursor:pointer}
 
 .offline-banner{display:none; gap:10px; align-items:center;
   padding:10px 16px; background:var(--ember-wash); color:var(--ember-deep);

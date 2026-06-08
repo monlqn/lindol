@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase, supabaseConfigured } from '../../lib/supabase.js';
 import { fetchRecentReports, insertReport } from './reportsApi.js';
 import { reportQueue } from './reportQueue.js';
@@ -9,10 +9,12 @@ const enrich = (rows, user) =>
   rows.map((r) => ({ ...r, distanceKm: haversineKm(user, [r.lat, r.lng]) }));
 
 // { reports, pendingCount, status, submit, flag, refresh }
-export function useReports(user = REGION.defaultUser) {
+export function useReports(user = REGION.defaultUser, onLiveReport) {
   const [reports, setReports] = useState([]);
   const [pendingCount, setPendingCount] = useState(0);
   const [status, setStatus] = useState(supabaseConfigured ? 'loading' : 'disabled');
+  const onLiveRef = useRef(onLiveReport);
+  onLiveRef.current = onLiveReport;
 
   const refresh = useCallback(async () => {
     if (!supabaseConfigured) return;
@@ -40,7 +42,14 @@ export function useReports(user = REGION.defaultUser) {
     window.addEventListener('online', onLine);
     const channel = supabase
       .channel('reports')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'reports' }, () => refresh())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'reports' }, (payload) => {
+        refresh();
+        if (payload.eventType === 'INSERT' && payload.new?.id) {
+          let mine = false;
+          try { mine = JSON.parse(localStorage.getItem('lindol:mine') || '[]').includes(payload.new.id); } catch { /* ignore */ }
+          if (!mine) onLiveRef.current?.(payload.new);
+        }
+      })
       .subscribe();
     return () => {
       window.removeEventListener('online', onLine);
