@@ -481,7 +481,8 @@ textarea:focus{outline:none; border-color:var(--ember)}
   backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center;
   padding:20px; animation:rise .3s both}
 .intro-card{width:100%; max-width:380px; background:var(--paper); border:1px solid var(--line);
-  border-radius:20px; box-shadow:var(--shadow-lg); padding:26px 22px 22px; text-align:center}
+  border-radius:20px; box-shadow:var(--shadow-lg); padding:24px 22px 22px; text-align:center;
+  max-height:calc(100dvh - 36px); overflow-y:auto}
 .intro-mark{display:flex; justify-content:center; margin-bottom:14px; font-size:42px; line-height:1; color:var(--ember)}
 .intro-card h2{font-family:var(--font); font-weight:800; font-size:24px; letter-spacing:-.01em}
 .intro-sub{font-size:13px; color:var(--ink-soft); margin:4px 0 18px; line-height:1.45}
@@ -503,7 +504,7 @@ textarea:focus{outline:none; border-color:var(--ember)}
 
 /* interactive tour */
 .tour-scrim{position:fixed; inset:0; z-index:998; background:rgba(22,18,13,.55); backdrop-filter:blur(1px)}
-.tour-tip{position:fixed; z-index:1001; left:50%; transform:translateX(-50%); bottom:86px;
+.tour-tip{position:fixed; z-index:1001; left:50%; transform:translateX(-50%); bottom:calc(86px + env(safe-area-inset-bottom, 0px));
   width:min(var(--app-w),calc(100% - 24px)); background:var(--paper); border:1px solid var(--line);
   border-radius:16px; box-shadow:var(--shadow-lg); padding:15px 16px 13px; animation:rise .25s both}
 .tour-arrow{position:absolute; bottom:-9px; width:18px; height:18px; background:var(--paper);
@@ -635,7 +636,7 @@ textarea:focus{outline:none; border-color:var(--ember)}
 .leaflet-control-attribution a{color:var(--ink-soft) !important}
 
 /* ---------- aftershock alert banner ---------- */
-.alert-banner{position:fixed; z-index:1400; top:10px; left:50%; transform:translateX(-50%);
+.alert-banner{position:fixed; z-index:1400; top:calc(env(safe-area-inset-top, 0px) + 10px); left:50%; transform:translateX(-50%);
   width:min(var(--app-w),calc(100% - 20px)); display:flex; gap:12px; align-items:flex-start;
   padding:14px; background:var(--c-help); color:#fff; border-radius:14px; box-shadow:var(--shadow-lg);
   animation:rise .35s both}
