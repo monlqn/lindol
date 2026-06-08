@@ -1,12 +1,48 @@
+import { useState } from 'react';
 import { categoryColor, CATEGORIES } from './reportSchema.js';
 import { formatKm } from '../../lib/geo.js';
 import { relativeTime } from '../../lib/time.js';
 import SensitivePhoto from '../../components/SensitivePhoto.jsx';
 
 const LABEL = Object.fromEntries(CATEGORIES.map((c) => [c.key, c.label]));
+const FKEY = 'lindol:flagged';
+
+function readFlagged() {
+  try { return JSON.parse(localStorage.getItem(FKEY) || '[]'); } catch { return []; }
+}
+function rememberFlagged(id) {
+  try {
+    const a = readFlagged();
+    if (!a.includes(id)) { a.push(id); localStorage.setItem(FKEY, JSON.stringify(a)); }
+  } catch { /* ignore */ }
+}
 
 export default function ReportCard({ report, onFlag }) {
   const color = categoryColor(report.category);
+  const [flagged, setFlagged] = useState(() => readFlagged().includes(report.id));
+  const [copied, setCopied] = useState(false);
+
+  const doFlag = () => {
+    if (flagged) return;          // one flag per device — button locks after tapping
+    rememberFlagged(report.id);
+    setFlagged(true);
+    onFlag(report.id);
+  };
+
+  const doShare = async () => {
+    const label = LABEL[report.category] ?? 'Report';
+    const url = `${window.location.origin}/#reports`;
+    const text = `⚠️ ${label} reported near ${report.lat.toFixed(2)}, ${report.lng.toFixed(2)} on LINDOL — live earthquake updates & citizen reports for the area.`;
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try { await navigator.share({ title: 'LINDOL citizen report', text, url }); } catch { /* cancelled */ }
+    } else {
+      try {
+        await navigator.clipboard.writeText(`${text} ${url}`);
+        setCopied(true); setTimeout(() => setCopied(false), 1800);
+      } catch { /* clipboard blocked */ }
+    }
+  };
+
   return (
     <div className="report">
       <div className="rp-head">
@@ -22,9 +58,22 @@ export default function ReportCard({ report, onFlag }) {
         <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--ink-faint)' }}>
           {report.lat.toFixed(3)}, {report.lng.toFixed(3)}
         </span>
-        <button className="flagbtn" onClick={() => onFlag(report.id)}>
-          ⚑ Flag{report.flagCount ? ` · ${report.flagCount}` : ''}
-        </button>
+        <div className="rp-actions">
+          <button className="rp-share" onClick={doShare} aria-label="Share this report">
+            {copied ? 'Copied!' : (
+              <>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+                  <path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" />
+                </svg>
+                Share
+              </>
+            )}
+          </button>
+          <button className="flagbtn" onClick={doFlag} disabled={flagged}>
+            {flagged ? '⚑ Flagged' : `⚑ Flag${report.flagCount ? ` · ${report.flagCount}` : ''}`}
+          </button>
+        </div>
       </div>
     </div>
   );

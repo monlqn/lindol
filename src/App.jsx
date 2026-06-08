@@ -40,7 +40,9 @@ export default function App() {
   const user = useGeolocation();
   const { latest, mainshock, aftershocks, all, status, updatedAt } = useQuakes(user);
   const { reports, pendingCount, submit, flag } = useReports(user);
-  const [tab, setTab] = useState('home');
+  const [tab, setTab] = useState(
+    () => (typeof window !== 'undefined' && window.location.hash === '#reports' ? 'reports' : 'home'),
+  );
   const [sheetOpen, setSheetOpen] = useState(false);
   const [toast, showToast] = useToast();
   const [soundOn, setSoundOn] = useState(() => {
