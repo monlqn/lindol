@@ -27,6 +27,7 @@ export default defineConfig({
         ],
       },
       workbox: {
+        importScripts: ['/push-sw.js'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/earthquake\.usgs\.gov\/.*/i,
