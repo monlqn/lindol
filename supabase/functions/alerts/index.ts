@@ -2,9 +2,18 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 
 const BBOX = "minlatitude=4.5&maxlatitude=9.5&minlongitude=124&maxlongitude=128";
 const MIN_MAG = 4.5;
+const ALERT_RADIUS_KM = 300; // only notify subscribers within this distance of the epicenter
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
+}
+
+function haversineKm(aLat: number, aLng: number, bLat: number, bLng: number) {
+  const R = 6371, toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(bLat - aLat), dLng = toRad(bLng - aLng);
+  const h = Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(aLat)) * Math.cos(toRad(bLat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
 }
 
 Deno.serve(async () => {
@@ -43,12 +52,16 @@ Deno.serve(async () => {
     const { data: subs } = await sb.from("push_subscriptions").select("*");
     let sent = 0;
     for (const f of fresh) {
+      const [qlng, qlat] = f.geometry?.coordinates ?? [];
       const payload = JSON.stringify({
-        title: `M${f.properties.mag.toFixed(1)} aftershock reported`,
+        title: `M${f.properties.mag.toFixed(1)} earthquake near you`,
         body: `${f.properties.place} — reported just now (USGS). Not an early warning.`,
         url: "https://lindol.app/",
       });
       for (const s of subs ?? []) {
+        // Scope to subscribers near the epicenter; notify those without a stored location.
+        if (s.lat != null && s.lng != null && qlat != null &&
+            haversineKm(s.lat, s.lng, qlat, qlng) > ALERT_RADIUS_KM) continue;
         try {
           await webpush.sendNotification(
             { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },

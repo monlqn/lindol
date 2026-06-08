@@ -222,6 +222,11 @@ section{padding:18px 16px}
 .fr-chip:hover{border-color:var(--ember); color:var(--ink)}
 .fr-cancel{align-self:flex-start; background:none; border:0; color:var(--ink-faint);
   font-family:inherit; font-size:12px; cursor:pointer; padding:2px 0}
+.alarm-test{display:block; margin:-2px 16px 8px; background:var(--ember-wash); color:var(--ember-deep);
+  border:1px solid var(--line); border-radius:9px; padding:9px 12px; font-family:inherit;
+  font-size:13px; font-weight:600; cursor:pointer; transition:.15s}
+.alarm-test:hover{border-color:var(--ember)}
+.alarm-test:active{transform:scale(.98)}
 .report.hidden-rp{opacity:.6}
 .report.hidden-rp .veil{padding:18px 14px; text-align:center; font-size:12.5px; color:var(--ink-faint)}
 

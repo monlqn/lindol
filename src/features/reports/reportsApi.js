@@ -49,7 +49,11 @@ export async function insertReport(client, { id, category, note, lat, lng, photo
 }
 
 export async function flagReport(client, rid, deviceId, reason) {
-  // One device = one flag (server-enforced dedup in the flag_report RPC); reason is stored.
-  const { error } = await client.rpc('flag_report', { rid, dev: deviceId, reason: reason ?? null });
+  // One device = one flag (server-enforced dedup); reason is stored when the 3-arg
+  // RPC is deployed. If it isn't yet, fall back to the 2-arg deduped form.
+  let { error } = await client.rpc('flag_report', { rid, dev: deviceId, reason: reason ?? null });
+  if (error && (error.code === 'PGRST202' || /find the function|does not exist/i.test(error.message || ''))) {
+    ({ error } = await client.rpc('flag_report', { rid, dev: deviceId }));
+  }
   if (error) throw error;
 }

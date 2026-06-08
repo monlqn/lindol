@@ -23,7 +23,7 @@ import { useReports } from './features/reports/useReports.js';
 import { useOnline } from './lib/useOnline.js';
 import { useGeolocation } from './lib/useGeolocation.js';
 import { useQuakeAlerts } from './features/alerts/useQuakeAlerts.js';
-import { arm } from './lib/alarm.js';
+import { arm, playAlarm } from './lib/alarm.js';
 import { useTheme } from './lib/useTheme.js';
 import ToggleRow from './components/ToggleRow.jsx';
 
@@ -52,7 +52,7 @@ export default function App() {
   const [pushEnabled, setPushEnabled] = useState(() => {
     try { return localStorage.getItem('lindol:push') === '1'; } catch { return false; }
   });
-  const { alert, dismiss } = useQuakeAlerts(all, soundOn);
+  const { alert, dismiss } = useQuakeAlerts(all, soundOn, user);
 
   const toggleSound = () => {
     setSoundOn((v) => {
@@ -61,6 +61,12 @@ export default function App() {
       try { localStorage.setItem('lindol:alarm', next ? '1' : '0'); } catch { /* ignore */ }
       return next;
     });
+  };
+
+  const previewAlarm = () => {
+    arm();
+    playAlarm(2);
+    showToast('▶ This is the earthquake alarm sound', '#C08A1E');
   };
 
   // After a reload, the alarm setting is restored but browsers require a user gesture
@@ -77,7 +83,7 @@ export default function App() {
       const key = import.meta.env.VITE_VAPID_PUBLIC_KEY;
       if (!key) return showToast('Push not configured yet', '#CC2A2A');
       const sub = await subscribeToPush(key);
-      await savePushSubscription(sub);
+      await savePushSubscription(sub, user);
       setPushEnabled(true);
       try { localStorage.setItem('lindol:push', '1'); } catch { /* ignore */ }
       showToast("You'll be notified of aftershocks", '#3F7D43');
@@ -147,9 +153,10 @@ export default function App() {
               <SafetyPanel />
             </section>
             <div className="sec-label" style={{ margin: '8px 16px 0' }}>Alerts &amp; settings</div>
-            <ToggleRow label="Aftershock alarm" desc="Loud alert + vibration while the app is open"
+            <ToggleRow label="Earthquake alerts" desc="Loud alarm + vibration for M4.5+ quakes near you (while app is open)"
               on={soundOn} onClick={toggleSound} />
-            <ToggleRow label="Notify when app is closed" desc="Push notifications for new aftershocks (M4.5+)"
+            <button className="alarm-test" onClick={previewAlarm}>🔊 Test the alarm sound</button>
+            <ToggleRow label="Notify when app is closed" desc="Push alerts for M4.5+ quakes near you, even when LINDOL is closed"
               on={pushEnabled} onClick={enablePush} />
             <ToggleRow label="Dark mode" desc="Easier on the eyes at night"
               on={theme === 'dark'} onClick={toggleTheme} />

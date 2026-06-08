@@ -8,5 +8,7 @@ export const REGION = {
   highlight: { minLat: 4.8, maxLat: 7.2, minLng: 124.0, maxLng: 126.4 },
   minMagnitude: 2.5,
   alertMinMag: 4.5,
+  // Only quakes within this many km of the user trigger an alert ("near you").
+  alertRadiusKm: 300,
   windowDays: 7,
 };
