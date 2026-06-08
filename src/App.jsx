@@ -37,9 +37,18 @@ function useToast() {
 }
 
 export default function App() {
-  if (typeof window !== 'undefined' && window.location.hash === '#admin') return <AdminPage />;
-  if (typeof window !== 'undefined' && window.location.hash === '#privacy') return <PrivacyPage />;
+  const [route, setRoute] = useState(() => (typeof window !== 'undefined' ? window.location.hash : ''));
+  useEffect(() => {
+    const onHash = () => setRoute(window.location.hash);
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
+  if (route === '#admin') return <AdminPage />;
+  if (route === '#privacy') return <PrivacyPage />;
+  return <MainApp />;
+}
 
+function MainApp() {
   const online = useOnline();
   const user = useGeolocation();
   const { latest, mainshock, aftershocks, all, status, updatedAt } = useQuakes(user);
