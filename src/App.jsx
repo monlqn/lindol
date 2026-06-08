@@ -24,6 +24,7 @@ import { useGeolocation } from './lib/useGeolocation.js';
 import { useQuakeAlerts } from './features/alerts/useQuakeAlerts.js';
 import { arm } from './lib/alarm.js';
 import { useTheme } from './lib/useTheme.js';
+import ToggleRow from './components/ToggleRow.jsx';
 
 function useToast() {
   const [toast, setToast] = useState(null);
@@ -43,6 +44,9 @@ export default function App() {
   const [toast, showToast] = useToast();
   const [soundOn, setSoundOn] = useState(false);
   const { theme, toggle: toggleTheme } = useTheme();
+  const [pushEnabled, setPushEnabled] = useState(() => {
+    try { return localStorage.getItem('lindol:push') === '1'; } catch { return false; }
+  });
   const { alert, dismiss } = useQuakeAlerts(all, soundOn);
 
   const toggleSound = () => {
@@ -56,6 +60,8 @@ export default function App() {
       if (!key) return showToast('Push not configured yet', '#CC2A2A');
       const sub = await subscribeToPush(key);
       await savePushSubscription(sub);
+      setPushEnabled(true);
+      try { localStorage.setItem('lindol:push', '1'); } catch { /* ignore */ }
       showToast("You'll be notified of aftershocks", '#3F7D43');
     } catch (e) {
       const ios = /iphone|ipad|ipod/i.test(navigator.userAgent || '');
@@ -122,17 +128,13 @@ export default function App() {
               <SectionLabel>Safety · works offline</SectionLabel>
               <SafetyPanel />
             </section>
-            <div className="sec-label" style={{ margin: '4px 16px 0' }}>Aftershock alerts</div>
-            <button className="alert-toggle" onClick={toggleSound}>
-              {soundOn ? '🔔 Aftershock alarm: ON' : '🔕 Enable aftershock alarm'}
-            </button>
-            <button className="alert-toggle" onClick={enablePush}>
-              🔔 Notify me even when the app is closed
-            </button>
-            <div className="sec-label" style={{ margin: '14px 16px 0' }}>Appearance</div>
-            <button className="alert-toggle" onClick={toggleTheme}>
-              {theme === 'dark' ? '☀️ Switch to light mode' : '🌙 Switch to dark mode'}
-            </button>
+            <div className="sec-label" style={{ margin: '8px 16px 0' }}>Alerts &amp; settings</div>
+            <ToggleRow label="Aftershock alarm" desc="Loud alert + vibration while the app is open"
+              on={soundOn} onClick={toggleSound} />
+            <ToggleRow label="Notify when app is closed" desc="Push notifications for new aftershocks (M4.5+)"
+              on={pushEnabled} onClick={enablePush} />
+            <ToggleRow label="Dark mode" desc="Easier on the eyes at night"
+              on={theme === 'dark'} onClick={toggleTheme} />
             <section className="reveal">
               <SectionLabel>Help others stay safe</SectionLabel>
               <div className="share-cta">

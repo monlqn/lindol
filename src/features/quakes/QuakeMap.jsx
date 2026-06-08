@@ -3,6 +3,11 @@ import { MapContainer, TileLayer, Marker, CircleMarker, Popup, AttributionContro
 import L from 'leaflet';
 import { REGION } from '../../config.js';
 import { reportIcon } from '../reports/reportMarkers.js';
+import { categoryColor, CATEGORIES } from '../reports/reportSchema.js';
+import { formatKm } from '../../lib/geo.js';
+import { relativeTime, formatClock } from '../../lib/time.js';
+
+const CAT_LABEL = Object.fromEntries(CATEGORIES.map((c) => [c.key, c.label]));
 
 const epiIcon = L.divIcon({ className: '', iconSize: [20, 20], iconAnchor: [10, 10],
   html: '<div class="epi"><div class="ring"></div><div class="core"></div></div>' });
@@ -71,17 +76,37 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
         <FollowUser user={user} />
         {showQuakes && mainshock && (
           <Marker position={[mainshock.lat, mainshock.lng]} icon={epiIcon}>
-            <Popup><b>M{mainshock.mag.toFixed(1)}</b> · main shock</Popup>
+            <Popup>
+              <div className="pin-pop">
+                <span className="pp-mag">M{mainshock.mag.toFixed(1)}</span> · strongest
+                <div className="pp-sub">{mainshock.place}<br />{formatClock(mainshock.time)} · {relativeTime(mainshock.time)}
+                  {mainshock.depthKm != null ? ` · ${Math.round(mainshock.depthKm)} km deep` : ''}
+                  {mainshock.distanceKm != null ? ` · ≈ ${formatKm(mainshock.distanceKm)} from you` : ''}</div>
+              </div>
+            </Popup>
           </Marker>
         )}
         {showQuakes && aftershocks.map((q) => (
           <Marker key={q.id} position={[q.lat, q.lng]} icon={afterIcon}>
-            <Popup>Aftershock M{q.mag.toFixed(1)}</Popup>
+            <Popup>
+              <div className="pin-pop">
+                <span className="pp-mag">M{q.mag.toFixed(1)}</span> aftershock
+                <div className="pp-sub">{q.place}<br />{relativeTime(q.time)}
+                  {q.distanceKm != null ? ` · ≈ ${formatKm(q.distanceKm)} from you` : ''}</div>
+              </div>
+            </Popup>
           </Marker>
         ))}
         {showReports && reports.map((r) => (
           <Marker key={r.id} position={[r.lat, r.lng]} icon={reportIcon(r.category)}>
-            <Popup>{r.note || r.category}</Popup>
+            <Popup>
+              <div className="pin-pop">
+                <span className="cat-tag" style={{ background: categoryColor(r.category) }}>{CAT_LABEL[r.category] || 'Report'}</span>
+                <div className="pp-sub">{relativeTime(r.createdAt)}{r.distanceKm != null ? ` · ≈ ${formatKm(r.distanceKm)} from you` : ''}</div>
+                {r.note && <div className="pp-note">{r.note}</div>}
+                {r.photoUrl && <img className="pp-photo" src={r.photoUrl} alt="" />}
+              </div>
+            </Popup>
           </Marker>
         ))}
         <CircleMarker center={user} radius={6}
