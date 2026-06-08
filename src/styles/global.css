@@ -359,6 +359,49 @@ section{padding:18px 16px}
 .hl-num{margin-left:auto; font-family:var(--mono); font-size:13px; font-weight:700; color:var(--ember-deep)}
 .hl-tip{font-size:11px; color:var(--ink-faint); line-height:1.45; margin:9px 16px 0}
 
+/* ---------- community / recognition ---------- */
+.community{padding:0 16px}
+.impact-card{padding:15px; border-radius:var(--r); background:var(--card); border:1px solid var(--line);
+  box-shadow:var(--shadow-sm)}
+.impact-top{display:flex; align-items:center; gap:12px}
+.impact-lv{font-size:32px; line-height:1; flex:none; width:50px; height:50px; display:grid; place-items:center;
+  background:var(--ember-wash); border-radius:14px}
+.impact-id{min-width:0; flex:1}
+.impact-name{font-size:15px; font-weight:800; color:var(--ink)}
+.impact-role{font-size:12px; color:var(--ember-deep); font-weight:600}
+.impact-pts{flex:none; font-family:var(--mono); font-size:26px; font-weight:800; color:var(--ink); line-height:1}
+.impact-pts span{font-size:11px; color:var(--ink-faint); font-weight:600; margin-left:3px}
+.impact-prog{margin-top:12px}
+.impact-bar{height:7px; border-radius:4px; background:var(--bone); overflow:hidden}
+.impact-bar i{display:block; height:100%; background:var(--ember); transition:width .4s}
+.impact-prog small{display:block; margin-top:5px; font-size:11px; color:var(--ink-faint)}
+.impact-stats{display:flex; gap:8px; margin-top:12px}
+.impact-stats span{flex:1; text-align:center; background:var(--bone); border-radius:10px; padding:9px 4px;
+  font-size:11px; color:var(--ink-soft)}
+.impact-stats b{display:block; font-size:17px; color:var(--ink); font-family:var(--mono)}
+.impact-actions{display:flex; gap:8px; margin-top:13px}
+.impact-btn{flex:1; cursor:pointer; font-family:inherit; font-size:13px; font-weight:700; padding:10px;
+  border-radius:10px; border:1px solid var(--line-strong); background:var(--card); color:var(--ink)}
+.impact-btn.primary{background:var(--ember); color:#fff; border:0}
+.impact-btn:hover{border-color:var(--ember)}
+.impact-btn.primary:hover{background:var(--ember-deep)}
+.nick-edit{display:flex; gap:8px; margin-top:13px}
+.nick-edit input{flex:1; border:1.5px solid var(--line); border-radius:10px; padding:10px 12px;
+  font-family:inherit; font-size:14px; background:var(--bone); color:var(--ink)}
+.nick-edit input:focus{outline:none; border-color:var(--ember)}
+.nick-edit button{flex:none; background:var(--ember); color:#fff; border:0; border-radius:10px; padding:0 18px;
+  font-family:inherit; font-weight:700; cursor:pointer}
+.impact-note{font-size:10.5px; color:var(--ink-faint); line-height:1.45; margin:12px 0 0}
+.leaderboard{margin-top:12px; padding:13px 15px; border-radius:var(--r); background:var(--card);
+  border:1px solid var(--line); box-shadow:var(--shadow-sm)}
+.lb-title{font-size:13px; font-weight:800; color:var(--ink); margin-bottom:9px}
+.lb-row{display:flex; align-items:center; gap:11px; padding:7px 0; border-top:1px solid var(--line)}
+.lb-row:first-of-type{border-top:0}
+.lb-row.me{font-weight:800}
+.lb-rank{flex:none; width:22px; text-align:center; font-family:var(--mono); font-size:13px; color:var(--ink-faint)}
+.lb-name{flex:1; font-size:13.5px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.lb-pts{flex:none; font-family:var(--mono); font-size:12.5px; font-weight:700; color:var(--ember-deep)}
+
 /* ---------- bottom sheet (report flow) ---------- */
 .scrim{position:fixed; inset:0; z-index:1000; background:rgba(22,18,13,.5);
   backdrop-filter:blur(2px); opacity:0; pointer-events:none; transition:.25s; display:flex; justify-content:center; align-items:flex-end}

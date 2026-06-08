@@ -20,6 +20,7 @@ import InstallPrompt from './components/InstallPrompt.jsx';
 import UpdatePrompt from './components/UpdatePrompt.jsx';
 import EarlyWarningTip from './components/EarlyWarningTip.jsx';
 import SupportCard from './components/SupportCard.jsx';
+import Community from './components/Community.jsx';
 import PrivacyPage from './features/legal/PrivacyPage.jsx';
 import { useQuakes } from './features/quakes/useQuakes.js';
 import { useReports } from './features/reports/useReports.js';
@@ -156,6 +157,10 @@ function MainApp() {
             <section className="reveal">
               <SectionLabel>Recent quakes · {all.length} in 7 days</SectionLabel>
               <QuakeList quakes={all} />
+            </section>
+            <section className="reveal">
+              <SectionLabel>Community</SectionLabel>
+              <Community />
             </section>
           </>
         )}
