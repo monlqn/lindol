@@ -6,7 +6,7 @@ const TABS = [
 ];
 
 // Native-style bottom tab bar with a raised center Report action.
-export default function BottomNav({ active, onChange, onReport }) {
+export default function BottomNav({ active, onChange, onReport, pulseReport }) {
   const btn = (t) => (
     <button key={t.key} className={`navbtn${active === t.key ? ' on' : ''}`}
       onClick={() => onChange(t.key)} aria-label={t.label} aria-current={active === t.key}>
@@ -19,7 +19,7 @@ export default function BottomNav({ active, onChange, onReport }) {
     <nav className="bottomnav">
       {btn(TABS[0])}
       {btn(TABS[1])}
-      <button className="nav-report" onClick={onReport} aria-label="Report what you see">
+      <button className={`nav-report${pulseReport ? ' pulse' : ''}`} onClick={onReport} aria-label="Report what you see">
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           strokeWidth="2.4" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
       </button>

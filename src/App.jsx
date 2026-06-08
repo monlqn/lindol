@@ -16,6 +16,7 @@ import ReportSheet from './features/reports/ReportSheet.jsx';
 import ReportFeed from './features/reports/ReportFeed.jsx';
 import AdminPage from './features/admin/AdminPage.jsx';
 import IntroOverlay from './components/IntroOverlay.jsx';
+import Tour from './components/Tour.jsx';
 import InstallPrompt from './components/InstallPrompt.jsx';
 import UpdatePrompt from './components/UpdatePrompt.jsx';
 import EarlyWarningTip from './components/EarlyWarningTip.jsx';
@@ -61,6 +62,14 @@ function MainApp() {
     return 'home';
   });
   const [focusedReport, setFocusedReport] = useState(null);
+  const [onboard, setOnboard] = useState(() => {
+    try { return localStorage.getItem('lindol:onboarded-v2') ? 'done' : 'intro'; } catch { return 'intro'; }
+  });
+  const [tourReport, setTourReport] = useState(false);
+  const finishOnboard = () => {
+    try { localStorage.setItem('lindol:onboarded-v2', '1'); } catch { /* ignore */ }
+    setTourReport(false); setOnboard('done');
+  };
   const [sheetOpen, setSheetOpen] = useState(false);
   const [toast, showToast] = useToast();
   const [soundOn, setSoundOn] = useState(() => {
@@ -224,6 +233,7 @@ function MainApp() {
                 <ShareButton stats={{ count: all.length, latestMag: latest?.mag, latestPlace: latest?.place }} />
               </div>
             </section>
+            <button className="replay-tour" onClick={() => setOnboard('tour')}>↻ Replay the tutorial</button>
             <SupportCard />
             <footer className="credit">
               Built by <a href="https://moncodes.com" target="_blank" rel="noopener noreferrer">moncodes.com</a>
@@ -235,7 +245,7 @@ function MainApp() {
       </div>
       )}
 
-      <BottomNav active={tab} onChange={setTab} onReport={() => setSheetOpen(true)} />
+      <BottomNav active={tab} onChange={setTab} onReport={() => setSheetOpen(true)} pulseReport={tourReport} />
 
       <ReportSheet open={sheetOpen} onClose={() => setSheetOpen(false)} onSubmit={submit} onToast={showToast} />
       {toast && (
@@ -245,7 +255,8 @@ function MainApp() {
         </div>
       )}
       <UpdatePrompt />
-      <IntroOverlay />
+      {onboard === 'intro' && <IntroOverlay onStartTour={() => setOnboard('tour')} onSkip={finishOnboard} />}
+      {onboard === 'tour' && <Tour onTab={setTab} onReportPulse={setTourReport} onDone={finishOnboard} />}
     </div>
   );
 }

@@ -491,6 +491,37 @@ textarea:focus{outline:none; border-color:var(--ember)}
 .intro-feats span{font-size:12.5px; color:var(--ink-soft); line-height:1.4}
 .intro-note{font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase;
   color:var(--ink-faint); margin-top:13px}
+.intro-emoji{font-size:46px; line-height:1; margin-bottom:8px}
+.intro-dots{display:flex; gap:7px; justify-content:center; margin:6px 0 18px}
+.intro-dots span{width:7px; height:7px; border-radius:50%; background:var(--line-strong); transition:.2s}
+.intro-dots span.on{background:var(--ember); width:20px; border-radius:4px}
+.intro-nav{display:flex; gap:10px; align-items:center}
+.intro-next{flex:1}
+.intro-skip{background:none; border:0; color:var(--ink-faint); font-family:inherit; font-size:13px;
+  font-weight:600; cursor:pointer; padding:11px; width:100%}
+.intro-nav .intro-skip{width:auto}
+
+/* interactive tour */
+.tour-scrim{position:fixed; inset:0; z-index:998; background:rgba(22,18,13,.55); backdrop-filter:blur(1px)}
+.tour-tip{position:fixed; z-index:1001; left:50%; transform:translateX(-50%); bottom:86px;
+  width:min(var(--app-w),calc(100% - 24px)); background:var(--paper); border:1px solid var(--line);
+  border-radius:16px; box-shadow:var(--shadow-lg); padding:15px 16px 13px; animation:rise .25s both}
+.tour-arrow{position:absolute; bottom:-9px; width:18px; height:18px; background:var(--paper);
+  border-right:1px solid var(--line); border-bottom:1px solid var(--line); transform:translateX(-50%) rotate(45deg)}
+.tour-step{font-family:var(--mono); font-size:11px; color:var(--ink-faint); margin-bottom:3px}
+.tour-title{font-size:16px; font-weight:800; color:var(--ink); margin-bottom:4px}
+.tour-tip p{font-size:13px; color:var(--ink-soft); line-height:1.45; margin:0}
+.tour-actions{display:flex; gap:10px; align-items:center; margin-top:13px}
+.tour-skip{background:none; border:0; color:var(--ink-faint); font-family:inherit; font-size:13px;
+  font-weight:600; cursor:pointer; padding:8px; margin-right:auto}
+.tour-next{background:var(--ember); color:#fff; border:0; border-radius:10px; padding:10px 22px;
+  font-family:inherit; font-weight:700; font-size:14px; cursor:pointer}
+.tour-next:hover{background:var(--ember-deep)}
+.nav-report.pulse{animation:navPulse 1.1s ease-out infinite}
+@keyframes navPulse{0%{box-shadow:var(--shadow-md),0 0 0 0 rgba(224,82,27,.5)}100%{box-shadow:var(--shadow-md),0 0 0 16px rgba(224,82,27,0)}}
+.replay-tour{display:block; margin:4px auto; background:none; border:0; color:var(--ink-faint);
+  font-family:inherit; font-size:12.5px; font-weight:600; cursor:pointer; padding:8px}
+.replay-tour:hover{color:var(--ember-deep)}
 
 /* ---------- map: recenter button + attribution ---------- */
 .map-btn{position:absolute; z-index:500; width:36px; height:36px; border-radius:10px;
