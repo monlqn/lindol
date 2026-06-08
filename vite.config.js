@@ -43,6 +43,16 @@ export default defineConfig({
             handler: 'CacheFirst',
             options: { cacheName: 'fonts', expiration: { maxEntries: 20, maxAgeSeconds: 31536000 } },
           },
+          {
+            urlPattern: /^https:\/\/[a-z0-9-]+\.supabase\.co\/storage\/v1\/object\/public\/.*/i,
+            handler: 'CacheFirst',
+            options: { cacheName: 'report-photos', expiration: { maxEntries: 200, maxAgeSeconds: 604800 } },
+          },
+          {
+            urlPattern: /^https:\/\/[a-z0-9-]+\.supabase\.co\/rest\/v1\/.*/i,
+            handler: 'NetworkFirst',
+            options: { cacheName: 'reports-api', expiration: { maxEntries: 20, maxAgeSeconds: 86400 } },
+          },
         ],
       },
     }),
