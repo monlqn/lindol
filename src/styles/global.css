@@ -291,9 +291,8 @@ textarea:focus{outline:none; border-color:var(--ember)}
 .map-btn:hover{color:var(--ember-deep)}
 .map-expand{right:10px; bottom:54px}
 .map-recenter{right:54px; bottom:54px}
-.mapwrap-full{position:fixed; inset:0; width:100vw; height:100vh; height:100dvh;
-  z-index:1300; border:0; border-radius:0; box-shadow:none; background:#dfe6df}
-.mapwrap-full .legend{bottom:16px}
+/* "expand" = a big inline map (no fixed positioning -> no layering bugs) */
+.mapwrap-big{box-shadow:var(--shadow-md)}
 .leaflet-control-attribution{font-size:8.5px !important; background:rgba(252,250,244,.78) !important;
   color:var(--ink-faint) !important; padding:1px 5px !important; border-radius:0 0 0 6px}
 .leaflet-control-attribution a{color:var(--ink-soft) !important}
