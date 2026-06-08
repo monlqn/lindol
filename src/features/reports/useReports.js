@@ -53,7 +53,9 @@ export function useReports(user = REGION.defaultUser) {
       const saved = await insertReport(supabase, report);
       setReports((prev) => enrich([saved, ...prev.filter((r) => r.id !== saved.id)], user));
       return { ok: true, queued: false };
-    } catch {
+    } catch (e) {
+      const msg = String(e?.message || '');
+      if (msg.includes('rate_limited')) return { ok: false, rateLimited: true };
       await reportQueue.enqueue(report);
       setPendingCount((await reportQueue.list()).length);
       return { ok: true, queued: true };
