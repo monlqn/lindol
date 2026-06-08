@@ -4,6 +4,7 @@ import { formatKm } from '../../lib/geo.js';
 import { relativeTime } from '../../lib/time.js';
 import SensitivePhoto from '../../components/SensitivePhoto.jsx';
 import { getShareImageFile } from '../../lib/share.js';
+import { renderReportCard } from '../../lib/reportCard.js';
 
 const LABEL = Object.fromEntries(CATEGORIES.map((c) => [c.key, c.label]));
 const FKEY = 'lindol:flagged';
@@ -45,7 +46,8 @@ export default function ReportCard({ report, onFlag, highlight }) {
     const text = `⚠️ ${label} reported near ${report.lat.toFixed(2)}, ${report.lng.toFixed(2)} on LINDOL. Live earthquake updates & citizen reports for the area.`;
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
-        const file = await getShareImageFile();
+        // A graphic card rendered from this actual report, falling back to the banner.
+        const file = (await renderReportCard(report)) || (await getShareImageFile());
         if (file && navigator.canShare?.({ files: [file] })) {
           await navigator.share({ title: 'LINDOL citizen report', text: `${text} ${url}`, files: [file] });
           return;
