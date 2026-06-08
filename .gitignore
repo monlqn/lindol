@@ -13,3 +13,9 @@ dist
 # local design/verification screenshots (not part of the app)
 /lindol-*.jpeg
 /font-*.jpeg
+
+.vercel
+
+# local env files with real secrets
+.env.local
+.env
