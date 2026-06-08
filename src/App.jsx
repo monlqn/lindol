@@ -11,6 +11,7 @@ import ReportButton from './features/reports/ReportButton.jsx';
 import ReportSheet from './features/reports/ReportSheet.jsx';
 import ReportFeed from './features/reports/ReportFeed.jsx';
 import AdminPage from './features/admin/AdminPage.jsx';
+import IntroOverlay from './components/IntroOverlay.jsx';
 import { useQuakes } from './features/quakes/useQuakes.js';
 import { useReports } from './features/reports/useReports.js';
 import { useOnline } from './lib/useOnline.js';
@@ -85,6 +86,7 @@ export default function App() {
           <span>{toast.msg}</span>
         </div>
       )}
+      <IntroOverlay />
     </div>
   );
 }

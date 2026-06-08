@@ -29,8 +29,8 @@ body::after{ /* grain */
 .app{
   position:relative; z-index:1;
   width:100%; max-width:var(--app-w);
-  min-height:100vh;
-  min-height:100dvh;
+  height:100vh;
+  height:100dvh;
   background:var(--paper);
   box-shadow:var(--shadow-lg);
   border-left:1px solid var(--line);
@@ -66,7 +66,7 @@ body::after{ /* grain */
   background:#14110D; border:1px solid var(--line-strong); box-shadow:inset 0 1px 6px rgba(0,0,0,.5)}
 
 /* ---------- scroll body ---------- */
-.scroll{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-bottom:96px}
+.scroll{flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-bottom:88px}
 .scroll::-webkit-scrollbar{width:0}
 
 .offline-banner{display:none; gap:10px; align-items:center;
@@ -267,3 +267,19 @@ textarea:focus{outline:none; border-color:var(--ember)}
 .credit{padding:4px 16px 28px; text-align:center; font-family:var(--mono); font-size:10px; letter-spacing:.08em; color:var(--ink-faint)}
 .credit a{color:var(--ink-soft); text-decoration:none; border-bottom:1px solid var(--line)}
 .credit a:hover{color:var(--ember-deep)}
+
+/* ---------- first-visit intro ---------- */
+.intro-scrim{position:fixed; inset:0; z-index:1500; background:rgba(22,18,13,.62);
+  backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center;
+  padding:20px; animation:rise .3s both}
+.intro-card{width:100%; max-width:380px; background:var(--paper); border:1px solid var(--line);
+  border-radius:20px; box-shadow:var(--shadow-lg); padding:26px 22px 22px; text-align:center}
+.intro-mark{display:flex; justify-content:center; margin-bottom:14px; font-size:42px; line-height:1; color:var(--ember)}
+.intro-card h2{font-family:var(--font); font-weight:800; font-size:24px; letter-spacing:-.01em}
+.intro-sub{font-size:13px; color:var(--ink-soft); margin:4px 0 18px; line-height:1.45}
+.intro-feats{list-style:none; text-align:left; display:flex; flex-direction:column; gap:13px; margin-bottom:20px}
+.intro-feats li{display:flex; flex-direction:column; gap:2px; padding-left:14px; border-left:2px solid var(--ember)}
+.intro-feats b{font-size:14px}
+.intro-feats span{font-size:12.5px; color:var(--ink-soft); line-height:1.4}
+.intro-note{font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-faint); margin-top:13px}
