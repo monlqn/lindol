@@ -71,6 +71,11 @@ export default function App() {
       <AlertBanner alert={alert} onDismiss={dismiss} />
       <StatusBar online={online} updatedAt={updatedAt} />
 
+      {tab === 'map' ? (
+        <div className="map-screen">
+          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} />
+        </div>
+      ) : (
       <div className="scroll" key={tab}>
         {tab === 'home' && (
           <>
@@ -82,17 +87,10 @@ export default function App() {
               <QuakeHero quake={latest} />
             </section>
             <section className="reveal">
-              <SectionLabel>Live map · {all.length} quakes · {reports.length} reports</SectionLabel>
-              <QuakeMap mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} />
+              <SectionLabel>Recent quakes · {all.length} in 7 days</SectionLabel>
+              <QuakeList quakes={all} />
             </section>
           </>
-        )}
-
-        {tab === 'quakes' && (
-          <section className="reveal">
-            <SectionLabel>Recent quakes · {all.length} in 7 days</SectionLabel>
-            <QuakeList quakes={all} />
-          </section>
         )}
 
         {tab === 'reports' && (
@@ -142,6 +140,7 @@ export default function App() {
           </>
         )}
       </div>
+      )}
 
       <BottomNav active={tab} onChange={setTab} onReport={() => setSheetOpen(true)} />
 

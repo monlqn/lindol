@@ -1,6 +1,6 @@
 const TABS = [
   { key: 'home', label: 'Home', d: 'M3 12h4l2.5 7 4-14 2.5 7H21' },
-  { key: 'quakes', label: 'Quakes', d: 'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01' },
+  { key: 'map', label: 'Map', d: 'M3 7l9-4 9 4-9 4-9-4M3 12l9 4 9-4M3 17l9 4 9-4' },
   { key: 'reports', label: 'Reports', d: 'M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z' },
   { key: 'safety', label: 'Safety', d: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' },
 ];

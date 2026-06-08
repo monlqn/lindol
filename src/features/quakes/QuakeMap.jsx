@@ -23,7 +23,7 @@ function FollowUser({ user }) {
   return null;
 }
 
-export default function QuakeMap({ mainshock, aftershocks = [], reports = [], user = REGION.defaultUser }) {
+export default function QuakeMap({ mainshock, aftershocks = [], reports = [], user = REGION.defaultUser, fill = false }) {
   const [showQuakes, setShowQuakes] = useState(true);
   const [showReports, setShowReports] = useState(true);
   const [expanded, setExpanded] = useState(false);
@@ -47,7 +47,7 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
   }, [expanded]);
 
   return (
-    <div className="mapwrap">
+    <div className={`mapwrap${fill ? ' mapwrap-fill' : ''}`}>
       <div className="maptools">
         <div className={`chip${showQuakes ? ' on' : ''}`} onClick={() => setShowQuakes((v) => !v)}>
           <span className="sw" style={{ background: 'var(--ember)' }} />Quakes
@@ -56,7 +56,7 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
           <span className="sw" style={{ background: 'var(--c-help)' }} />Reports
         </div>
       </div>
-      <div className="map-canvas" style={{ height: expanded ? '78vh' : 280, width: '100%' }}>
+      <div className="map-canvas" style={{ height: fill ? '100%' : expanded ? '78vh' : 280, width: '100%' }}>
       <MapContainer ref={mapRef} center={REGION.center} zoom={9} zoomControl={false}
         attributionControl={false} style={{ height: '100%', width: '100%' }}>
         <AttributionControl position="topright" prefix={false} />
@@ -87,18 +87,20 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
       </MapContainer>
       </div>
 
-      <button className="map-btn map-expand" aria-label={expanded ? 'Exit fullscreen' : 'Expand map'}
-        onClick={() => setExpanded((v) => !v)}>
-        {expanded ? (
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M9 9H4M9 9V4M15 9h5M15 9V4M9 15H4M9 15v5M15 15h5M15 15v5" />
-          </svg>
-        ) : (
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
-          </svg>
-        )}
-      </button>
+      {!fill && (
+        <button className="map-btn map-expand" aria-label={expanded ? 'Exit fullscreen' : 'Expand map'}
+          onClick={() => setExpanded((v) => !v)}>
+          {expanded ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 9H4M9 9V4M15 9h5M15 9V4M9 15H4M9 15v5M15 15h5M15 15v5" />
+            </svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
+            </svg>
+          )}
+        </button>
+      )}
       <button className="map-btn map-recenter" aria-label="Center on my location"
         onClick={() => mapRef.current?.flyTo(user, 12)}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

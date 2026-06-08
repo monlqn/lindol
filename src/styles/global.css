@@ -66,7 +66,8 @@ body::after{ /* grain */
   background:#14110D; border:1px solid var(--line-strong); box-shadow:inset 0 1px 6px rgba(0,0,0,.5)}
 
 /* ---------- scroll body ---------- */
-.scroll{flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-bottom:28px}
+.scroll{flex:1; min-height:0; width:100%; overflow-y:auto; overflow-x:hidden; scrollbar-width:none;
+  -webkit-overflow-scrolling:touch; padding-bottom:28px}
 .scroll::-webkit-scrollbar{width:0}
 
 .offline-banner{display:none; gap:10px; align-items:center;
@@ -346,6 +347,10 @@ textarea:focus{outline:none; border-color:var(--ember)}
   border:1px solid rgba(204,42,42,.25); border-radius:11px; padding:10px 12px; margin-bottom:14px;
   font-size:11.5px; color:#8a1f1f; line-height:1.35}
 .call911.sm{flex:none; padding:8px 12px; font-size:13px; border-radius:9px; white-space:nowrap}
+
+/* ---------- full-screen Map tab ---------- */
+.map-screen{flex:1; min-height:0; width:100%; position:relative; overflow:hidden}
+.mapwrap-fill{height:100%; width:100%; border:0; border-radius:0; box-shadow:none}
 .leaflet-control-attribution{font-size:8.5px !important; background:rgba(252,250,244,.78) !important;
   color:var(--ink-faint) !important; padding:1px 5px !important; border-radius:0 0 0 6px}
 .leaflet-control-attribution a{color:var(--ink-soft) !important}
