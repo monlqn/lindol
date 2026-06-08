@@ -1,16 +1,20 @@
 export const CATEGORIES = [
-  { key: 'damage', label: 'Damage',       color: '#9A5B16' },
-  { key: 'road',   label: 'Blocked road', color: '#C08A1E' },
-  { key: 'fire',   label: 'Fire',         color: '#E0521B' },
-  { key: 'help',   label: 'Need help',    color: '#CC2A2A' },
-  { key: 'safe',   label: 'Safe here',    color: '#3F7D43' },
-  { key: 'other',  label: 'Other',        color: '#8A8175' },
+  { key: 'damage', label: 'Damage',       color: '#9A5B16', icon: '🏚️' },
+  { key: 'road',   label: 'Blocked road', color: '#C08A1E', icon: '🚧' },
+  { key: 'fire',   label: 'Fire',         color: '#E0521B', icon: '🔥' },
+  { key: 'help',   label: 'Need help',    color: '#CC2A2A', icon: '🆘' },
+  { key: 'safe',   label: 'Safe here',    color: '#3F7D43', icon: '✅' },
+  { key: 'other',  label: 'Other',        color: '#8A8175', icon: '📍' },
 ];
 
 const BY_KEY = Object.fromEntries(CATEGORIES.map((c) => [c.key, c]));
 
 export function categoryColor(key) {
   return (BY_KEY[key] ?? BY_KEY.other).color;
+}
+
+export function categoryIcon(key) {
+  return (BY_KEY[key] ?? BY_KEY.other).icon;
 }
 
 // Returns { valid, errors[] }. Note optional, max 280 chars. Coords required numbers.

@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Rectangle, AttributionControl, 
 import L from 'leaflet';
 import { REGION } from '../../config.js';
 import { reportIcon } from '../reports/reportMarkers.js';
-import { categoryColor, CATEGORIES } from '../reports/reportSchema.js';
+import { categoryColor, categoryIcon, CATEGORIES } from '../reports/reportSchema.js';
 import { formatKm } from '../../lib/geo.js';
 import { relativeTime, formatClock } from '../../lib/time.js';
 
@@ -110,7 +110,7 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
           <Marker key={r.id} position={[r.lat, r.lng]} icon={reportIcon(r.category)}>
             <Popup>
               <div className="pin-pop">
-                <span className="cat-tag" style={{ background: categoryColor(r.category) }}>{CAT_LABEL[r.category] || 'Report'}</span>
+                <span className="cat-tag" style={{ background: categoryColor(r.category) }}>{categoryIcon(r.category)} {CAT_LABEL[r.category] || 'Report'}</span>
                 <div className="pp-sub">{relativeTime(r.createdAt)}{r.distanceKm != null ? ` · ≈ ${formatKm(r.distanceKm)} from you` : ''}</div>
                 {r.note && <div className="pp-note">{r.note}</div>}
                 {r.photoUrl && <img className="pp-photo" src={r.photoUrl} alt="" />}

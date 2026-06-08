@@ -152,7 +152,7 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast }) {
         <div className="catgrid">
           {CATEGORIES.map((c) => (
             <div key={c.key} className={`catopt${cat === c.key ? ' sel' : ''}`} onClick={() => setCat(c.key)}>
-              <span className="dot" style={{ background: c.color }} />{c.label}
+              <span className="dot" style={{ background: c.color }} />{c.icon} {c.label}
             </div>
           ))}
         </div>

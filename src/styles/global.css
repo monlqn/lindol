@@ -192,9 +192,10 @@ section{padding:18px 16px}
 .chip.on{background:var(--ink); color:var(--paper); border-color:var(--ink)}
 
 /* leaflet report pins - clean teardrop with a white center dot */
-.rpin{width:24px; height:24px; border-radius:50% 50% 50% 0; transform:rotate(45deg);
-  border:2.5px solid #fff; box-shadow:0 3px 7px rgba(0,0,0,.35); display:grid; place-items:center}
-.rpin-dot{width:8px; height:8px; border-radius:50%; background:#fff; transform:rotate(-45deg)}
+.rpin{width:30px; height:30px; border-radius:50% 50% 50% 0; transform:rotate(45deg);
+  border:2.5px solid #fff; box-shadow:0 3px 8px rgba(0,0,0,.38); display:grid; place-items:center}
+.rpin-i{transform:rotate(-45deg); width:21px; height:21px; border-radius:50%; background:#fff;
+  display:grid; place-items:center; font-size:13px; line-height:1}
 
 /* ---------- report feed ---------- */
 .feed{display:flex; flex-direction:column; gap:12px}
@@ -289,7 +290,7 @@ section{padding:18px 16px}
 .shared-tag{padding:8px 14px 0; font-size:11px; font-weight:700; color:var(--ember-deep); font-family:var(--mono)}
 .ig-head{display:flex; align-items:center; gap:10px; padding:11px 13px}
 .ig-avatar{width:36px; height:36px; border-radius:50%; flex:none; display:grid; place-items:center;
-  box-shadow:var(--shadow-sm)}
+  box-shadow:var(--shadow-sm); font-size:18px; line-height:1}
 .ig-id{display:flex; flex-direction:column; line-height:1.2; min-width:0}
 .ig-name{font-weight:700; font-size:13.5px; color:var(--ink)}
 .ig-loc{font-size:11px; color:var(--ink-faint); font-family:var(--mono);

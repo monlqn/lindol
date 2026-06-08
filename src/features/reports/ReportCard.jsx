@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { categoryColor, CATEGORIES } from './reportSchema.js';
+import { categoryColor, categoryIcon, CATEGORIES } from './reportSchema.js';
 import { formatKm } from '../../lib/geo.js';
 import { relativeTime } from '../../lib/time.js';
 import SensitivePhoto from '../../components/SensitivePhoto.jsx';
@@ -67,11 +67,7 @@ export default function ReportCard({ report, onFlag, highlight }) {
       {highlight && <div className="shared-tag">🔗 Shared report</div>}
 
       <header className="ig-head">
-        <span className="ig-avatar" style={{ background: color }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2">
-            <path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z" /><circle cx="12" cy="10" r="2.4" />
-          </svg>
-        </span>
+        <span className="ig-avatar" style={{ background: color }}>{categoryIcon(report.category)}</span>
         <div className="ig-id">
           <span className="ig-name">{label}</span>
           <span className="ig-loc">{report.lat.toFixed(3)}, {report.lng.toFixed(3)} · {formatKm(report.distanceKm ?? 0)} away</span>
