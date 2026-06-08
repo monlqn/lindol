@@ -50,7 +50,8 @@ export function useQuakes(user = REGION.defaultUser) {
     }
 
     load();
-    return () => { cancelled = true; };
+    const poll = setInterval(load, 60000);
+    return () => { cancelled = true; clearInterval(poll); };
   }, [user[0], user[1]]);
 
   return state;
