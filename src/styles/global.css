@@ -283,3 +283,13 @@ textarea:focus{outline:none; border-color:var(--ember)}
 .intro-feats span{font-size:12.5px; color:var(--ink-soft); line-height:1.4}
 .intro-note{font-family:var(--mono); font-size:10px; letter-spacing:.08em; text-transform:uppercase;
   color:var(--ink-faint); margin-top:13px}
+
+/* ---------- map: recenter button + attribution ---------- */
+.map-recenter{position:absolute; z-index:500; right:10px; bottom:54px; width:36px; height:36px;
+  border-radius:10px; border:1px solid var(--line-strong); background:rgba(252,250,244,.94);
+  backdrop-filter:blur(6px); display:grid; place-items:center; cursor:pointer; color:var(--ink-soft);
+  box-shadow:var(--shadow-sm); transition:.15s}
+.map-recenter:hover{color:var(--ember-deep)}
+.leaflet-control-attribution{font-size:8.5px !important; background:rgba(252,250,244,.78) !important;
+  color:var(--ink-faint) !important; padding:1px 5px !important; border-radius:0 0 0 6px}
+.leaflet-control-attribution a{color:var(--ink-soft) !important}
