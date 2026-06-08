@@ -7,7 +7,7 @@ describe('normalizeRow', () => {
       note: 'hi', lat: 7, lng: 126, photo_url: 'u', status: 'visible', flag_count: 2 };
     expect(normalizeRow(row)).toEqual({
       id: 'a', createdAt: Date.parse('2026-06-08T07:42:00Z'), category: 'fire',
-      note: 'hi', lat: 7, lng: 126, photoUrl: 'u', status: 'visible', flagCount: 2,
+      note: 'hi', lat: 7, lng: 126, photoUrl: 'u', status: 'visible', flagCount: 2, sensitive: false,
     });
   });
 });
