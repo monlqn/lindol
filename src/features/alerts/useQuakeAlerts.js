@@ -19,7 +19,7 @@ export function useQuakeAlerts(quakes, soundOn, user = REGION.defaultUser) {
     if (fresh.length) {
       const newest = fresh.reduce((a, b) => (b.time > a.time ? b : a));
       setAlert(newest);
-      if (soundOn) playAlarm(3);
+      if (soundOn) playAlarm(6);
     }
   }, [quakes, soundOn, user[0], user[1]]);
   return { alert, dismiss: () => setAlert(null) };

@@ -65,7 +65,7 @@ export default function App() {
 
   const previewAlarm = () => {
     arm();
-    playAlarm(2);
+    playAlarm(5);
     showToast('▶ This is the earthquake alarm sound', '#C08A1E');
   };
 
