@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { CATEGORIES } from './reportSchema.js';
 import { rejectFile } from '../../lib/image.js';
 import { getDeviceId } from '../../lib/device.js';
+import { checkReportRate, recordReport } from '../../lib/rateLimit.js';
 
 const newId = () => crypto?.randomUUID?.() ?? `r-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
@@ -44,13 +45,26 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast }) {
 
   async function submit() {
     if (!cat || !coords) return;
+    const rate = checkReportRate();
+    if (!rate.ok) {
+      onToast(`Too many reports — please wait ~${rate.waitMin} min.`, '#C08A1E');
+      return;
+    }
     setBusy(true);
+    recordReport();
     const res = await onSubmit({
       id: newId(), category: cat, note: note.trim(), lat: coords[0], lng: coords[1],
       photoFile: photo, deviceId: getDeviceId(),
     });
-    onToast(res.queued ? 'No signal — report queued, will send when back online' : 'Report posted to the live map',
-      res.queued ? '#C08A1E' : '#3F7D43');
+    if (res && res.rateLimited) {
+      onToast('Sending too fast — please wait a few minutes.', '#C08A1E');
+      setBusy(false);
+      return;
+    }
+    onToast(
+      res.queued ? 'No signal — report queued, will send when back online' : 'Report posted to the live map',
+      res.queued ? '#C08A1E' : '#3F7D43',
+    );
     close();
   }
 
