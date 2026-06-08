@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { subscribeToPush } from './lib/push.js';
 import { savePushSubscription } from './features/alerts/pushApi.js';
 import AlertBanner from './components/AlertBanner.jsx';
@@ -43,7 +43,9 @@ export default function App() {
   const [tab, setTab] = useState('home');
   const [sheetOpen, setSheetOpen] = useState(false);
   const [toast, showToast] = useToast();
-  const [soundOn, setSoundOn] = useState(false);
+  const [soundOn, setSoundOn] = useState(() => {
+    try { return localStorage.getItem('lindol:alarm') === '1'; } catch { return false; }
+  });
   const { theme, toggle: toggleTheme } = useTheme();
   const [pushEnabled, setPushEnabled] = useState(() => {
     try { return localStorage.getItem('lindol:push') === '1'; } catch { return false; }
@@ -51,9 +53,22 @@ export default function App() {
   const { alert, dismiss } = useQuakeAlerts(all, soundOn);
 
   const toggleSound = () => {
-    if (!soundOn) arm();
-    setSoundOn((v) => !v);
+    setSoundOn((v) => {
+      const next = !v;
+      if (next) arm();
+      try { localStorage.setItem('lindol:alarm', next ? '1' : '0'); } catch { /* ignore */ }
+      return next;
+    });
   };
+
+  // After a reload, the alarm setting is restored but browsers require a user gesture
+  // before audio can play — re-arm on the first tap.
+  useEffect(() => {
+    if (!soundOn) return undefined;
+    const rearm = () => arm();
+    window.addEventListener('pointerdown', rearm, { once: true });
+    return () => window.removeEventListener('pointerdown', rearm);
+  }, []);
 
   const enablePush = async () => {
     try {
