@@ -19,6 +19,8 @@ import IntroOverlay from './components/IntroOverlay.jsx';
 import InstallPrompt from './components/InstallPrompt.jsx';
 import UpdatePrompt from './components/UpdatePrompt.jsx';
 import EarlyWarningTip from './components/EarlyWarningTip.jsx';
+import SupportCard from './components/SupportCard.jsx';
+import PrivacyPage from './features/legal/PrivacyPage.jsx';
 import { useQuakes } from './features/quakes/useQuakes.js';
 import { useReports } from './features/reports/useReports.js';
 import { useOnline } from './lib/useOnline.js';
@@ -36,6 +38,7 @@ function useToast() {
 
 export default function App() {
   if (typeof window !== 'undefined' && window.location.hash === '#admin') return <AdminPage />;
+  if (typeof window !== 'undefined' && window.location.hash === '#privacy') return <PrivacyPage />;
 
   const online = useOnline();
   const user = useGeolocation();
@@ -192,8 +195,11 @@ export default function App() {
                 <ShareButton stats={{ count: all.length, latestMag: latest?.mag, latestPlace: latest?.place }} />
               </div>
             </section>
+            <SupportCard />
             <footer className="credit">
               Built by <a href="https://moncodes.com" target="_blank" rel="noopener noreferrer">moncodes.com</a>
+              <span aria-hidden="true"> · </span>
+              <a href="#privacy">Privacy</a>
             </footer>
           </>
         )}

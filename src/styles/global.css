@@ -237,6 +237,39 @@ section{padding:18px 16px}
 .ew-tip.ok{border-color:var(--c-safe)}
 .ew-tip-h{font-size:13px; font-weight:700; color:var(--ink); margin-bottom:5px}
 .ew-tip p{font-size:11.5px; line-height:1.55; color:var(--ink-soft); margin:0}
+
+/* ---------- support / donations ---------- */
+.support-card{margin:8px 16px 4px; padding:14px; background:var(--card); border:1px solid var(--line);
+  border-radius:var(--r); box-shadow:var(--shadow-sm)}
+.support-h{font-size:14px; font-weight:800; color:var(--ink)}
+.support-card p{margin:6px 0 11px; font-size:12.5px; line-height:1.5; color:var(--ink-soft)}
+.support-btn{width:100%; background:var(--ember); color:#fff; border:0; border-radius:10px;
+  padding:11px; font-family:var(--font); font-weight:700; font-size:14px; cursor:pointer; transition:.15s}
+.support-btn:hover{background:var(--ember-deep)}
+.support-scrim{position:fixed; inset:0; z-index:1500; background:rgba(22,18,13,.6);
+  backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; padding:22px; animation:rise .25s both}
+.support-sheet{position:relative; width:100%; max-width:340px; background:var(--paper);
+  border:1px solid var(--line); border-radius:16px; padding:22px; text-align:center; box-shadow:var(--shadow-lg)}
+.support-x{position:absolute; top:10px; right:10px; width:30px; height:30px; border-radius:8px;
+  border:1px solid var(--line); background:var(--card); color:var(--ink-soft); cursor:pointer}
+.support-qr{width:200px; height:200px; object-fit:contain; border-radius:12px; margin:4px auto 12px;
+  display:block; background:#fff; padding:8px}
+.support-name{font-size:14px; font-weight:700; color:var(--ink); margin-bottom:6px}
+.support-num{font-family:var(--mono); font-size:18px; font-weight:700; color:var(--ember-deep);
+  background:var(--ember-wash); border:1px solid var(--line); border-radius:10px; padding:11px 14px; cursor:pointer; width:100%}
+.support-num span{font-family:var(--font); font-size:11px; font-weight:600; color:var(--ink-faint)}
+.support-note{font-size:11.5px; line-height:1.5; color:var(--ink-soft); margin:12px 0 0}
+
+/* ---------- legal pages ---------- */
+.legal{max-width:680px; margin:0 auto; padding:22px 18px 64px; color:var(--ink); line-height:1.6}
+.legal h1{font-size:25px; font-weight:800; margin:8px 0 2px}
+.legal h2{font-size:16px; font-weight:700; margin:22px 0 6px; color:var(--ink)}
+.legal p, .legal li{font-size:14px; color:var(--ink-soft)}
+.legal ul{padding-left:20px; display:flex; flex-direction:column; gap:6px; margin:8px 0}
+.legal-date{font-size:12px; color:var(--ink-faint); font-family:var(--mono); margin-bottom:14px}
+.legal-back{display:inline-block; margin:6px 0 14px; color:var(--ember-deep); font-weight:600; text-decoration:none; font-size:13px}
+.legal a{color:var(--ember-deep)}
+.credit a{color:var(--ink-faint)}
 .report.hidden-rp{opacity:.6}
 .report.hidden-rp .veil{padding:18px 14px; text-align:center; font-size:12.5px; color:var(--ink-faint)}
 
