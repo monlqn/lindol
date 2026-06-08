@@ -9,7 +9,7 @@ export default function StatusBar({ online, updatedAt }) {
     <div className="statusbar">
       <span className="live-pill"><span className="live-dot" /><span className="ls">{label}</span></span>
       <span>{stamp}</span>
-      <span style={{ opacity: 0.5 }}>v0.1</span>
+      <span style={{ opacity: 0.5 }}>v0.3·{typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : 'dev'}</span>
     </div>
   );
 }

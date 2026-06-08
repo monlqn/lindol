@@ -17,6 +17,7 @@ import ReportFeed from './features/reports/ReportFeed.jsx';
 import AdminPage from './features/admin/AdminPage.jsx';
 import IntroOverlay from './components/IntroOverlay.jsx';
 import InstallPrompt from './components/InstallPrompt.jsx';
+import UpdatePrompt from './components/UpdatePrompt.jsx';
 import { useQuakes } from './features/quakes/useQuakes.js';
 import { useReports } from './features/reports/useReports.js';
 import { useOnline } from './lib/useOnline.js';
@@ -159,6 +160,7 @@ export default function App() {
           <span>{toast.msg}</span>
         </div>
       )}
+      <UpdatePrompt />
       <IntroOverlay />
     </div>
   );

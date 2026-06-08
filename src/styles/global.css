@@ -68,7 +68,7 @@ body::after{ /* grain */
 
 /* ---------- scroll body ---------- */
 .scroll{flex:1; min-height:0; width:100%; overflow-y:auto; overflow-x:hidden; scrollbar-width:none;
-  -webkit-overflow-scrolling:touch; padding-bottom:28px}
+  -webkit-overflow-scrolling:touch; padding-bottom:46px}
 .scroll::-webkit-scrollbar{width:0}
 
 .offline-banner{display:none; gap:10px; align-items:center;
@@ -378,6 +378,16 @@ textarea:focus{outline:none; border-color:var(--ember)}
 .pp-photo{width:100%; border-radius:8px; margin-top:8px; display:block}
 
 /* ---------- southern Mindanao highlight zone ---------- */
+/* ---------- update available bar ---------- */
+.update-bar{position:fixed; z-index:1450; left:50%; transform:translateX(-50%); bottom:82px;
+  width:min(var(--app-w),calc(100% - 20px)); display:flex; align-items:center; gap:10px; padding:11px 14px;
+  background:var(--ink); color:var(--paper); border-radius:12px; box-shadow:var(--shadow-lg); font-size:12.5px}
+.update-bar span{flex:1; line-height:1.3}
+.update-btn{flex:none; background:var(--ember); color:#fff; border:0; border-radius:9px; padding:7px 14px;
+  font-family:var(--font); font-weight:700; font-size:12.5px; cursor:pointer}
+.update-btn:hover{background:var(--ember-deep)}
+.update-x{flex:none; background:none; border:0; color:var(--paper); opacity:.7; font-size:13px; cursor:pointer; padding:2px}
+
 .zone-label-wrap{display:flex; justify-content:center; align-items:flex-start}
 .zone-label{background:rgba(224,82,27,.92); color:#fff; font-family:var(--mono); font-size:9.5px;
   letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:6px; white-space:nowrap;

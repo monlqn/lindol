@@ -5,7 +5,7 @@ export const REGION = {
   // Whole-Philippines query window for the feed/map.
   bbox: { minLat: 4.5, maxLat: 21.5, minLng: 116.0, maxLng: 127.0 },
   // The active Southern Mindanao aftershock zone we highlight on the map.
-  highlight: { minLat: 5.0, maxLat: 8.0, minLng: 124.0, maxLng: 127.0 },
+  highlight: { minLat: 4.8, maxLat: 7.2, minLng: 124.0, maxLng: 126.4 },
   minMagnitude: 2.5,
   alertMinMag: 4.5,
   windowDays: 7,

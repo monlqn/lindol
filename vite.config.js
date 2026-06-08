@@ -2,13 +2,18 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
+const d = new Date();
+const pad = (n) => String(n).padStart(2, '0');
+const buildId = `${pad(d.getMonth() + 1)}${pad(d.getDate())}.${pad(d.getHours())}${pad(d.getMinutes())}`;
+
 // Served at a root domain (lindol.app), so base is '/'.
 export default defineConfig({
   base: '/',
+  define: { __BUILD_ID__: JSON.stringify(buildId) },
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       includeAssets: ['icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'og-image.png'],
       manifest: {
         name: 'LINDOL — Southern Mindanao Earthquake Watch',
