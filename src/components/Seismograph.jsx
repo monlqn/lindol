@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { REGION } from '../config.js';
 
-// Real seismograph: each spike is an ACTUAL recent quake (magnitude over time, USGS).
-// A radar sweep travels across and lights up each real event as it passes; the biggest
-// event pulses. The spikes are real data — only the sweep/pulse are animation.
+// Real seismograph: each sharp spike is an ACTUAL recent quake (USGS), riding on a
+// gently-flowing ambient noise floor (what a live seismometer shows at rest). A radar
+// sweep scans across and the most recent quake pulses — alive, but the events are real.
 export default function Seismograph({ quakes = [] }) {
   const ref = useRef(null);
   const dataRef = useRef(quakes);
@@ -23,56 +23,60 @@ export default function Seismograph({ quakes = [] }) {
     dims();
     const windowMs = REGION.windowDays * 86400000;
     const spikeH = (mag, baseline) =>
-      Math.min(baseline - 2, Math.max(3, ((mag - 2.5) / 5.5) * (baseline - 4)));
+      Math.min(baseline - 2, Math.max(4, ((mag - 2.5) / 5.5) * (baseline - 6)));
 
     const draw = () => {
-      t++;
+      t += 1;
       const now = Date.now();
       const tStart = now - windowMs;
       const baseline = H * 0.64;
       cx.clearRect(0, 0, W, H);
 
-      cx.strokeStyle = 'rgba(224,82,27,.1)'; cx.lineWidth = 1;
-      cx.beginPath(); cx.moveTo(0, baseline); cx.lineTo(W, baseline); cx.stroke();
+      const qs = (dataRef.current || []).filter((q) => q && typeof q.mag === 'number' && q.time >= tStart);
+      const qx = qs.map((q) => ({ x: ((q.time - tStart) / windowMs) * W, h: spikeH(q.mag, baseline), time: q.time }));
+      let newest = null;
+      for (const item of qx) if (!newest || item.time > newest.time) newest = item;
 
-      const qs = (dataRef.current || [])
-        .filter((q) => q && typeof q.mag === 'number' && q.time >= tStart)
-        .sort((a, b) => a.time - b.time);
+      sweep = (sweep + 1.1) % (W + 60);
 
-      sweep = (sweep + 0.9) % (W + 60);
-
-      let big = null;
-      qs.forEach((q) => {
-        if (!big || q.mag > big.mag) big = q;
-        const x = ((q.time - tStart) / windowMs) * W;
-        const h = spikeH(q.mag, baseline);
-        const prox = Math.max(0, 1 - Math.abs(x - sweep) / 70); // glow when the sweep is near
-        cx.strokeStyle = `rgba(224,82,27,${0.45 + 0.5 * prox})`;
-        cx.lineWidth = 1.3 + prox * 1.4;
-        cx.shadowColor = 'rgba(224,82,27,.75)'; cx.shadowBlur = 3 + prox * 12;
-        cx.lineJoin = 'round';
-        cx.beginPath();
-        cx.moveTo(x - 3, baseline); cx.lineTo(x, baseline - h); cx.lineTo(x + 3, baseline);
-        cx.stroke();
-      });
+      // one continuous trace: flowing ambient noise floor + sharp real-event spikes
+      cx.beginPath();
+      for (let x = 0; x <= W; x += 1.4) {
+        const noise = (Math.sin(x * 0.05 + t * 0.06) + Math.sin(x * 0.11 - t * 0.035) * 0.6) * (H * 0.018);
+        let spike = 0;
+        for (const item of qx) {
+          const d = Math.abs(x - item.x);
+          if (d < 4) spike = Math.max(spike, item.h * (1 - d / 4));
+        }
+        const y = baseline + noise - spike;
+        if (x === 0) cx.moveTo(x, y); else cx.lineTo(x, y);
+      }
+      cx.strokeStyle = '#E0521B';
+      cx.lineWidth = 1.5;
+      cx.lineJoin = 'round';
+      cx.shadowColor = 'rgba(224,82,27,.6)';
+      cx.shadowBlur = 5;
+      cx.stroke();
       cx.shadowBlur = 0;
 
-      if (big) {
-        const x = ((big.time - tStart) / windowMs) * W;
-        const h = spikeH(big.mag, baseline);
-        const pulse = 0.5 + 0.5 * Math.sin(t * 0.12);
-        cx.fillStyle = `rgba(255,255,255,${0.6 + 0.4 * pulse})`;
-        cx.shadowColor = 'rgba(224,82,27,.9)'; cx.shadowBlur = 6 + pulse * 8;
-        cx.beginPath(); cx.arc(x, baseline - h, 2.2, 0, 7); cx.fill();
+      // the most recent quake pulses (the "live" event)
+      if (newest) {
+        const pulse = 0.5 + 0.5 * Math.sin(t * 0.13);
+        cx.fillStyle = `rgba(255,255,255,${0.55 + 0.45 * pulse})`;
+        cx.shadowColor = 'rgba(224,82,27,.9)';
+        cx.shadowBlur = 6 + pulse * 10;
+        cx.beginPath(); cx.arc(newest.x, baseline - newest.h, 2.2, 0, 7); cx.fill();
         cx.shadowBlur = 0;
       }
 
       // radar sweep: trailing glow + bright leading line
-      const grad = cx.createLinearGradient(sweep - 55, 0, sweep, 0);
+      const grad = cx.createLinearGradient(sweep - 60, 0, sweep, 0);
       grad.addColorStop(0, 'rgba(224,82,27,0)');
-      grad.addColorStop(1, 'rgba(224,82,27,.22)');
-      cx.fillStyle = grad; cx.fillRect(sweep - 55, 0, 55, H);
-      cx.strokeStyle = 'rgba(255,170,120,.5)'; cx.lineWidth = 1;
+      grad.addColorStop(1, 'rgba(224,82,27,.28)');
+      cx.fillStyle = grad;
+      cx.fillRect(sweep - 60, 0, 60, H);
+      cx.strokeStyle = 'rgba(255,180,130,.65)';
+      cx.lineWidth = 1.2;
       cx.beginPath(); cx.moveTo(sweep, 0); cx.lineTo(sweep, H); cx.stroke();
 
       raf = requestAnimationFrame(draw);
