@@ -50,7 +50,7 @@ export default function App() {
       if (!key) return showToast('Push not configured yet', '#CC2A2A');
       const sub = await subscribeToPush(key);
       await savePushSubscription(sub);
-      showToast('You'll be notified of aftershocks', '#3F7D43');
+      showToast("You'll be notified of aftershocks", '#3F7D43');
     } catch (e) {
       showToast(e.message || 'Could not enable notifications', '#CC2A2A');
     }
