@@ -25,7 +25,7 @@ export default function AdminPage() {
   if (!session) {
     return (
       <div style={{ maxWidth: 360, margin: '60px auto', padding: 24 }}>
-        <h2 style={{ fontWeight: 800, marginBottom: 12 }}>LINDÓL admin</h2>
+        <h2 style={{ fontWeight: 800, marginBottom: 12 }}>LINDOL admin</h2>
         <form onSubmit={doLogin}>
           <input type="email" placeholder="email" value={email} onChange={(e) => setEmail(e.target.value)}
             style={{ width: '100%', padding: 12, marginBottom: 8 }} />

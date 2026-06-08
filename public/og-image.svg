@@ -3,6 +3,6 @@
   <g stroke="#E0521B" stroke-width="6" fill="none" stroke-linejoin="round" stroke-linecap="round" opacity="0.9">
     <path d="M0 470 H300 L360 360 L430 560 L500 250 L560 470 H1200"/>
   </g>
-  <text x="80" y="250" font-family="Sora, Arial, sans-serif" font-size="150" font-weight="800" fill="#16120D" letter-spacing="-4">LIND<tspan fill="#E0521B">Ó</tspan>L</text>
+  <text x="80" y="250" font-family="Sora, Arial, sans-serif" font-size="150" font-weight="800" fill="#16120D" letter-spacing="-4">LIND<tspan fill="#E0521B">O</tspan>L</text>
   <text x="86" y="320" font-family="Sora, Arial, sans-serif" font-size="40" font-weight="600" fill="#5B5347">Southern Mindanao · Live Earthquake Watch</text>
 </svg>

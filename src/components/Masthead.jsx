@@ -1,13 +1,16 @@
 import Seismograph from './Seismograph.jsx';
 
-export default function Masthead() {
+export default function Masthead({ quakes = [] }) {
   return (
     <header className="masthead">
       <div className="brandrow">
-        <div className="wordmark">LIND<b>Ó</b>L</div>
+        <div className="wordmark" aria-label="LINDOL">
+          <span aria-hidden="true">LIND<span className="epi-o"><i /></span>L</span>
+        </div>
         <div className="tagline">Southern Mindanao · live earthquake watch</div>
       </div>
-      <Seismograph />
+      <Seismograph quakes={quakes} />
+      <div className="seismo-cap">{quakes.length} quakes · last 7 days · USGS</div>
     </header>
   );
 }

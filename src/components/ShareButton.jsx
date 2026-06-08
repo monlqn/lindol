@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-const SHARE_TITLE = 'LINDÓL — Southern Mindanao Live Earthquake Watch';
+const SHARE_TITLE = 'LINDOL — Southern Mindanao Live Earthquake Watch';
 const SHARE_TEXT = 'Live earthquakes, aftershocks & safety for Southern Mindanao. Stay informed:';
 
 export default function ShareButton() {
@@ -56,7 +56,7 @@ export default function ShareButton() {
           <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
           <path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4" />
         </svg>
-        Share LINDÓL
+        Share LINDOL
       </button>
       {open && (
         <div className="share-menu">
