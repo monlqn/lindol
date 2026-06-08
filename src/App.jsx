@@ -175,10 +175,6 @@ function MainApp() {
               <SectionLabel>Recent quakes · {all.length} in 7 days</SectionLabel>
               <QuakeList quakes={all} />
             </section>
-            <section className="reveal">
-              <SectionLabel>Community</SectionLabel>
-              <Community />
-            </section>
           </>
         )}
 
@@ -196,6 +192,10 @@ function MainApp() {
               </div>
               <ReportFeed reports={reports} onFlag={flag} onConfirm={confirm} onResolve={resolve}
                 onEscalate={escalate} onVoteResolve={voteResolve} onOpenPhoto={setLightbox} focused={focusedReport} />
+            </section>
+            <section className="reveal">
+              <SectionLabel>Your impact &amp; community</SectionLabel>
+              <Community />
             </section>
           </>
         )}
