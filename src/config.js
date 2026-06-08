@@ -13,6 +13,15 @@ export const REGION = {
   windowDays: 7,
 };
 
+// Emergency hotlines (national). Local barangay/DRRMO numbers vary, so we prompt users
+// to save their own. Short codes (911/143) dial as-is; landlines include +63.
+export const HOTLINES = [
+  { label: 'National Emergency', number: '911', tel: '911', icon: '🚨' },
+  { label: 'Philippine Red Cross', number: '143', tel: '143', icon: '➕' },
+  { label: 'NDRRMC Operations', number: '(02) 8911-1406', tel: '+63289111406', icon: '🛟' },
+  { label: 'PHIVOLCS (quake info)', number: '(02) 8929-9254', tel: '+63289299254', icon: '🌋' },
+];
+
 // Voluntary donation support. The Support card only renders once gcashNumber is set,
 // so nothing placeholder/fake is ever shown publicly.
 export const DONATION = {

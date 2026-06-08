@@ -89,5 +89,11 @@ export function useReports(user = REGION.defaultUser) {
     try { await setReportResolved(supabase, id, getDeviceId(), resolved); } finally { refresh(); }
   }, [refresh]);
 
-  return { reports, pendingCount, status, submit, flag, confirm, resolve, refresh };
+  const escalate = useCallback(async (id) => {
+    setReports((prev) => prev.map((r) => (r.id === id ? { ...r, escalated: true } : r)));
+    const { escalateReport } = await import('./reportsApi.js');
+    try { await escalateReport(supabase, id); } finally { refresh(); }
+  }, [refresh]);
+
+  return { reports, pendingCount, status, submit, flag, confirm, resolve, escalate, refresh };
 }

@@ -325,6 +325,34 @@ section{padding:18px 16px}
 .ig-resolve:hover{border-color:var(--c-safe); color:var(--c-safe)}
 .ig-resolve.on{color:var(--c-safe); border-color:var(--c-safe)}
 .ig-confirmcount{font-size:11.5px; color:var(--c-safe); font-weight:600}
+.ig-escalate-row{padding:0 11px 10px}
+.ig-escalate{width:100%; display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  cursor:pointer; font-family:inherit; font-size:13px; font-weight:700; padding:9px 12px; border-radius:10px;
+  border:1px solid var(--line-strong); background:var(--ember-wash); color:var(--ember-deep); transition:.15s}
+.ig-escalate:hover{border-color:var(--ember)}
+.ig-escalate.done{background:rgba(63,125,67,.14); border-color:var(--c-safe); color:var(--c-safe)}
+.escalate-panel{margin:0 11px 12px; padding:12px; border:1px solid var(--line); border-radius:12px; background:var(--bone)}
+.ep-note{font-size:11.5px; color:var(--ink-soft); line-height:1.45; margin:0 0 9px}
+.ep-text{font-family:var(--mono); font-size:11px; color:var(--ink-soft); white-space:pre-wrap; line-height:1.5;
+  background:var(--card); border:1px solid var(--line); border-radius:9px; padding:9px; margin-bottom:9px; word-break:break-word}
+.ep-actions{display:flex; gap:7px; margin-bottom:9px}
+.ep-actions button,.ep-actions .ep-btn{flex:1; text-align:center; cursor:pointer; font-family:inherit; font-size:12.5px;
+  font-weight:600; padding:8px; border-radius:9px; border:1px solid var(--line-strong); background:var(--card);
+  color:var(--ink); text-decoration:none}
+.ep-actions button:hover,.ep-actions .ep-btn:hover{border-color:var(--ember)}
+.ep-calls{display:flex; flex-direction:column; gap:6px}
+.ep-calls a{display:flex; align-items:center; gap:8px; padding:9px 11px; border-radius:9px; background:var(--c-help);
+  color:#fff; text-decoration:none; font-size:12.5px; font-weight:700}
+
+/* emergency hotline directory */
+.hotlines{display:flex; flex-direction:column; gap:8px; margin:0 16px}
+.hotline{display:flex; align-items:center; gap:11px; padding:12px 14px; border-radius:12px;
+  background:var(--card); border:1px solid var(--line); box-shadow:var(--shadow-sm); text-decoration:none; transition:.15s}
+.hotline:hover{border-color:var(--ember)}
+.hl-ic{font-size:20px; line-height:1}
+.hl-name{font-size:13.5px; font-weight:600; color:var(--ink)}
+.hl-num{margin-left:auto; font-family:var(--mono); font-size:13px; font-weight:700; color:var(--ember-deep)}
+.hl-tip{font-size:11px; color:var(--ink-faint); line-height:1.45; margin:9px 16px 0}
 
 /* ---------- bottom sheet (report flow) ---------- */
 .scrim{position:fixed; inset:0; z-index:1000; background:rgba(22,18,13,.5);

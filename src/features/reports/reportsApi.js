@@ -14,7 +14,13 @@ export function normalizeRow(r) {
     sensitive: r.sensitive ?? false,
     state: r.state ?? 'open',
     confirmCount: r.confirm_count ?? 0,
+    escalated: r.escalated ?? false,
   };
+}
+
+export async function escalateReport(client, rid) {
+  const { error } = await client.rpc('escalate_report', { rid });
+  if (error) throw error;
 }
 
 export async function confirmReport(client, rid, deviceId) {

@@ -27,6 +27,7 @@ import { useOnline } from './lib/useOnline.js';
 import { useGeolocation } from './lib/useGeolocation.js';
 import { useQuakeAlerts } from './features/alerts/useQuakeAlerts.js';
 import { arm, startAlarm, stopAlarm } from './lib/alarm.js';
+import { HOTLINES } from './config.js';
 import { useTheme } from './lib/useTheme.js';
 import ToggleRow from './components/ToggleRow.jsx';
 
@@ -52,7 +53,7 @@ function MainApp() {
   const online = useOnline();
   const user = useGeolocation();
   const { latest, mainshock, aftershocks, all, status, updatedAt } = useQuakes(user);
-  const { reports, pendingCount, submit, flag, confirm, resolve } = useReports(user);
+  const { reports, pendingCount, submit, flag, confirm, resolve, escalate } = useReports(user);
   const [tab, setTab] = useState(() => {
     if (typeof window === 'undefined') return 'home';
     if (new URLSearchParams(window.location.search).get('r') || window.location.hash === '#reports') return 'reports';
@@ -168,7 +169,7 @@ function MainApp() {
             )}
             <section className="reveal">
               <SectionLabel>Citizen reports · near you</SectionLabel>
-              <ReportFeed reports={reports} onFlag={flag} onConfirm={confirm} onResolve={resolve} focused={focusedReport} />
+              <ReportFeed reports={reports} onFlag={flag} onConfirm={confirm} onResolve={resolve} onEscalate={escalate} focused={focusedReport} />
             </section>
           </>
         )}
@@ -181,6 +182,19 @@ function MainApp() {
                 <p>Life-threatening emergency? LINDOL alerts the community - it is <b>not</b> an emergency service. Call the national hotline now.</p>
                 <a className="call911" href="tel:911">📞 Call 911</a>
               </div>
+            </section>
+            <section className="reveal">
+              <SectionLabel>Emergency hotlines</SectionLabel>
+              <div className="hotlines">
+                {HOTLINES.map((h) => (
+                  <a key={h.tel} className="hotline" href={`tel:${h.tel}`}>
+                    <span className="hl-ic">{h.icon}</span>
+                    <span className="hl-name">{h.label}</span>
+                    <span className="hl-num">{h.number}</span>
+                  </a>
+                ))}
+              </div>
+              <p className="hl-tip">Save your barangay & city/municipal DRRMO numbers; they respond fastest. LINDOL alerts the community, not responders.</p>
             </section>
             <section className="reveal">
               <SectionLabel>Safety · works offline</SectionLabel>

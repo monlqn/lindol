@@ -8,7 +8,7 @@ describe('normalizeRow', () => {
     expect(normalizeRow(row)).toEqual({
       id: 'a', createdAt: Date.parse('2026-06-08T07:42:00Z'), category: 'fire',
       note: 'hi', lat: 7, lng: 126, photoUrl: 'u', status: 'visible', flagCount: 2, sensitive: false,
-      state: 'open', confirmCount: 0,
+      state: 'open', confirmCount: 0, escalated: false,
     });
   });
 });

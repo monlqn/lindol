@@ -5,6 +5,9 @@ import { relativeTime } from '../../lib/time.js';
 import SensitivePhoto from '../../components/SensitivePhoto.jsx';
 import { getShareImageFile } from '../../lib/share.js';
 import { renderReportCard } from '../../lib/reportCard.js';
+import { HOTLINES } from '../../config.js';
+
+const EKEY = 'lindol:escalated';
 
 const LABEL = Object.fromEntries(CATEGORIES.map((c) => [c.key, c.label]));
 const FKEY = 'lindol:flagged';
@@ -38,7 +41,7 @@ function rememberFlagged(id) {
   } catch { /* ignore */ }
 }
 
-export default function ReportCard({ report, onFlag, onConfirm, onResolve, highlight }) {
+export default function ReportCard({ report, onFlag, onConfirm, onResolve, onEscalate, highlight }) {
   const color = categoryColor(report.category);
   const label = LABEL[report.category] ?? 'Report';
   const state = report.state || 'open';
@@ -56,6 +59,23 @@ export default function ReportCard({ report, onFlag, onConfirm, onResolve, highl
     onConfirm?.(report.id);
   };
   const doResolve = () => onResolve?.(report.id, !resolved);
+
+  const [escalating, setEscalating] = useState(false);
+  const escalated = report.escalated || listHas(EKEY, report.id);
+  const details = `LINDOL citizen report - ${label}
+Location: ${report.lat.toFixed(4)}, ${report.lng.toFixed(4)} (https://maps.google.com/?q=${report.lat},${report.lng})
+Time: ${new Date(report.createdAt).toLocaleString()}${report.note ? `\nDetails: ${report.note}` : ''}
+Live: ${window.location.origin}/r/${report.id}`;
+
+  const markEscalated = () => { listAdd(EKEY, report.id); onEscalate?.(report.id); };
+  const copyDetails = async () => {
+    try { await navigator.clipboard.writeText(details); } catch { /* blocked */ }
+    markEscalated();
+  };
+  const shareDetails = async () => {
+    try { if (navigator.share) await navigator.share({ text: details }); } catch { /* cancelled */ }
+    markEscalated();
+  };
 
   const choose = (reasonKey) => {
     if (flagged) return;          // one flag per device - locks after tapping
@@ -138,6 +158,30 @@ export default function ReportCard({ report, onFlag, onConfirm, onResolve, highl
               {resolved ? '↩ Reopen' : '✅ Mark resolved'}
             </button>
           )}
+        </div>
+      )}
+
+      {onEscalate && (
+        <div className="ig-escalate-row">
+          <button className={`ig-escalate${escalated ? ' done' : ''}`} onClick={() => setEscalating((v) => !v)}>
+            {escalated ? '📨 Reported to authorities' : '📨 Report to authorities'}
+          </button>
+        </div>
+      )}
+      {escalating && (
+        <div className="escalate-panel">
+          <p className="ep-note">Send this to your barangay / DRRMO / BFP, or share it to an official page. Save their number for fastest response.</p>
+          <div className="ep-text">{details}</div>
+          <div className="ep-actions">
+            <button onClick={copyDetails}>📋 Copy</button>
+            <a className="ep-btn" href={`sms:?body=${encodeURIComponent(details)}`} onClick={markEscalated}>💬 SMS</a>
+            <button onClick={shareDetails}>📤 Share</button>
+          </div>
+          <div className="ep-calls">
+            {HOTLINES.slice(0, 2).map((h) => (
+              <a key={h.tel} href={`tel:${h.tel}`} onClick={markEscalated}>{h.icon} {h.label} · {h.number}</a>
+            ))}
+          </div>
         </div>
       )}
 

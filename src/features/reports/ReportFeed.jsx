@@ -1,6 +1,6 @@
 import ReportCard from './ReportCard.jsx';
 
-export default function ReportFeed({ reports, onFlag, onConfirm, onResolve, focused }) {
+export default function ReportFeed({ reports, onFlag, onConfirm, onResolve, onEscalate, focused }) {
   const base = [...reports].sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
   // A deep-linked (shared) report may not be near the viewer - show it at the top.
   const list = focused && !base.some((r) => r.id === focused.id) ? [focused, ...base] : base;
@@ -12,7 +12,7 @@ export default function ReportFeed({ reports, onFlag, onConfirm, onResolve, focu
     <div className="feed">
       {list.map((r) => (
         <ReportCard key={r.id} report={r} onFlag={onFlag} onConfirm={onConfirm} onResolve={onResolve}
-          highlight={focused && r.id === focused.id} />
+          onEscalate={onEscalate} highlight={focused && r.id === focused.id} />
       ))}
     </div>
   );
