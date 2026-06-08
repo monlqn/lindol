@@ -99,7 +99,7 @@ export default function ReportCard({ report, onFlag, highlight }) {
       </div>
 
       {report.note && (
-        <div className="ig-caption"><b>{label}</b> {report.note}</div>
+        <div className="ig-caption">{report.note}</div>
       )}
 
       {picking && !flagged && (
