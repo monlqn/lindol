@@ -8,6 +8,18 @@ import { renderReportCard } from '../../lib/reportCard.js';
 
 const LABEL = Object.fromEntries(CATEGORIES.map((c) => [c.key, c.label]));
 const FKEY = 'lindol:flagged';
+const MKEY = 'lindol:mine';
+const CKEY = 'lindol:confirmed';
+
+function listHas(key, id) {
+  try { return JSON.parse(localStorage.getItem(key) || '[]').includes(id); } catch { return false; }
+}
+function listAdd(key, id) {
+  try {
+    const a = JSON.parse(localStorage.getItem(key) || '[]');
+    if (!a.includes(id)) { a.push(id); localStorage.setItem(key, JSON.stringify(a)); }
+  } catch { /* ignore */ }
+}
 const REASONS = [
   { key: 'fake', label: '🚫 Fake / false' },
   { key: 'graphic', label: '🩸 Graphic' },
@@ -26,12 +38,24 @@ function rememberFlagged(id) {
   } catch { /* ignore */ }
 }
 
-export default function ReportCard({ report, onFlag, highlight }) {
+export default function ReportCard({ report, onFlag, onConfirm, onResolve, highlight }) {
   const color = categoryColor(report.category);
   const label = LABEL[report.category] ?? 'Report';
+  const state = report.state || 'open';
+  const resolved = state === 'resolved';
+  const mine = listHas(MKEY, report.id);
   const [flagged, setFlagged] = useState(() => readFlagged().includes(report.id));
+  const [confirmed, setConfirmed] = useState(() => listHas(CKEY, report.id));
   const [picking, setPicking] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  const doConfirm = () => {
+    if (confirmed || mine) return;     // can't confirm your own report, once per device
+    listAdd(CKEY, report.id);
+    setConfirmed(true);
+    onConfirm?.(report.id);
+  };
+  const doResolve = () => onResolve?.(report.id, !resolved);
 
   const choose = (reasonKey) => {
     if (flagged) return;          // one flag per device - locks after tapping
@@ -63,7 +87,7 @@ export default function ReportCard({ report, onFlag, highlight }) {
   };
 
   return (
-    <article className={`igpost${highlight ? ' shared' : ''}`}>
+    <article className={`igpost${highlight ? ' shared' : ''}${resolved ? ' resolved' : ''}`}>
       {highlight && <div className="shared-tag">🔗 Shared report</div>}
 
       <header className="ig-head">
@@ -72,7 +96,12 @@ export default function ReportCard({ report, onFlag, highlight }) {
           <span className="ig-name">{label}</span>
           <span className="ig-loc">{report.lat.toFixed(3)}, {report.lng.toFixed(3)} · {formatKm(report.distanceKm ?? 0)} away</span>
         </div>
-        <span className="ig-time">{relativeTime(report.createdAt)}</span>
+        <div className="ig-meta">
+          {state !== 'open' && (
+            <span className={`state-badge ${state}`}>{resolved ? '✅ Resolved' : '✓ Confirmed'}</span>
+          )}
+          <span className="ig-time">{relativeTime(report.createdAt)}</span>
+        </div>
       </header>
 
       {report.photoUrl
@@ -93,6 +122,24 @@ export default function ReportCard({ report, onFlag, highlight }) {
           {flagged ? 'Flagged' : `Flag${report.flagCount ? ` · ${report.flagCount}` : ''}`}
         </button>
       </div>
+
+      {(onConfirm || onResolve) && (
+        <div className="ig-life">
+          {!mine && !resolved && (
+            <button className="ig-confirm" onClick={doConfirm} disabled={confirmed}>
+              ✓ {confirmed ? 'Confirmed' : 'Confirm'}{report.confirmCount ? ` · ${report.confirmCount}` : ''}
+            </button>
+          )}
+          {(mine || resolved) && report.confirmCount > 0 && (
+            <span className="ig-confirmcount">✓ {report.confirmCount} confirmed by neighbours</span>
+          )}
+          {mine && (
+            <button className={`ig-resolve${resolved ? ' on' : ''}`} onClick={doResolve}>
+              {resolved ? '↩ Reopen' : '✅ Mark resolved'}
+            </button>
+          )}
+        </div>
+      )}
 
       {report.note && (
         <div className="ig-caption">{report.note}</div>

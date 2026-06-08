@@ -196,6 +196,7 @@ section{padding:18px 16px}
   border:2.5px solid #fff; box-shadow:0 3px 8px rgba(0,0,0,.38); display:grid; place-items:center}
 .rpin-i{transform:rotate(-45deg); width:21px; height:21px; border-radius:50%; background:#fff;
   display:grid; place-items:center; font-size:13px; line-height:1}
+.rpin.resolved{opacity:.5}
 
 /* ---------- report feed ---------- */
 .feed{display:flex; flex-direction:column; gap:12px}
@@ -307,6 +308,23 @@ section{padding:18px 16px}
 .ig-act.flag:disabled{color:var(--c-help); opacity:.75; cursor:default}
 .ig-caption{padding:3px 14px 13px; font-size:13.5px; color:var(--ink); line-height:1.45}
 .ig-caption b{font-weight:700}
+.ig-meta{margin-left:auto; display:flex; align-items:center; gap:8px}
+.ig-meta .ig-time{margin-left:0}
+.state-badge{font-family:var(--mono); font-size:9.5px; font-weight:700; letter-spacing:.03em;
+  text-transform:uppercase; padding:3px 8px; border-radius:999px; white-space:nowrap}
+.state-badge.confirmed{background:rgba(63,125,67,.16); color:var(--c-safe)}
+.state-badge.resolved{background:rgba(63,125,67,.16); color:var(--c-safe)}
+.igpost.resolved{opacity:.7}
+.ig-life{display:flex; align-items:center; gap:8px; padding:0 11px 9px}
+.ig-confirm,.ig-resolve{display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-family:inherit;
+  font-size:12.5px; font-weight:600; padding:7px 13px; border-radius:999px; border:1px solid var(--line);
+  background:var(--card); color:var(--ink-soft); transition:.15s}
+.ig-confirm:hover{border-color:var(--c-safe); color:var(--c-safe)}
+.ig-confirm:disabled{cursor:default; border-color:var(--c-safe); color:var(--c-safe); opacity:.85}
+.ig-resolve{margin-left:auto}
+.ig-resolve:hover{border-color:var(--c-safe); color:var(--c-safe)}
+.ig-resolve.on{color:var(--c-safe); border-color:var(--c-safe)}
+.ig-confirmcount{font-size:11.5px; color:var(--c-safe); font-weight:600}
 
 /* ---------- bottom sheet (report flow) ---------- */
 .scrim{position:fixed; inset:0; z-index:1000; background:rgba(22,18,13,.5);

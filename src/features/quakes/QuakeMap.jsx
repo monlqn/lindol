@@ -107,11 +107,11 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
           </Marker>
         ))}
         {showReports && reports.map((r) => (
-          <Marker key={r.id} position={[r.lat, r.lng]} icon={reportIcon(r.category)}>
+          <Marker key={r.id} position={[r.lat, r.lng]} icon={reportIcon(r.category, r.state === 'resolved')}>
             <Popup>
               <div className="pin-pop">
                 <span className="cat-tag" style={{ background: categoryColor(r.category) }}>{categoryIcon(r.category)} {CAT_LABEL[r.category] || 'Report'}</span>
-                <div className="pp-sub">{relativeTime(r.createdAt)}{r.distanceKm != null ? ` · ≈ ${formatKm(r.distanceKm)} from you` : ''}</div>
+                <div className="pp-sub">{relativeTime(r.createdAt)}{r.distanceKm != null ? ` · ≈ ${formatKm(r.distanceKm)} from you` : ''}{r.state === 'resolved' ? ' · ✅ resolved' : r.state === 'confirmed' ? ' · ✓ confirmed' : ''}</div>
                 {r.note && <div className="pp-note">{r.note}</div>}
                 {r.photoUrl && <img className="pp-photo" src={r.photoUrl} alt="" />}
               </div>

@@ -12,7 +12,19 @@ export function normalizeRow(r) {
     status: r.status,
     flagCount: r.flag_count ?? 0,
     sensitive: r.sensitive ?? false,
+    state: r.state ?? 'open',
+    confirmCount: r.confirm_count ?? 0,
   };
+}
+
+export async function confirmReport(client, rid, deviceId) {
+  const { error } = await client.rpc('confirm_report', { rid, dev: deviceId });
+  if (error) throw error;
+}
+
+export async function setReportResolved(client, rid, deviceId, resolved) {
+  const { error } = await client.rpc('set_report_resolved', { rid, dev: deviceId, resolved });
+  if (error) throw error;
 }
 
 export async function fetchRecentReports(client, { sinceHours = 48, limit = 200 } = {}) {

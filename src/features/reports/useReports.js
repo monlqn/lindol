@@ -71,5 +71,23 @@ export function useReports(user = REGION.defaultUser) {
     try { await flagReport(supabase, id, getDeviceId(), reason); } finally { refresh(); }
   }, [refresh]);
 
-  return { reports, pendingCount, status, submit, flag, refresh };
+  const confirm = useCallback(async (id) => {
+    setReports((prev) => prev.map((r) => (r.id === id ? { ...r, confirmCount: r.confirmCount + 1 } : r)));
+    const [{ confirmReport }, { getDeviceId }] = await Promise.all([
+      import('./reportsApi.js'),
+      import('../../lib/device.js'),
+    ]);
+    try { await confirmReport(supabase, id, getDeviceId()); } finally { refresh(); }
+  }, [refresh]);
+
+  const resolve = useCallback(async (id, resolved) => {
+    setReports((prev) => prev.map((r) => (r.id === id ? { ...r, state: resolved ? 'resolved' : 'open' } : r)));
+    const [{ setReportResolved }, { getDeviceId }] = await Promise.all([
+      import('./reportsApi.js'),
+      import('../../lib/device.js'),
+    ]);
+    try { await setReportResolved(supabase, id, getDeviceId(), resolved); } finally { refresh(); }
+  }, [refresh]);
+
+  return { reports, pendingCount, status, submit, flag, confirm, resolve, refresh };
 }

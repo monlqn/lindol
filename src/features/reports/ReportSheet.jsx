@@ -75,6 +75,11 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast }) {
     setBusy(true);
     recordReport();
     const id = newId();
+    // Remember it's mine so I (and only my device) can mark it resolved later.
+    try {
+      const m = JSON.parse(localStorage.getItem('lindol:mine') || '[]');
+      m.push(id); localStorage.setItem('lindol:mine', JSON.stringify(m));
+    } catch { /* ignore */ }
     const res = await onSubmit({
       id, category: cat, note: note.trim(), lat: coords[0], lng: coords[1],
       photoFile: photo, deviceId: getDeviceId(),
