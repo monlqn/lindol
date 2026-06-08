@@ -285,11 +285,14 @@ textarea:focus{outline:none; border-color:var(--ember)}
   color:var(--ink-faint); margin-top:13px}
 
 /* ---------- map: recenter button + attribution ---------- */
-.map-recenter{position:absolute; z-index:500; right:10px; bottom:54px; width:36px; height:36px;
-  border-radius:10px; border:1px solid var(--line-strong); background:rgba(252,250,244,.94);
-  backdrop-filter:blur(6px); display:grid; place-items:center; cursor:pointer; color:var(--ink-soft);
-  box-shadow:var(--shadow-sm); transition:.15s}
-.map-recenter:hover{color:var(--ember-deep)}
+.map-btn{position:absolute; z-index:500; width:36px; height:36px; border-radius:10px;
+  border:1px solid var(--line-strong); background:rgba(252,250,244,.94); backdrop-filter:blur(6px);
+  display:grid; place-items:center; cursor:pointer; color:var(--ink-soft); box-shadow:var(--shadow-sm); transition:.15s}
+.map-btn:hover{color:var(--ember-deep)}
+.map-expand{right:10px; bottom:54px}
+.map-recenter{right:54px; bottom:54px}
+.mapwrap-full{position:fixed; inset:0; z-index:1200; height:100dvh; border:0; border-radius:0}
+.mapwrap-full .legend{bottom:16px}
 .leaflet-control-attribution{font-size:8.5px !important; background:rgba(252,250,244,.78) !important;
   color:var(--ink-faint) !important; padding:1px 5px !important; border-radius:0 0 0 6px}
 .leaflet-control-attribution a{color:var(--ink-soft) !important}

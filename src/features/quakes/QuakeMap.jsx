@@ -26,10 +26,25 @@ function FollowUser({ user }) {
 export default function QuakeMap({ mainshock, aftershocks = [], reports = [], user = REGION.defaultUser }) {
   const [showQuakes, setShowQuakes] = useState(true);
   const [showReports, setShowReports] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   const mapRef = useRef(null);
 
+  // Leaflet must recompute its size when the container resizes (expand/collapse).
+  useEffect(() => {
+    const m = mapRef.current;
+    if (m) setTimeout(() => m.invalidateSize(), 60);
+  }, [expanded]);
+
+  // Allow Esc to exit fullscreen.
+  useEffect(() => {
+    if (!expanded) return;
+    const onKey = (e) => e.key === 'Escape' && setExpanded(false);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [expanded]);
+
   return (
-    <div className="mapwrap">
+    <div className={`mapwrap${expanded ? ' mapwrap-full' : ''}`}>
       <div className="maptools">
         <div className={`chip${showQuakes ? ' on' : ''}`} onClick={() => setShowQuakes((v) => !v)}>
           <span className="sw" style={{ background: 'var(--ember)' }} />Quakes
@@ -39,7 +54,7 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
         </div>
       </div>
       <MapContainer ref={mapRef} center={REGION.center} zoom={9} zoomControl={false}
-        attributionControl={false} style={{ height: 280, width: '100%' }}>
+        attributionControl={false} style={{ height: expanded ? '100%' : 280, width: '100%' }}>
         <AttributionControl position="topright" prefix={false} />
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
@@ -66,12 +81,26 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
           <Popup>You are here</Popup>
         </CircleMarker>
       </MapContainer>
-      <button className="map-recenter" aria-label="Center on my location"
+
+      <button className="map-btn map-expand" aria-label={expanded ? 'Exit fullscreen' : 'Expand map'}
+        onClick={() => setExpanded((v) => !v)}>
+        {expanded ? (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M9 9H4M9 9V4M15 9h5M15 9V4M9 15H4M9 15v5M15 15h5M15 15v5" />
+          </svg>
+        ) : (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
+          </svg>
+        )}
+      </button>
+      <button className="map-btn map-recenter" aria-label="Center on my location"
         onClick={() => mapRef.current?.flyTo(user, 12)}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="12" r="3.2" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
         </svg>
       </button>
+
       <div className="legend">
         <span><i style={{ background: 'var(--ember)' }} />Epicenter</span>
         <span><i style={{ background: 'var(--c-damage)' }} />Damage</span>
