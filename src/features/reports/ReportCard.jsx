@@ -42,7 +42,7 @@ export default function ReportCard({ report, onFlag, highlight }) {
   };
 
   const doShare = async () => {
-    const url = `${window.location.origin}/?r=${report.id}`;
+    const url = `${window.location.origin}/r/${report.id}`;
     const text = `⚠️ ${label} reported near ${report.lat.toFixed(2)}, ${report.lng.toFixed(2)} on LINDOL. Live earthquake updates & citizen reports for the area.`;
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
