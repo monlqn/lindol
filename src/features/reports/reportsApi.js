@@ -33,7 +33,7 @@ export async function uploadPhoto(client, blob, id) {
   return client.storage.from('report-photos').getPublicUrl(path).data.publicUrl;
 }
 
-export async function insertReport(client, { id, category, note, lat, lng, photoFile }) {
+export async function insertReport(client, { id, category, note, lat, lng, photoFile, deviceId }) {
   let photo_url = null;
   if (photoFile) {
     const blob = await compressImage(photoFile);
@@ -41,7 +41,7 @@ export async function insertReport(client, { id, category, note, lat, lng, photo
   }
   const { data, error } = await client
     .from('reports')
-    .insert({ id, category, note, lat, lng, photo_url })
+    .insert({ id, category, note, lat, lng, photo_url, device_id: deviceId ?? null })
     .select()
     .single();
   if (error) throw error;
