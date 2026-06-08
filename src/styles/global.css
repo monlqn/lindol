@@ -337,7 +337,22 @@ textarea:focus{outline:none; border-color:var(--ember)}
 .camera.shot{border-style:solid; color:#fff; background-size:cover; background-position:center}
 .camera .badge{position:absolute; bottom:8px; left:8px; font-family:var(--mono); font-size:10px;
   background:rgba(22,18,13,.7); color:#fff; padding:3px 7px; border-radius:6px; backdrop-filter:blur(4px)}
+.cam-preview{position:relative; border-radius:14px; overflow:hidden; border:1px solid var(--line); background:#0c0907}
+.cam-img{display:block; width:100%; max-height:340px; object-fit:contain; background:#0c0907}
+.cam-preview .badge{position:absolute; top:9px; left:9px; font-family:var(--mono); font-size:10px;
+  background:rgba(22,18,13,.72); color:#fff; padding:3px 7px; border-radius:6px; backdrop-filter:blur(4px)}
+.cam-retake{position:absolute; bottom:9px; right:9px; background:rgba(22,18,13,.8); color:#fff; border:0;
+  border-radius:999px; padding:8px 14px; font-family:inherit; font-size:12px; font-weight:600; cursor:pointer;
+  backdrop-filter:blur(4px)}
+.cam-retake:hover{background:var(--ember)}
 .cam-hint{font-size:10.5px; color:var(--ink-faint); font-family:var(--mono); text-align:center; margin-bottom:18px}
+.post-success{text-align:center; padding:8px 6px 4px}
+.post-success .ps-check{width:56px; height:56px; border-radius:50%; background:var(--c-safe); color:#fff;
+  font-size:30px; display:grid; place-items:center; margin:8px auto 14px; box-shadow:var(--shadow-md)}
+.post-success h3{font-size:18px; margin-bottom:6px}
+.post-success p{font-size:13px; color:var(--ink-soft); line-height:1.5; margin:0 auto 16px; max-width:280px}
+.post-success .submit{margin-bottom:6px}
+.ps-skip{background:none; border:0; color:var(--ink-faint); font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; padding:9px}
 .submit{width:100%; border:0; cursor:pointer; background:var(--ink); color:var(--paper);
   font-family:var(--font); font-weight:700; font-size:15.5px; padding:15px; border-radius:13px; transition:.15s}
 .submit:hover{opacity:.9}
