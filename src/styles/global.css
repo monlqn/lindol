@@ -121,11 +121,20 @@ section{padding:18px 16px}
 /* leaflet custom markers */
 .epi{position:relative; width:20px; height:20px}
 .epi .core{position:absolute; inset:5px; border-radius:50%; background:var(--ember);
-  border:2px solid #fff; box-shadow:0 0 0 1px var(--ember-deep)}
+  border:2px solid #fff; box-shadow:0 0 0 1px var(--ember-deep), 0 2px 5px rgba(0,0,0,.4)}
 .epi .ring{position:absolute; inset:0; border-radius:50%; border:2px solid var(--ember);
   animation:epiPulse 2.6s ease-out infinite}
 @keyframes epiPulse{0%{transform:scale(.4);opacity:.9}100%{transform:scale(2.6);opacity:0}}
-.after{width:11px;height:11px;border-radius:50%;background:rgba(224,82,27,.55);border:1.5px solid #fff}
+.after{width:13px;height:13px;border-radius:50%;background:var(--ember);
+  border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+
+/* "you are here" marker */
+.youdot{position:relative; width:22px; height:22px}
+.youcore{position:absolute; inset:6px; border-radius:50%; background:#2F6FED;
+  border:2.5px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.45)}
+.youpulse{position:absolute; inset:0; border-radius:50%; background:rgba(47,111,237,.3);
+  animation:youPulse 2.4s ease-out infinite}
+@keyframes youPulse{0%{transform:scale(.4);opacity:.7}100%{transform:scale(1.9);opacity:0}}
 
 /* ---------- safety ---------- */
 .safety-grid{display:grid; gap:10px}
@@ -182,10 +191,10 @@ section{padding:18px 16px}
 .chip .sw{width:9px;height:9px;border-radius:50%}
 .chip.on{background:var(--ink); color:var(--paper); border-color:var(--ink)}
 
-/* leaflet report pins */
-.rpin{width:22px;height:22px;border-radius:50% 50% 50% 2px; transform:rotate(45deg);
-  border:2px solid #fff; box-shadow:var(--shadow-sm); display:grid; place-items:center}
-.rpin b{transform:rotate(-45deg); font-size:11px; line-height:1}
+/* leaflet report pins - clean teardrop with a white center dot */
+.rpin{width:24px; height:24px; border-radius:50% 50% 50% 0; transform:rotate(45deg);
+  border:2.5px solid #fff; box-shadow:0 3px 7px rgba(0,0,0,.35); display:grid; place-items:center}
+.rpin-dot{width:8px; height:8px; border-radius:50%; background:#fff; transform:rotate(-45deg)}
 
 /* ---------- report feed ---------- */
 .feed{display:flex; flex-direction:column; gap:12px}

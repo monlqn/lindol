@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, CircleMarker, Popup, Rectangle, AttributionControl, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Rectangle, AttributionControl, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { REGION } from '../../config.js';
 import { reportIcon } from '../reports/reportMarkers.js';
@@ -11,8 +11,10 @@ const CAT_LABEL = Object.fromEntries(CATEGORIES.map((c) => [c.key, c.label]));
 
 const epiIcon = L.divIcon({ className: '', iconSize: [20, 20], iconAnchor: [10, 10],
   html: '<div class="epi"><div class="ring"></div><div class="core"></div></div>' });
-const afterIcon = L.divIcon({ className: '', iconSize: [11, 11], iconAnchor: [5, 5],
+const afterIcon = L.divIcon({ className: '', iconSize: [13, 13], iconAnchor: [6, 6],
   html: '<div class="after"></div>' });
+const youIcon = L.divIcon({ className: '', iconSize: [22, 22], iconAnchor: [11, 11],
+  html: '<div class="youdot"><span class="youpulse"></span><span class="youcore"></span></div>' });
 const zoneLabelIcon = L.divIcon({ className: 'zone-label-wrap', iconSize: [190, 20], iconAnchor: [95, 10],
   html: '<span class="zone-label">Active aftershock zone</span>' });
 const HL = REGION.highlight;
@@ -116,10 +118,9 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
             </Popup>
           </Marker>
         ))}
-        <CircleMarker center={user} radius={6}
-          pathOptions={{ color: '#14110D', weight: 2, fillColor: '#fff', fillOpacity: 1 }}>
+        <Marker position={user} icon={youIcon}>
           <Popup>You are here</Popup>
-        </CircleMarker>
+        </Marker>
       </MapContainer>
       </div>
 
