@@ -16,7 +16,7 @@ export const REGION = {
 // Voluntary donation support. The Support card only renders once gcashNumber is set,
 // so nothing placeholder/fake is ever shown publicly.
 export const DONATION = {
-  gcashName: 'Rheimon L.',
+  gcashName: '',
   gcashNumber: '0910 112 8075',
   gcashQr: '/gcash-qr.png',
 };
