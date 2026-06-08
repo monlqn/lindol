@@ -2,7 +2,11 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// base '/lindol/' serves the app under the GitHub Pages project path
+// (https://monlqn.github.io/lindol/). When a root custom domain like
+// lindol.app is attached, change this to '/'.
 export default defineConfig({
+  base: '/lindol/',
   plugins: [
     react(),
     VitePWA({
@@ -15,7 +19,8 @@ export default defineConfig({
         theme_color: '#14110E',
         background_color: '#EFEAE0',
         display: 'standalone',
-        start_url: '/',
+        start_url: '/lindol/',
+        scope: '/lindol/',
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
