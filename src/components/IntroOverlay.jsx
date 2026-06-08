@@ -5,11 +5,11 @@ const KEY = 'lindol:seen-intro-v1';
 const FEATURES = [
   {
     t: 'Live quakes & aftershocks',
-    d: 'Real-time USGS data for Southern Mindanao on a map — magnitude, depth, and distance from you.',
+    d: 'Real-time USGS data for Southern Mindanao on a map - magnitude, depth, and distance from you.',
   },
   {
     t: 'Report what you see',
-    d: 'Share damage, blocked roads, fires, or "I’m safe" — pinned to your GPS, with a camera-only photo so it stays real.',
+    d: 'Share damage, blocked roads, fires, or "I’m safe" - pinned to your GPS, with a camera-only photo so it stays real.',
   },
   {
     t: 'Safety that works offline',

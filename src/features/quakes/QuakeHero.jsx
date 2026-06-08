@@ -28,7 +28,7 @@ export default function QuakeHero({ quake }) {
         <div className="qc-cell"><div className="k">Time</div>
           <div className="v">{formatClock(quake.time)}<span style={{ color: 'var(--ink-faint)' }}> · {relativeTime(quake.time)}</span></div></div>
         <div className="qc-cell"><div className="k">Depth</div>
-          <div className="v">{quake.depthKm != null ? `${Math.round(quake.depthKm)} km` : '—'}</div></div>
+          <div className="v">{quake.depthKm != null ? `${Math.round(quake.depthKm)} km` : '-'}</div></div>
         <div className="qc-cell"><div className="k">From you</div>
           <div className="v warn">≈ {formatKm(quake.distanceKm)}</div></div>
       </div>

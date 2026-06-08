@@ -8,7 +8,7 @@ export default function UpdatePrompt() {
     updateServiceWorker,
   } = useRegisterSW({
     // Poll for a newer build every 60s so the Update button appears while the app
-    // is open — no force-close/reopen needed.
+    // is open - no force-close/reopen needed.
     onRegisteredSW(_swUrl, registration) {
       if (registration) setInterval(() => registration.update(), 60_000);
     },

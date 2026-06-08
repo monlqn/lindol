@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { DONATION } from '../config.js';
 
-// "Support LINDOL" — voluntary GCash donations. Renders nothing until a real
+// "Support LINDOL" - voluntary GCash donations. Renders nothing until a real
 // GCash number is configured, so no placeholder/fake details are ever shown.
 export default function SupportCard() {
   const [open, setOpen] = useState(false);
@@ -10,7 +10,7 @@ export default function SupportCard() {
 
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(DONATION.gcashNumber);
+      await navigator.clipboard.writeText(DONATION.gcashNumber.replace(/\s/g, ''));
       setCopied(true); setTimeout(() => setCopied(false), 1600);
     } catch { /* clipboard blocked */ }
   };

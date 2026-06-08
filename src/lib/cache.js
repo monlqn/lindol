@@ -5,7 +5,7 @@ export function cacheSet(key, value, savedAt = Date.now()) {
   try {
     localStorage.setItem(PREFIX + key, JSON.stringify({ value, savedAt }));
   } catch {
-    /* quota / private mode — ignore, cache is best-effort */
+    /* quota / private mode - ignore, cache is best-effort */
   }
 }
 

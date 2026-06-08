@@ -32,7 +32,7 @@ export default function InstallPrompt() {
                 strokeWidth="2" style={{ verticalAlign: '-2px' }}>
                 <path d="M12 16V4M8 8l4-4 4 4M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" />
               </svg>{' '}
-              <b>Share</b>, then <b>“Add to Home Screen”</b> — for offline access + alerts.
+              <b>Share</b>, then <b>“Add to Home Screen”</b> - for offline access + alerts.
             </span>
           )
         ) : (

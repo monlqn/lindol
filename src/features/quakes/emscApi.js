@@ -1,6 +1,6 @@
 const BASE = 'https://www.seismicportal.eu/fdsnws/event/1/query';
 
-// Build an EMSC (SeismicPortal) FDSN query — a second, independent realtime source
+// Build an EMSC (SeismicPortal) FDSN query - a second, independent realtime source
 // alongside USGS, using the same bbox + recency window so results merge cleanly.
 export function buildEmscUrl(region) {
   const { bbox, minMagnitude, windowDays } = region;

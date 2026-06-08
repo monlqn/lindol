@@ -3,7 +3,7 @@ import { REGION } from '../config.js';
 
 // Real seismograph: each sharp spike is an ACTUAL recent quake (USGS), riding on a
 // gently-flowing ambient noise floor (what a live seismometer shows at rest). A radar
-// sweep scans across and the most recent quake pulses — alive, but the events are real.
+// sweep scans across and the most recent quake pulses - alive, but the events are real.
 export default function Seismograph({ quakes = [] }) {
   const ref = useRef(null);
   const dataRef = useRef(quakes);

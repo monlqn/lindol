@@ -252,8 +252,8 @@ section{padding:18px 16px}
   border:1px solid var(--line); border-radius:16px; padding:22px; text-align:center; box-shadow:var(--shadow-lg)}
 .support-x{position:absolute; top:10px; right:10px; width:30px; height:30px; border-radius:8px;
   border:1px solid var(--line); background:var(--card); color:var(--ink-soft); cursor:pointer}
-.support-qr{width:200px; height:200px; object-fit:contain; border-radius:12px; margin:4px auto 12px;
-  display:block; background:#fff; padding:8px}
+.support-qr{width:230px; max-width:100%; height:auto; border-radius:12px; margin:4px auto 12px;
+  display:block; border:1px solid var(--line)}
 .support-name{font-size:14px; font-weight:700; color:var(--ink); margin-bottom:6px}
 .support-num{font-family:var(--mono); font-size:18px; font-weight:700; color:var(--ember-deep);
   background:var(--ember-wash); border:1px solid var(--line); border-radius:10px; padding:11px 14px; cursor:pointer; width:100%}

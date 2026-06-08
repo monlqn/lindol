@@ -50,7 +50,7 @@ export function playAlarm(seconds = 6) {
   try { navigator.vibrate?.([500, 200, 500, 200, 500]); } catch { /* unsupported */ }
 }
 
-// Looping alarm — keeps sounding + vibrating until stopAlarm(). Used for real alerts.
+// Looping alarm - keeps sounding + vibrating until stopAlarm(). Used for real alerts.
 const BURST = 4;
 export function startAlarm() {
   if (!armed || !ctx) return;

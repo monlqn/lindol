@@ -68,7 +68,7 @@ export function useQuakes(user = REGION.defaultUser) {
         emscRef.current = quakes;
         recommit();            // supplementary refresh; keeps current status/updatedAt
       } catch {
-        /* EMSC is supplementary — ignore failures, USGS remains the backbone */
+        /* EMSC is supplementary - ignore failures, USGS remains the backbone */
       }
     }
 

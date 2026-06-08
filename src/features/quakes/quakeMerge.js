@@ -1,7 +1,7 @@
 import { haversineKm } from '../../lib/geo.js';
 
 // Two records describe the same physical quake if they're close in time, place and
-// magnitude — used to avoid double-listing an event reported by both USGS and EMSC.
+// magnitude - used to avoid double-listing an event reported by both USGS and EMSC.
 export function sameQuake(a, b) {
   if (!a || !b) return false;
   if (Math.abs(a.time - b.time) > 90000) return false;        // within 90 seconds

@@ -67,7 +67,7 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast }) {
     if (!cat || !coords) return;
     const rate = checkReportRate();
     if (!rate.ok) {
-      onToast(`Too many reports — please wait ~${rate.waitMin} min.`, '#C08A1E');
+      onToast(`Too many reports - please wait ~${rate.waitMin} min.`, '#C08A1E');
       return;
     }
     setBusy(true);
@@ -77,12 +77,12 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast }) {
       photoFile: photo, deviceId: getDeviceId(),
     });
     if (res && res.rateLimited) {
-      onToast('Sending too fast — please wait a few minutes.', '#C08A1E');
+      onToast('Sending too fast - please wait a few minutes.', '#C08A1E');
       setBusy(false);
       return;
     }
     onToast(
-      res.queued ? 'No signal — report queued, will send when back online' : 'Report posted to the live map',
+      res.queued ? 'No signal - report queued, will send when back online' : 'Report posted to the live map',
       res.queued ? '#C08A1E' : '#3F7D43',
     );
     close();
@@ -107,7 +107,7 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast }) {
           <span>
             {geoState === 'locating' && 'Locating you…'}
             {geoState === 'ok' && coords && `GPS locked · ${coords[0].toFixed(3)}°, ${coords[1].toFixed(3)}°`}
-            {geoState === 'denied' && 'Location needed to report — enable GPS and reopen.'}
+            {geoState === 'denied' && 'Location needed to report - enable GPS and reopen.'}
           </span>
         </div>
 
@@ -121,7 +121,7 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast }) {
 
         {cat === 'help' && (
           <div className="help-emergency">
-            <span>Life-threatening or trapped? <b>Call 911 now</b> — LINDOL notifies the community, not responders.</span>
+            <span>Life-threatening or trapped? <b>Call 911 now</b> - LINDOL notifies the community, not responders.</span>
             <a className="call911 sm" href="tel:911">📞 911</a>
           </div>
         )}
@@ -144,7 +144,7 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast }) {
             </>
           )}
         </div>
-        <div className="cam-hint">Camera only · no gallery uploads — keeps reports trustworthy</div>
+        <div className="cam-hint">Camera only · no gallery uploads - keeps reports trustworthy</div>
 
         <p className="post-note">By posting, your photo and exact location are shared publicly on the live map. Photos are automatically deleted after 14 days.</p>
         <button className="submit" disabled={!canSubmit} onClick={submit}>

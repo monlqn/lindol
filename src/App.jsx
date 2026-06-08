@@ -74,11 +74,11 @@ export default function App() {
     arm();
     startAlarm();
     setTimeout(stopAlarm, 8000);
-    showToast('▶ Preview — the real alarm loops until you dismiss it', '#C08A1E');
+    showToast('▶ Preview - the real alarm loops until you dismiss it', '#C08A1E');
   };
 
   // After a reload, the alarm setting is restored but browsers require a user gesture
-  // before audio can play — re-arm on the first tap.
+  // before audio can play - re-arm on the first tap.
   useEffect(() => {
     if (!soundOn) return undefined;
     const rearm = () => arm();
@@ -154,7 +154,7 @@ export default function App() {
           <>
             {pendingCount > 0 && (
               <div className="offline-banner" style={{ display: 'flex' }}>
-                <span>{pendingCount} report{pendingCount > 1 ? 's' : ''} queued — will send when you're back online.</span>
+                <span>{pendingCount} report{pendingCount > 1 ? 's' : ''} queued - will send when you're back online.</span>
               </div>
             )}
             <section className="reveal">
@@ -169,7 +169,7 @@ export default function App() {
             <section className="reveal">
               <SectionLabel>Emergency</SectionLabel>
               <div className="emergency-card">
-                <p>Life-threatening emergency? LINDOL alerts the community — it is <b>not</b> an emergency service. Call the national hotline now.</p>
+                <p>Life-threatening emergency? LINDOL alerts the community - it is <b>not</b> an emergency service. Call the national hotline now.</p>
                 <a className="call911" href="tel:911">📞 Call 911</a>
               </div>
             </section>
@@ -181,8 +181,8 @@ export default function App() {
             <ToggleRow label="Earthquake alerts" desc="Loud alarm + vibration for M4.5+ quakes near you (while app is open)"
               on={soundOn} onClick={toggleSound} />
             <button className="alarm-test" onClick={previewAlarm}>🔊 Test the alarm sound</button>
-            <p className="alarm-note">The alarm loops until you dismiss it. Keep your ringer on and volume up — a web app can’t override Silent mode or raise your phone’s volume.</p>
-            <p className="ew-note"><b>ℹ️ Awareness tool, not early warning.</b> Alerts arrive minutes after a quake is detected (USGS). If you feel shaking, don’t wait for an alert — Drop, Cover, Hold On immediately.</p>
+            <p className="alarm-note">The alarm loops until you dismiss it. Keep your ringer on and volume up - a web app can’t override Silent mode or raise your phone’s volume.</p>
+            <p className="ew-note"><b>ℹ️ Awareness tool, not early warning.</b> Alerts arrive minutes after a quake is detected (USGS). If you feel shaking, don’t wait for an alert - Drop, Cover, Hold On immediately.</p>
             <EarlyWarningTip />
             <ToggleRow label="Notify when app is closed" desc="Push alerts for M4.5+ quakes near you, even when LINDOL is closed"
               on={pushEnabled} onClick={enablePush} />
@@ -191,7 +191,7 @@ export default function App() {
             <section className="reveal">
               <SectionLabel>Help others stay safe</SectionLabel>
               <div className="share-cta">
-                <p>Know someone in the area? Share LINDOL so they get live earthquake info and safety guidance — even offline.</p>
+                <p>Know someone in the area? Share LINDOL so they get live earthquake info and safety guidance - even offline.</p>
                 <ShareButton stats={{ count: all.length, latestMag: latest?.mag, latestPlace: latest?.place }} />
               </div>
             </section>

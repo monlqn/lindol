@@ -33,7 +33,7 @@ export default function ReportCard({ report, onFlag, highlight }) {
   const [copied, setCopied] = useState(false);
 
   const choose = (reasonKey) => {
-    if (flagged) return;          // one flag per device — locks after tapping
+    if (flagged) return;          // one flag per device - locks after tapping
     rememberFlagged(report.id);
     setFlagged(true);
     setPicking(false);
@@ -42,7 +42,7 @@ export default function ReportCard({ report, onFlag, highlight }) {
 
   const doShare = async () => {
     const url = `${window.location.origin}/?r=${report.id}`;
-    const text = `⚠️ ${label} reported near ${report.lat.toFixed(2)}, ${report.lng.toFixed(2)} on LINDOL — live earthquake updates & citizen reports for the area.`;
+    const text = `⚠️ ${label} reported near ${report.lat.toFixed(2)}, ${report.lng.toFixed(2)} on LINDOL. Live earthquake updates & citizen reports for the area.`;
     if (typeof navigator !== 'undefined' && navigator.share) {
       try {
         const file = await getShareImageFile();

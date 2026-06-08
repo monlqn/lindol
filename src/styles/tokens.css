@@ -24,7 +24,7 @@
   --mono:var(--font);
 }
 
-/* dark theme — deep night. Low-luminance base, softened (not pure-white) text,
+/* dark theme - deep night. Low-luminance base, softened (not pure-white) text,
    calmer accents so it reads like nighttime and is easy on the eyes. */
 :root[data-theme="dark"]{
   --bone:#070707;

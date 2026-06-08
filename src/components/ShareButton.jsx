@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { getShareImageFile } from '../lib/share.js';
 import { renderShareCard } from '../lib/shareCard.js';
 
-const SHARE_TITLE = 'LINDOL — Southern Mindanao Live Earthquake Watch';
+const SHARE_TITLE = 'LINDOL - Southern Mindanao Live Earthquake Watch';
 const SHARE_TEXT = 'Live earthquakes, aftershocks & safety for Southern Mindanao. Stay informed:';
 
 export default function ShareButton({ stats }) {
@@ -37,7 +37,7 @@ export default function ShareButton({ stats }) {
       try {
         await navigator.share({ title: SHARE_TITLE, text: SHARE_TEXT, url });
       } catch {
-        /* user cancelled the native sheet — no-op */
+        /* user cancelled the native sheet - no-op */
       }
     } else {
       setOpen((o) => !o);
@@ -50,7 +50,7 @@ export default function ShareButton({ stats }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch {
-      /* clipboard blocked — ignore */
+      /* clipboard blocked - ignore */
     }
   }
 
