@@ -521,7 +521,7 @@ textarea:focus{outline:none; border-color:var(--ember)}
 .tour-scrim{position:fixed; inset:0; z-index:998; background:rgba(22,18,13,.55); backdrop-filter:blur(1px)}
 .tour-tip{position:fixed; z-index:1001; left:50%; transform:translateX(-50%); bottom:calc(86px + env(safe-area-inset-bottom, 0px));
   width:min(var(--app-w),calc(100% - 24px)); background:var(--paper); border:1px solid var(--line);
-  border-radius:16px; box-shadow:var(--shadow-lg); padding:15px 16px 13px; animation:rise .25s both}
+  border-radius:16px; box-shadow:var(--shadow-lg); padding:15px 16px 13px; animation:riseX .25s both}
 .tour-arrow{position:absolute; bottom:-9px; width:18px; height:18px; background:var(--paper);
   border-right:1px solid var(--line); border-bottom:1px solid var(--line); transform:translateX(-50%) rotate(45deg)}
 .tour-step{font-family:var(--mono); font-size:11px; color:var(--ink-faint); margin-bottom:3px}
@@ -654,7 +654,9 @@ textarea:focus{outline:none; border-color:var(--ember)}
 .alert-banner{position:fixed; z-index:1400; top:calc(env(safe-area-inset-top, 0px) + 10px); left:50%; transform:translateX(-50%);
   width:min(var(--app-w),calc(100% - 20px)); display:flex; gap:12px; align-items:flex-start;
   padding:14px; background:var(--c-help); color:#fff; border-radius:14px; box-shadow:var(--shadow-lg);
-  animation:rise .35s both}
+  animation:riseX .35s both}
+/* keeps horizontal centering (translateX(-50%)) intact while animating in */
+@keyframes riseX{from{opacity:0; transform:translate(-50%,8px)} to{opacity:1; transform:translate(-50%,0)}}
 .ab-mag{font-family:var(--mono); font-weight:600; font-size:30px; line-height:1; flex:none}
 .ab-body{flex:1; min-width:0}
 .ab-title{font-family:var(--font); font-weight:700; font-size:15px}
