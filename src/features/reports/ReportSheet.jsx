@@ -16,6 +16,8 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast }) {
   const [geoState, setGeoState] = useState('idle');
   const [busy, setBusy] = useState(false);
   const fileRef = useRef(null);
+  const sheetRef = useRef(null);
+  const dragStart = useRef(null);
 
   useEffect(() => {
     if (!open) return;
@@ -33,6 +35,24 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast }) {
     setPhotoUrl(''); setBusy(false);
   }
   function close() { reset(); onClose(); }
+
+  // Drag the handle down to dismiss.
+  function dragStartH(e) {
+    dragStart.current = (e.touches?.[0] ?? e).clientY;
+    if (sheetRef.current) sheetRef.current.style.transition = 'none';
+  }
+  function dragMoveH(e) {
+    if (dragStart.current == null || !sheetRef.current) return;
+    const dy = (e.touches?.[0] ?? e).clientY - dragStart.current;
+    if (dy > 0) sheetRef.current.style.transform = `translateY(${dy}px)`;
+  }
+  function dragEndH(e) {
+    if (dragStart.current == null) return;
+    const dy = (e.changedTouches?.[0] ?? e).clientY - dragStart.current;
+    dragStart.current = null;
+    if (sheetRef.current) { sheetRef.current.style.transition = ''; sheetRef.current.style.transform = ''; }
+    if (dy > 110) close();
+  }
 
   function onPickPhoto(e) {
     const f = e.target.files?.[0];
@@ -72,8 +92,11 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast }) {
 
   return (
     <div className={`scrim${open ? ' open' : ''}`} onClick={(e) => e.target === e.currentTarget && close()}>
-      <div className="sheet">
-        <div className="grab" />
+      <div className="sheet" ref={sheetRef}>
+        <div className="sheet-handle" onTouchStart={dragStartH} onTouchMove={dragMoveH} onTouchEnd={dragEndH}>
+          <div className="grab" />
+        </div>
+        <button className="sheet-close" onClick={close} aria-label="Close">✕</button>
         <h3>Report from your location</h3>
         <div className="step-sub">Your report appears on the live map. Photos are taken in-app to keep them real.</div>
 

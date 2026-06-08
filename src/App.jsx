@@ -33,7 +33,7 @@ export default function App() {
 
   const online = useOnline();
   const user = useGeolocation();
-  const { mainshock, aftershocks, all, status, updatedAt } = useQuakes(user);
+  const { latest, mainshock, aftershocks, all, status, updatedAt } = useQuakes(user);
   const { reports, pendingCount, submit, flag } = useReports(user);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [toast, showToast] = useToast();
@@ -77,7 +77,7 @@ export default function App() {
 
         <section className="reveal">
           <SectionLabel>Latest event{status === 'cached' ? ' · cached' : ''}</SectionLabel>
-          <QuakeHero quake={mainshock} />
+          <QuakeHero quake={latest} />
         </section>
 
         <section className="reveal">

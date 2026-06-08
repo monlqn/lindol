@@ -293,6 +293,13 @@ textarea:focus{outline:none; border-color:var(--ember)}
 .map-recenter{right:54px; bottom:54px}
 /* "expand" = a big inline map (no fixed positioning -> no layering bugs) */
 .mapwrap-big{box-shadow:var(--shadow-md)}
+
+/* ---------- report sheet: dismiss affordances ---------- */
+.sheet-handle{padding:8px 0 4px; display:flex; justify-content:center; cursor:grab; touch-action:none}
+.sheet-close{position:absolute; top:12px; right:14px; width:32px; height:32px; border-radius:9px;
+  border:1px solid var(--line); background:var(--card); color:var(--ink-soft); font-size:15px;
+  cursor:pointer; display:grid; place-items:center; z-index:2; line-height:1}
+.sheet-close:hover{color:var(--ember-deep); border-color:var(--ember)}
 .leaflet-control-attribution{font-size:8.5px !important; background:rgba(252,250,244,.78) !important;
   color:var(--ink-faint) !important; padding:1px 5px !important; border-radius:0 0 0 6px}
 .leaflet-control-attribution a{color:var(--ink-soft) !important}

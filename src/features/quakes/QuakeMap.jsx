@@ -47,7 +47,7 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
   }, [expanded]);
 
   return (
-    <div className={`mapwrap${expanded ? ' mapwrap-big' : ''}`}>
+    <div className="mapwrap">
       <div className="maptools">
         <div className={`chip${showQuakes ? ' on' : ''}`} onClick={() => setShowQuakes((v) => !v)}>
           <span className="sw" style={{ background: 'var(--ember)' }} />Quakes
@@ -56,8 +56,9 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
           <span className="sw" style={{ background: 'var(--c-help)' }} />Reports
         </div>
       </div>
+      <div className="map-canvas" style={{ height: expanded ? '78vh' : 280, width: '100%' }}>
       <MapContainer ref={mapRef} center={REGION.center} zoom={9} zoomControl={false}
-        attributionControl={false} style={{ height: expanded ? '78vh' : 280, width: '100%' }}>
+        attributionControl={false} style={{ height: '100%', width: '100%' }}>
         <AttributionControl position="topright" prefix={false} />
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
@@ -84,6 +85,7 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
           <Popup>You are here</Popup>
         </CircleMarker>
       </MapContainer>
+      </div>
 
       <button className="map-btn map-expand" aria-label={expanded ? 'Exit fullscreen' : 'Expand map'}
         onClick={() => setExpanded((v) => !v)}>

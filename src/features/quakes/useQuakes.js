@@ -14,7 +14,7 @@ function enrich(quakes, user) {
 // status: 'loading' | 'live' | 'cached' | 'empty'
 export function useQuakes(user = REGION.defaultUser) {
   const [state, setState] = useState({
-    all: [], mainshock: null, aftershocks: [], status: 'loading', updatedAt: null,
+    all: [], latest: null, mainshock: null, aftershocks: [], status: 'loading', updatedAt: null,
   });
 
   useEffect(() => {
@@ -24,8 +24,10 @@ export function useQuakes(user = REGION.defaultUser) {
       if (cancelled) return;
       const enriched = enrich(quakes, user);
       const byMag = [...enriched].sort((a, b) => b.mag - a.mag);
+      const byTime = [...enriched].sort((a, b) => b.time - a.time);
       setState({
         all: enriched,
+        latest: byTime[0] ?? null,
         mainshock: byMag[0] ?? null,
         aftershocks: byMag.slice(1),
         status: enriched.length ? status : 'empty',
