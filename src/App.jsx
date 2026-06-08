@@ -33,7 +33,7 @@ export default function App() {
   return (
     <div className={`app${online ? '' : ' off'}`}>
       <StatusBar online={online} updatedAt={updatedAt} />
-      <Masthead />
+      <Masthead quakes={all} />
       <div className="scroll">
         {!online && <OfflineBanner updatedAt={updatedAt} />}
         {pendingCount > 0 && (
@@ -65,10 +65,14 @@ export default function App() {
         <section className="reveal">
           <SectionLabel>Help others stay safe</SectionLabel>
           <div className="share-cta">
-            <p>Know someone in the area? Share LINDÓL so they get live earthquake info and safety guidance — even offline.</p>
+            <p>Know someone in the area? Share LINDOL so they get live earthquake info and safety guidance — even offline.</p>
             <ShareButton />
           </div>
         </section>
+
+        <footer className="credit">
+          Built by <a href="https://moncodes.com" target="_blank" rel="noopener noreferrer">moncodes.com</a>
+        </footer>
       </div>
 
       <ReportButton onClick={() => setSheetOpen(true)} />

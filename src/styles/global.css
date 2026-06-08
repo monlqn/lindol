@@ -249,3 +249,19 @@ textarea:focus{outline:none; border-color:var(--ember)}
   font-size:13px; font-weight:500; display:flex; align-items:center; gap:9px; opacity:0; pointer-events:none; transition:.3s}
 .toast.show{opacity:1; transform:translate(-50%,0)}
 .toast .tdot{width:8px;height:8px;border-radius:50%;background:var(--c-safe)}
+
+/* ---------- epicenter "O" wordmark ---------- */
+.epi-o{display:inline-block; position:relative; width:.74em; height:.74em; vertical-align:-.08em; margin:0 .02em}
+.epi-o::before{content:""; position:absolute; inset:0; border-radius:50%; border:.13em solid var(--ember)}
+.epi-o::after{content:""; position:absolute; inset:34%; border-radius:50%; background:var(--ember)}
+.epi-o i{position:absolute; inset:0; border-radius:50%; border:.12em solid var(--ember); opacity:0; animation:epiO 2.4s ease-out infinite}
+@keyframes epiO{0%{transform:scale(.55); opacity:.7}100%{transform:scale(1.7); opacity:0}}
+.seismo-cap{margin-top:5px; font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); text-align:right}
+
+/* ---------- posting disclaimer ---------- */
+.post-note{font-size:10.5px; color:var(--ink-faint); line-height:1.45; margin:-6px 0 14px}
+
+/* ---------- developer credit ---------- */
+.credit{padding:4px 16px 28px; text-align:center; font-family:var(--mono); font-size:10px; letter-spacing:.08em; color:var(--ink-faint)}
+.credit a{color:var(--ink-soft); text-decoration:none; border-bottom:1px solid var(--line)}
+.credit a:hover{color:var(--ember-deep)}
