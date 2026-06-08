@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { detectNewAlerts } from './detectNewQuakes.js';
-import { playAlarm } from '../../lib/alarm.js';
+import { startAlarm, stopAlarm } from '../../lib/alarm.js';
 import { haversineKm } from '../../lib/geo.js';
 import { REGION } from '../../config.js';
 
@@ -19,8 +19,8 @@ export function useQuakeAlerts(quakes, soundOn, user = REGION.defaultUser) {
     if (fresh.length) {
       const newest = fresh.reduce((a, b) => (b.time > a.time ? b : a));
       setAlert(newest);
-      if (soundOn) playAlarm(6);
+      if (soundOn) startAlarm();   // loops until dismissed
     }
   }, [quakes, soundOn, user[0], user[1]]);
-  return { alert, dismiss: () => setAlert(null) };
+  return { alert, dismiss: () => { stopAlarm(); setAlert(null); } };
 }

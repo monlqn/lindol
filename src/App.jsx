@@ -23,7 +23,7 @@ import { useReports } from './features/reports/useReports.js';
 import { useOnline } from './lib/useOnline.js';
 import { useGeolocation } from './lib/useGeolocation.js';
 import { useQuakeAlerts } from './features/alerts/useQuakeAlerts.js';
-import { arm, playAlarm } from './lib/alarm.js';
+import { arm, startAlarm, stopAlarm } from './lib/alarm.js';
 import { useTheme } from './lib/useTheme.js';
 import ToggleRow from './components/ToggleRow.jsx';
 
@@ -57,7 +57,7 @@ export default function App() {
   const toggleSound = () => {
     setSoundOn((v) => {
       const next = !v;
-      if (next) arm();
+      if (next) arm(); else stopAlarm();
       try { localStorage.setItem('lindol:alarm', next ? '1' : '0'); } catch { /* ignore */ }
       return next;
     });
@@ -65,8 +65,9 @@ export default function App() {
 
   const previewAlarm = () => {
     arm();
-    playAlarm(5);
-    showToast('▶ This is the earthquake alarm sound', '#C08A1E');
+    startAlarm();
+    setTimeout(stopAlarm, 8000);
+    showToast('▶ Preview — the real alarm loops until you dismiss it', '#C08A1E');
   };
 
   // After a reload, the alarm setting is restored but browsers require a user gesture
@@ -156,6 +157,7 @@ export default function App() {
             <ToggleRow label="Earthquake alerts" desc="Loud alarm + vibration for M4.5+ quakes near you (while app is open)"
               on={soundOn} onClick={toggleSound} />
             <button className="alarm-test" onClick={previewAlarm}>🔊 Test the alarm sound</button>
+            <p className="alarm-note">The alarm loops until you dismiss it. Keep your ringer on and volume up — a web app can’t override Silent mode or raise your phone’s volume.</p>
             <ToggleRow label="Notify when app is closed" desc="Push alerts for M4.5+ quakes near you, even when LINDOL is closed"
               on={pushEnabled} onClick={enablePush} />
             <ToggleRow label="Dark mode" desc="Easier on the eyes at night"
