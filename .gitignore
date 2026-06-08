@@ -1,2 +1,15 @@
 node_modules
 dist
+
+# Vite cache
+.vite/
+
+# logs
+*.log
+
+# Playwright MCP scratch output
+.playwright-mcp/
+
+# local design/verification screenshots (not part of the app)
+/lindol-*.jpeg
+/font-*.jpeg
