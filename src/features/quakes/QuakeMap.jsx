@@ -30,9 +30,12 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
   const mapRef = useRef(null);
 
   // Leaflet must recompute its size when the container resizes (expand/collapse).
+  // Fire several times so it settles regardless of layout/transition timing.
   useEffect(() => {
     const m = mapRef.current;
-    if (m) setTimeout(() => m.invalidateSize(), 60);
+    if (!m) return;
+    const ids = [50, 200, 450].map((d) => setTimeout(() => m.invalidateSize(), d));
+    return () => ids.forEach(clearTimeout);
   }, [expanded]);
 
   // Allow Esc to exit fullscreen.
