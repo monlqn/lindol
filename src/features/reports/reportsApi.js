@@ -1,5 +1,8 @@
 import { compressImage } from '../../lib/image.js';
 
+// Explicit column list (never device_id) so the anonymous API can't expose it.
+const COLS = 'id,created_at,category,note,lat,lng,photo_url,status,flag_count,sensitive,state,confirm_count,resolve_count,escalated';
+
 export function normalizeRow(r) {
   return {
     id: r.id,
@@ -43,7 +46,7 @@ export async function fetchRecentReports(client, { sinceHours = 48, limit = 200 
   const since = new Date(Date.now() - sinceHours * 3600_000).toISOString();
   const { data, error } = await client
     .from('reports')
-    .select('*')
+    .select(COLS)
     .gte('created_at', since)
     .order('created_at', { ascending: false });
   if (error) throw error;
@@ -51,7 +54,7 @@ export async function fetchRecentReports(client, { sinceHours = 48, limit = 200 
 }
 
 export async function fetchReportById(client, id) {
-  const { data, error } = await client.from('reports').select('*').eq('id', id).maybeSingle();
+  const { data, error } = await client.from('reports').select(COLS).eq('id', id).maybeSingle();
   if (error) throw error;
   return data ? normalizeRow(data) : null;
 }
@@ -73,7 +76,7 @@ export async function insertReport(client, { id, category, note, lat, lng, photo
   const { data, error } = await client
     .from('reports')
     .insert({ id, category, note, lat, lng, photo_url, device_id: deviceId ?? null })
-    .select()
+    .select(COLS)
     .single();
   if (error) throw error;
   return normalizeRow(data);
