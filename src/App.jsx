@@ -56,7 +56,13 @@ export default function App() {
       await savePushSubscription(sub);
       showToast("You'll be notified of aftershocks", '#3F7D43');
     } catch (e) {
-      showToast(e.message || 'Could not enable notifications', '#CC2A2A');
+      const ios = /iphone|ipad|ipod/i.test(navigator.userAgent || '');
+      const standalone = window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone;
+      if (ios && !standalone) {
+        showToast('On iPhone: open in Safari → Share → Add to Home Screen, then enable from there (Chrome iOS can’t).', '#C08A1E');
+      } else {
+        showToast(e.message || 'Could not enable notifications', '#CC2A2A');
+      }
     }
   };
 
