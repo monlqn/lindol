@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import AlertBanner from './components/AlertBanner.jsx';
 import StatusBar from './components/StatusBar.jsx';
 import Masthead from './components/Masthead.jsx';
 import OfflineBanner from './components/OfflineBanner.jsx';
@@ -16,6 +17,8 @@ import { useQuakes } from './features/quakes/useQuakes.js';
 import { useReports } from './features/reports/useReports.js';
 import { useOnline } from './lib/useOnline.js';
 import { useGeolocation } from './lib/useGeolocation.js';
+import { useQuakeAlerts } from './features/alerts/useQuakeAlerts.js';
+import { arm } from './lib/alarm.js';
 
 function useToast() {
   const [toast, setToast] = useState(null);
@@ -32,11 +35,21 @@ export default function App() {
   const { reports, pendingCount, submit, flag } = useReports(user);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [toast, showToast] = useToast();
+  const [soundOn, setSoundOn] = useState(false);
+  const { alert, dismiss } = useQuakeAlerts(all, soundOn);
+  const toggleSound = () => {
+    if (!soundOn) arm();
+    setSoundOn((v) => !v);
+  };
 
   return (
     <div className={`app${online ? '' : ' off'}`}>
+      <AlertBanner alert={alert} onDismiss={dismiss} />
       <StatusBar online={online} updatedAt={updatedAt} />
       <Masthead quakes={all} />
+      <button className="alert-toggle" onClick={toggleSound}>
+        {soundOn ? '🔔 Aftershock alarm: ON' : '🔕 Enable aftershock alarm'}
+      </button>
       <div className="scroll">
         {!online && <OfflineBanner updatedAt={updatedAt} />}
         {pendingCount > 0 && (
