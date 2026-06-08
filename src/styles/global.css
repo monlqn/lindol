@@ -228,6 +228,9 @@ section{padding:18px 16px}
 .alarm-test:hover{border-color:var(--ember)}
 .alarm-test:active{transform:scale(.98)}
 .alarm-note{margin:0 16px 10px; font-size:11.5px; line-height:1.45; color:var(--ink-faint)}
+.ew-note{margin:0 16px 12px; padding:10px 12px; font-size:11.5px; line-height:1.5;
+  color:var(--ink-soft); background:var(--ember-wash); border:1px solid var(--line);
+  border-left:3px solid var(--c-road); border-radius:9px}
 .report.hidden-rp{opacity:.6}
 .report.hidden-rp .veil{padding:18px 14px; text-align:center; font-size:12.5px; color:var(--ink-faint)}
 

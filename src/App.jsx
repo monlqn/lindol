@@ -158,6 +158,7 @@ export default function App() {
               on={soundOn} onClick={toggleSound} />
             <button className="alarm-test" onClick={previewAlarm}>🔊 Test the alarm sound</button>
             <p className="alarm-note">The alarm loops until you dismiss it. Keep your ringer on and volume up — a web app can’t override Silent mode or raise your phone’s volume.</p>
+            <p className="ew-note"><b>ℹ️ Awareness tool, not early warning.</b> Alerts arrive minutes after a quake is detected (USGS). If you feel shaking, don’t wait for an alert — Drop, Cover, Hold On immediately.</p>
             <ToggleRow label="Notify when app is closed" desc="Push alerts for M4.5+ quakes near you, even when LINDOL is closed"
               on={pushEnabled} onClick={enablePush} />
             <ToggleRow label="Dark mode" desc="Easier on the eyes at night"
