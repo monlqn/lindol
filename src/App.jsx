@@ -9,12 +9,14 @@ import SectionLabel from './components/SectionLabel.jsx';
 import ShareButton from './components/ShareButton.jsx';
 import QuakeHero from './features/quakes/QuakeHero.jsx';
 import QuakeMap from './features/quakes/QuakeMap.jsx';
+import QuakeList from './features/quakes/QuakeList.jsx';
 import SafetyPanel from './features/safety/SafetyPanel.jsx';
 import ReportButton from './features/reports/ReportButton.jsx';
 import ReportSheet from './features/reports/ReportSheet.jsx';
 import ReportFeed from './features/reports/ReportFeed.jsx';
 import AdminPage from './features/admin/AdminPage.jsx';
 import IntroOverlay from './components/IntroOverlay.jsx';
+import InstallPrompt from './components/InstallPrompt.jsx';
 import { useQuakes } from './features/quakes/useQuakes.js';
 import { useReports } from './features/reports/useReports.js';
 import { useOnline } from './lib/useOnline.js';
@@ -62,6 +64,7 @@ export default function App() {
       <StatusBar online={online} updatedAt={updatedAt} />
       <div className="scroll">
         <Masthead quakes={all} />
+        <InstallPrompt />
         <button className="alert-toggle" onClick={toggleSound}>
           {soundOn ? '🔔 Aftershock alarm: ON' : '🔕 Enable aftershock alarm'}
         </button>
@@ -86,7 +89,12 @@ export default function App() {
         </section>
 
         <section className="reveal">
-          <SectionLabel>Near you · newest first</SectionLabel>
+          <SectionLabel>Recent quakes · {all.length} in 7 days</SectionLabel>
+          <QuakeList quakes={all} />
+        </section>
+
+        <section className="reveal">
+          <SectionLabel>Citizen reports · near you</SectionLabel>
           <ReportFeed reports={reports} onFlag={flag} />
         </section>
 
