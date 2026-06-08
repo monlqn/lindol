@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, CircleMarker, Popup, AttributionControl, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, CircleMarker, Popup, Rectangle, AttributionControl, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { REGION } from '../../config.js';
 import { reportIcon } from '../reports/reportMarkers.js';
@@ -13,6 +13,10 @@ const epiIcon = L.divIcon({ className: '', iconSize: [20, 20], iconAnchor: [10, 
   html: '<div class="epi"><div class="ring"></div><div class="core"></div></div>' });
 const afterIcon = L.divIcon({ className: '', iconSize: [11, 11], iconAnchor: [5, 5],
   html: '<div class="after"></div>' });
+const zoneLabelIcon = L.divIcon({ className: 'zone-label-wrap', iconSize: [190, 20], iconAnchor: [95, 10],
+  html: '<span class="zone-label">Active aftershock zone</span>' });
+const HL = REGION.highlight;
+const HL_BOUNDS = [[HL.minLat, HL.minLng], [HL.maxLat, HL.maxLng]];
 
 const isRealFix = (u) => u && (u[0] !== REGION.defaultUser[0] || u[1] !== REGION.defaultUser[1]);
 
@@ -22,7 +26,7 @@ function FollowUser({ user }) {
   const done = useRef(false);
   useEffect(() => {
     if (done.current || !isRealFix(user)) return;
-    map.setView(user, 11);
+    map.setView(user, 8);
     done.current = true;
   }, [user, map]);
   return null;
@@ -66,7 +70,7 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
         </div>
       </div>
       <div className="map-canvas" style={{ height: fill ? '100%' : expanded ? '78vh' : 280, width: '100%' }}>
-      <MapContainer ref={mapRef} center={REGION.center} zoom={9} zoomControl={false}
+      <MapContainer ref={mapRef} center={REGION.center} zoom={7} zoomControl={false}
         attributionControl={false} style={{ height: '100%', width: '100%' }}>
         <AttributionControl position="topright" prefix={false} />
         <TileLayer key={dark ? 'dark' : 'light'}
@@ -74,6 +78,9 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
           maxZoom={19} />
         <FollowUser user={user} />
+        <Rectangle bounds={HL_BOUNDS} interactive={false}
+          pathOptions={{ color: '#E0521B', weight: 2, dashArray: '6 5', fillColor: '#E0521B', fillOpacity: 0.05 }} />
+        <Marker position={[HL.maxLat, (HL.minLng + HL.maxLng) / 2]} icon={zoneLabelIcon} interactive={false} />
         {showQuakes && mainshock && (
           <Marker position={[mainshock.lat, mainshock.lng]} icon={epiIcon}>
             <Popup>

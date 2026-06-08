@@ -378,6 +378,7 @@ textarea:focus{outline:none; border-color:var(--ember)}
 .pp-photo{width:100%; border-radius:8px; margin-top:8px; display:block}
 
 /* ---------- southern Mindanao highlight zone ---------- */
+.zone-label-wrap{display:flex; justify-content:center; align-items:flex-start}
 .zone-label{background:rgba(224,82,27,.92); color:#fff; font-family:var(--mono); font-size:9.5px;
   letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:6px; white-space:nowrap;
   box-shadow:var(--shadow-sm)}
