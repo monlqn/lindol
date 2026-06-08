@@ -7,11 +7,11 @@ import Masthead from './components/Masthead.jsx';
 import OfflineBanner from './components/OfflineBanner.jsx';
 import SectionLabel from './components/SectionLabel.jsx';
 import ShareButton from './components/ShareButton.jsx';
+import BottomNav from './components/BottomNav.jsx';
 import QuakeHero from './features/quakes/QuakeHero.jsx';
 import QuakeMap from './features/quakes/QuakeMap.jsx';
 import QuakeList from './features/quakes/QuakeList.jsx';
 import SafetyPanel from './features/safety/SafetyPanel.jsx';
-import ReportButton from './features/reports/ReportButton.jsx';
 import ReportSheet from './features/reports/ReportSheet.jsx';
 import ReportFeed from './features/reports/ReportFeed.jsx';
 import AdminPage from './features/admin/AdminPage.jsx';
@@ -37,10 +37,12 @@ export default function App() {
   const user = useGeolocation();
   const { latest, mainshock, aftershocks, all, status, updatedAt } = useQuakes(user);
   const { reports, pendingCount, submit, flag } = useReports(user);
+  const [tab, setTab] = useState('home');
   const [sheetOpen, setSheetOpen] = useState(false);
   const [toast, showToast] = useToast();
   const [soundOn, setSoundOn] = useState(false);
   const { alert, dismiss } = useQuakeAlerts(all, soundOn);
+
   const toggleSound = () => {
     if (!soundOn) arm();
     setSoundOn((v) => !v);
@@ -62,61 +64,74 @@ export default function App() {
     <div className={`app${online ? '' : ' off'}`}>
       <AlertBanner alert={alert} onDismiss={dismiss} />
       <StatusBar online={online} updatedAt={updatedAt} />
-      <div className="scroll">
-        <Masthead quakes={all} />
-        <InstallPrompt />
-        <button className="alert-toggle" onClick={toggleSound}>
-          {soundOn ? '🔔 Aftershock alarm: ON' : '🔕 Enable aftershock alarm'}
-        </button>
-        <button className="alert-toggle" onClick={enablePush}>
-          🔔 Notify me even when the app is closed
-        </button>
-        {!online && <OfflineBanner updatedAt={updatedAt} />}
-        {pendingCount > 0 && (
-          <div className="offline-banner" style={{ display: 'flex' }}>
-            <span>{pendingCount} report{pendingCount > 1 ? 's' : ''} queued — will send when you're back online.</span>
-          </div>
+
+      <div className="scroll" key={tab}>
+        {tab === 'home' && (
+          <>
+            <Masthead quakes={all} />
+            <InstallPrompt />
+            {!online && <OfflineBanner updatedAt={updatedAt} />}
+            <section className="reveal">
+              <SectionLabel>Latest event{status === 'cached' ? ' · cached' : ''}</SectionLabel>
+              <QuakeHero quake={latest} />
+            </section>
+            <section className="reveal">
+              <SectionLabel>Live map · {all.length} quakes · {reports.length} reports</SectionLabel>
+              <QuakeMap mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} />
+            </section>
+          </>
         )}
 
-        <section className="reveal">
-          <SectionLabel>Latest event{status === 'cached' ? ' · cached' : ''}</SectionLabel>
-          <QuakeHero quake={latest} />
-        </section>
+        {tab === 'quakes' && (
+          <section className="reveal">
+            <SectionLabel>Recent quakes · {all.length} in 7 days</SectionLabel>
+            <QuakeList quakes={all} />
+          </section>
+        )}
 
-        <section className="reveal">
-          <SectionLabel>Live map · {all.length} quakes · {reports.length} reports</SectionLabel>
-          <QuakeMap mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} />
-        </section>
+        {tab === 'reports' && (
+          <>
+            {pendingCount > 0 && (
+              <div className="offline-banner" style={{ display: 'flex' }}>
+                <span>{pendingCount} report{pendingCount > 1 ? 's' : ''} queued — will send when you're back online.</span>
+              </div>
+            )}
+            <section className="reveal">
+              <SectionLabel>Citizen reports · near you</SectionLabel>
+              <ReportFeed reports={reports} onFlag={flag} />
+            </section>
+          </>
+        )}
 
-        <section className="reveal">
-          <SectionLabel>Recent quakes · {all.length} in 7 days</SectionLabel>
-          <QuakeList quakes={all} />
-        </section>
-
-        <section className="reveal">
-          <SectionLabel>Citizen reports · near you</SectionLabel>
-          <ReportFeed reports={reports} onFlag={flag} />
-        </section>
-
-        <section className="reveal">
-          <SectionLabel>Safety · works offline</SectionLabel>
-          <SafetyPanel />
-        </section>
-
-        <section className="reveal">
-          <SectionLabel>Help others stay safe</SectionLabel>
-          <div className="share-cta">
-            <p>Know someone in the area? Share LINDOL so they get live earthquake info and safety guidance — even offline.</p>
-            <ShareButton />
-          </div>
-        </section>
-
-        <footer className="credit">
-          Built by <a href="https://moncodes.com" target="_blank" rel="noopener noreferrer">moncodes.com</a>
-        </footer>
+        {tab === 'safety' && (
+          <>
+            <section className="reveal">
+              <SectionLabel>Safety · works offline</SectionLabel>
+              <SafetyPanel />
+            </section>
+            <div className="sec-label" style={{ margin: '4px 16px 0' }}>Aftershock alerts</div>
+            <button className="alert-toggle" onClick={toggleSound}>
+              {soundOn ? '🔔 Aftershock alarm: ON' : '🔕 Enable aftershock alarm'}
+            </button>
+            <button className="alert-toggle" onClick={enablePush}>
+              🔔 Notify me even when the app is closed
+            </button>
+            <section className="reveal">
+              <SectionLabel>Help others stay safe</SectionLabel>
+              <div className="share-cta">
+                <p>Know someone in the area? Share LINDOL so they get live earthquake info and safety guidance — even offline.</p>
+                <ShareButton />
+              </div>
+            </section>
+            <footer className="credit">
+              Built by <a href="https://moncodes.com" target="_blank" rel="noopener noreferrer">moncodes.com</a>
+            </footer>
+          </>
+        )}
       </div>
 
-      <ReportButton onClick={() => setSheetOpen(true)} />
+      <BottomNav active={tab} onChange={setTab} onReport={() => setSheetOpen(true)} />
+
       <ReportSheet open={sheetOpen} onClose={() => setSheetOpen(false)} onSubmit={submit} onToast={showToast} />
       {toast && (
         <div className="toast show">

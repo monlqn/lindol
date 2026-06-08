@@ -66,7 +66,7 @@ body::after{ /* grain */
   background:#14110D; border:1px solid var(--line-strong); box-shadow:inset 0 1px 6px rgba(0,0,0,.5)}
 
 /* ---------- scroll body ---------- */
-.scroll{flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-bottom:88px}
+.scroll{flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-bottom:28px}
 .scroll::-webkit-scrollbar{width:0}
 
 .offline-banner{display:none; gap:10px; align-items:center;
@@ -321,6 +321,18 @@ textarea:focus{outline:none; border-color:var(--ember)}
   font-family:var(--font); font-weight:700; font-size:13px; cursor:pointer}
 .install-btn:hover{background:var(--ember-deep)}
 .install-x{flex:none; background:none; border:0; color:var(--ink-faint); font-size:13px; cursor:pointer; padding:4px}
+
+/* ---------- bottom tab nav ---------- */
+.bottomnav{flex:none; display:flex; align-items:center; border-top:1px solid var(--line);
+  background:var(--card); padding-bottom:env(safe-area-inset-bottom)}
+.navbtn{flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 0 7px;
+  background:none; border:0; cursor:pointer; color:var(--ink-faint); font-family:var(--font);
+  font-size:10px; font-weight:600; letter-spacing:.02em}
+.navbtn.on{color:var(--ember)}
+.nav-report{flex:none; width:52px; height:52px; border-radius:50%; background:var(--ember); color:#fff;
+  border:4px solid var(--card); margin:-18px 6px 0; cursor:pointer; display:grid; place-items:center;
+  box-shadow:var(--shadow-md)}
+.nav-report:hover{background:var(--ember-deep)}
 .leaflet-control-attribution{font-size:8.5px !important; background:rgba(252,250,244,.78) !important;
   color:var(--ink-faint) !important; padding:1px 5px !important; border-radius:0 0 0 6px}
 .leaflet-control-attribution a{color:var(--ink-soft) !important}
