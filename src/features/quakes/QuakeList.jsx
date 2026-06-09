@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { formatKm } from '../../lib/geo.js';
 import { relativeTime, formatClock } from '../../lib/time.js';
 
@@ -5,12 +6,14 @@ function magColor(m) {
   return m >= 6 ? '#CC2A2A' : m >= 5 ? '#E0521B' : m >= 4 ? '#C08A1E' : '#9A5B16';
 }
 
-// A scrollable list of recent earthquakes (newest first).
+// A scrollable list of recent earthquakes (newest first), capped until expanded.
 export default function QuakeList({ quakes, limit = 12 }) {
+  const [expanded, setExpanded] = useState(false);
   if (!quakes || quakes.length === 0) {
     return <p style={{ fontSize: 13, color: 'var(--ink-faint)' }}>No recent quakes in the area.</p>;
   }
-  const rows = [...quakes].sort((a, b) => b.time - a.time).slice(0, limit);
+  const sorted = [...quakes].sort((a, b) => b.time - a.time);
+  const rows = expanded ? sorted : sorted.slice(0, limit);
   return (
     <div className="qlist">
       {rows.map((q) => (
@@ -25,6 +28,11 @@ export default function QuakeList({ quakes, limit = 12 }) {
           </div>
         </div>
       ))}
+      {sorted.length > limit && (
+        <button className="qlist-more" onClick={() => setExpanded((e) => !e)}>
+          {expanded ? 'Show less' : `Show all ${sorted.length}`}
+        </button>
+      )}
     </div>
   );
 }

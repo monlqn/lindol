@@ -10,6 +10,7 @@
   --ember:#E0521B;
   --ember-deep:#B83C10;
   --ember-wash:#F8E3D6;
+  --map-surface:rgba(252,250,244,.92);
   --c-damage:#9A5B16;
   --c-road:#C08A1E;
   --c-fire:#E0521B;
@@ -38,6 +39,7 @@
   --ember:#D9521E;
   --ember-deep:#E2693B;
   --ember-wash:#1E1510;
+  --map-surface:rgba(20,19,17,.86);
   --c-damage:#B07B2A;
   --c-road:#C2922F;
   --c-fire:#D9521E;

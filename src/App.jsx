@@ -20,6 +20,7 @@ import Tour from './components/Tour.jsx';
 import Lightbox from './components/Lightbox.jsx';
 import PullToRefresh from './components/PullToRefresh.jsx';
 import { useTick } from './lib/useTick.js';
+import { useMediaQuery } from './lib/useMediaQuery.js';
 import InstallPrompt from './components/InstallPrompt.jsx';
 import UpdatePrompt from './components/UpdatePrompt.jsx';
 import EarlyWarningTip from './components/EarlyWarningTip.jsx';
@@ -79,6 +80,17 @@ function MainApp() {
     try { localStorage.setItem('lindol:onboarded-v2', '1'); } catch { /* ignore */ }
     setTourReport(false); setOnboard('done');
   };
+  const isWide = useMediaQuery('(min-width: 980px)');
+  const [forceMobile, setForceMobile] = useState(() => {
+    try { return localStorage.getItem('lindol:force-mobile') === '1'; } catch { return false; }
+  });
+  const toggleView = () => setForceMobile((v) => {
+    const n = !v;
+    try { localStorage.setItem('lindol:force-mobile', n ? '1' : '0'); } catch { /* ignore */ }
+    return n;
+  });
+  const twoPane = isWide && !forceMobile;
+  const leftTab = tab === 'map' ? 'home' : tab;
   const [sheetOpen, setSheetOpen] = useState(false);
   const [soundOn, setSoundOn] = useState(() => {
     try { return localStorage.getItem('lindol:alarm') === '1'; } catch { return false; }
@@ -131,6 +143,9 @@ function MainApp() {
     })();
   }, []);
 
+  // On desktop two-pane the map is always shown on the right, so never sit on the map tab.
+  useEffect(() => { if (twoPane && tab === 'map') setTab('home'); }, [twoPane, tab]);
+
   const enablePush = async () => {
     try {
       const key = import.meta.env.VITE_VAPID_PUBLIC_KEY;
@@ -152,11 +167,13 @@ function MainApp() {
   };
 
   return (
-    <div className={`app${online ? '' : ' off'}`}>
+    <div className={`app${online ? '' : ' off'}${twoPane ? ' wide' : ''}`}>
       <AlertBanner alert={alert} onDismiss={dismiss} />
+
+      <div className="pane">
       <StatusBar online={online} updatedAt={updatedAt} />
 
-      {tab === 'map' ? (
+      {!twoPane && tab === 'map' ? (
         <div className="map-screen">
           <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} />
         </div>
@@ -256,7 +273,14 @@ function MainApp() {
       </PullToRefresh>
       )}
 
-      <BottomNav active={tab} onChange={setTab} onReport={() => setSheetOpen(true)} pulseReport={tourReport} />
+      <BottomNav active={tab} onChange={setTab} onReport={() => setSheetOpen(true)} pulseReport={tourReport} hideMap={twoPane} />
+      </div>
+
+      {twoPane && (
+        <div className="desk-right">
+          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} />
+        </div>
+      )}
 
       <ReportSheet open={sheetOpen} onClose={() => setSheetOpen(false)} onSubmit={submit} onToast={showToast} />
       {toast && (
@@ -269,6 +293,11 @@ function MainApp() {
       <UpdatePrompt />
       {onboard === 'intro' && <IntroOverlay onStartTour={() => setOnboard('tour')} onSkip={finishOnboard} />}
       {onboard === 'tour' && <Tour onTab={setTab} onReportPulse={setTourReport} onDone={finishOnboard} />}
+      {isWide && (
+        <button className="view-toggle" onClick={toggleView}>
+          {forceMobile ? '🖥 Desktop view' : '📱 Mobile view'}
+        </button>
+      )}
     </div>
   );
 }
