@@ -21,6 +21,7 @@ import Lightbox from './components/Lightbox.jsx';
 import PullToRefresh from './components/PullToRefresh.jsx';
 import { useTick } from './lib/useTick.js';
 import { useMediaQuery } from './lib/useMediaQuery.js';
+import { useViewerCount } from './lib/usePresence.js';
 import InstallPrompt from './components/InstallPrompt.jsx';
 import UpdatePrompt from './components/UpdatePrompt.jsx';
 import EarlyWarningTip from './components/EarlyWarningTip.jsx';
@@ -57,6 +58,7 @@ export default function App() {
 
 function MainApp() {
   const online = useOnline();
+  const viewers = useViewerCount();
   const user = useGeolocation();
   const { latest, mainshock, aftershocks, all, status, updatedAt } = useQuakes(user);
   const [toast, showToast] = useToast();
@@ -173,7 +175,7 @@ function MainApp() {
       <AlertBanner alert={alert} onDismiss={dismiss} />
 
       <div className="pane">
-      <StatusBar online={online} updatedAt={updatedAt} />
+      <StatusBar online={online} updatedAt={updatedAt} viewers={viewers} />
 
       {!twoPane && tab === 'map' ? (
         <div className="map-screen">

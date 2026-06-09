@@ -58,6 +58,7 @@ body::after{ /* grain */
   border-bottom:1px solid var(--line); background:var(--card);
 }
 .live-pill{display:inline-flex; align-items:center; gap:6px; font-weight:600; color:var(--ink)}
+.viewers{font-size:11px; color:var(--c-safe); font-weight:700; white-space:nowrap; letter-spacing:.01em}
 .live-dot{width:7px;height:7px;border-radius:50%;background:var(--c-safe);
   box-shadow:0 0 0 0 rgba(63,125,67,.5); animation:ping 2.4s infinite}
 .app.off .live-dot{background:var(--ember);animation:none}
