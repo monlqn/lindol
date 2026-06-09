@@ -58,6 +58,37 @@ function MapClicker({ active, onPick }) {
   return null;
 }
 
+// PHIVOLCS Active Fault overlay, rendered as a dynamic image layer (projection-matched
+// to Leaflet's Web Mercator). The raw geometry query is locked, but image export is open.
+const FAULT_URL = 'https://gisweb.phivolcs.dost.gov.ph/arcgis/rest/services/PHIVOLCSPublic/ActiveFault/MapServer/export';
+
+function FaultLayer({ show }) {
+  const map = useMap();
+  const layerRef = useRef(null);
+
+  const draw = () => {
+    if (layerRef.current) { map.removeLayer(layerRef.current); layerRef.current = null; }
+    if (!show) return;
+    const b = map.getBounds();
+    const size = map.getSize();
+    const crs = map.options.crs;
+    const sw = crs.project(b.getSouthWest());
+    const ne = crs.project(b.getNorthEast());
+    const url = `${FAULT_URL}?bbox=${sw.x},${sw.y},${ne.x},${ne.y}&bboxSR=102100&imageSR=102100`
+      + `&size=${Math.round(size.x)},${Math.round(size.y)}&dpi=96&format=png32&transparent=true&f=image`;
+    layerRef.current = L.imageOverlay(url, b, { opacity: 0.85, interactive: false });
+    layerRef.current.addTo(map);
+  };
+
+  useMapEvents({ moveend: draw, zoomend: draw });
+  useEffect(() => {
+    draw();
+    return () => { if (layerRef.current) { map.removeLayer(layerRef.current); layerRef.current = null; } };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [show]);
+  return null;
+}
+
 // Flies the map to a focus point (e.g., a quake tapped in the list).
 function FocusFlyer({ focus }) {
   const map = useMap();
@@ -75,6 +106,7 @@ export default function QuakeMap({
 }) {
   const [showQuakes, setShowQuakes] = useState(true);
   const [showReports, setShowReports] = useState(true);
+  const [showFaults, setShowFaults] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [catFilter, setCatFilter] = useState(() => new Set(CATEGORIES.map((c) => c.key)));
   const [hideResolved, setHideResolved] = useState(false);
@@ -128,6 +160,9 @@ export default function QuakeMap({
         <div className={`chip${showReports ? ' on' : ''}`} onClick={() => setShowReports((v) => !v)}>
           <span className="sw" style={{ background: 'var(--c-help)' }} />Reports
         </div>
+        <div className={`chip${showFaults ? ' on' : ''}`} onClick={() => setShowFaults((v) => !v)}>
+          <span className="sw" style={{ background: '#B03030' }} />Faults
+        </div>
         <div className={`chip${showFilters ? ' on' : ''}`} onClick={() => setShowFilters((v) => !v)}>⚙ Filters</div>
         <span className="map-live"><span className="live-dot" />LIVE</span>
       </div>
@@ -163,6 +198,7 @@ export default function QuakeMap({
         <TileLayer key={dark ? 'dark' : 'light'} url={tileUrl}
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
           maxZoom={19} />
+        <FaultLayer show={showFaults} />
         <FollowUser user={user} />
         <FocusFlyer focus={focus} />
         {highlight && Number.isFinite(highlight.lat) && Number.isFinite(highlight.lng) && (
@@ -247,6 +283,7 @@ export default function QuakeMap({
         <span><i style={{ background: 'var(--c-fire)' }} />Fire</span>
         <span><i style={{ background: 'var(--c-help)' }} />Need help</span>
         <span><i style={{ background: 'var(--c-safe)' }} />Safe</span>
+        {showFaults && <span><i style={{ background: '#B03030' }} />Active fault · PHIVOLCS</span>}
       </div>
     </div>
   );
