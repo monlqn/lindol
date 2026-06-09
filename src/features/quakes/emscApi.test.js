@@ -7,7 +7,7 @@ describe('buildEmscUrl', () => {
     const url = buildEmscUrl(REGION);
     expect(url).toContain('seismicportal.eu');
     expect(url).toContain('format=json');
-    expect(url).toContain('minmagnitude=2.5');
+    expect(url).toContain('minmagnitude=2');
     expect(url).toContain('minlatitude=4.5');
   });
 });

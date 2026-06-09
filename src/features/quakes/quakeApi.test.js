@@ -8,7 +8,7 @@ describe('buildUsgsUrl', () => {
     expect(url).toContain('format=geojson');
     expect(url).toContain('minlatitude=4.5');
     expect(url).toContain('maxlongitude=127');
-    expect(url).toContain('minmagnitude=2.5');
+    expect(url).toContain('minmagnitude=2');
   });
 });
 

@@ -64,8 +64,10 @@ export default function PrivacyPage() {
 
       <h2>7. Security & moderation</h2>
       <p>We use reputable providers and HTTPS, and apply rate limits and community flagging to reduce
-        abuse. A small number of moderators can hide or delete reported content. No online service can
-        be guaranteed 100% secure, so please share responsibly.</p>
+        abuse. To rate-limit spam, we briefly store a one-way <b>hashed</b> version of your IP address
+        (never the raw IP); these records auto-delete within 30 minutes. A small number of moderators
+        can hide or delete reported content. No online service can be guaranteed 100% secure, so please
+        share responsibly.</p>
 
       <h2>8. Your choices</h2>
       <ul>

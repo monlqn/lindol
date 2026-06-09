@@ -6,7 +6,7 @@ export const REGION = {
   bbox: { minLat: 4.5, maxLat: 21.5, minLng: 116.0, maxLng: 127.0 },
   // The active Southern Mindanao aftershock zone we highlight on the map.
   highlight: { minLat: 4.8, maxLat: 7.2, minLng: 124.0, maxLng: 126.4 },
-  minMagnitude: 2.5,
+  minMagnitude: 2.0,
   alertMinMag: 4.5,
   // Only quakes within this many km of the user trigger an alert ("near you").
   alertRadiusKm: 300,

@@ -603,7 +603,10 @@ textarea:focus{outline:none; border-color:var(--ember)}
 .qlist-more{width:100%; margin-top:2px; padding:10px; background:none; border:1px solid var(--line);
   border-radius:11px; color:var(--ember-deep); font-family:inherit; font-size:13px; font-weight:700; cursor:pointer}
 .qlist-more:hover{border-color:var(--ember)}
-.src-note{font-size:11px; line-height:1.5; color:var(--ink-faint); margin:10px 2px 0}
+.src-note{font-size:12.5px; line-height:1.5; color:var(--ink-soft); margin:0 0 12px;
+  padding:10px 12px; background:var(--ember-wash); border:1px solid var(--line);
+  border-left:3px solid var(--ember); border-radius:9px}
+.src-note b{color:var(--ink)}
 .privacy-link{display:flex; align-items:center; justify-content:center; gap:7px; margin:8px 16px;
   padding:13px; border-radius:12px; border:1px solid var(--line-strong); background:var(--card);
   color:var(--ink); text-decoration:none; font-size:13.5px; font-weight:700; box-shadow:var(--shadow-sm)}

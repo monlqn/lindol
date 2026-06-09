@@ -194,8 +194,8 @@ function MainApp() {
             </section>
             <section className="reveal">
               <SectionLabel>Recent quakes · {all.length} in 7 days</SectionLabel>
+              <p className="src-note">Showing <b>M2.0+</b> from USGS &amp; EMSC. PHIVOLCS records many more, smaller aftershocks (M1–2) that global sources don&rsquo;t publish.</p>
               <QuakeList quakes={all} />
-              <p className="src-note">Showing M2.5+ from USGS &amp; EMSC. PHIVOLCS records many more, smaller aftershocks (M1–2) that global sources don&rsquo;t publish.</p>
             </section>
           </>
         )}
