@@ -56,9 +56,20 @@ function MapClicker({ active, onPick }) {
   return null;
 }
 
+// Flies the map to a focus point (e.g., a quake tapped in the list).
+function FocusFlyer({ focus }) {
+  const map = useMap();
+  useEffect(() => {
+    if (focus && Number.isFinite(focus.lat) && Number.isFinite(focus.lng)) {
+      map.flyTo([focus.lat, focus.lng], Math.max(map.getZoom(), 10), { duration: 0.8 });
+    }
+  }, [focus?.t]);
+  return null;
+}
+
 export default function QuakeMap({
   mainshock, aftershocks = [], reports = [], user = REGION.defaultUser,
-  fill = false, dark = false, onReportAt,
+  fill = false, dark = false, onReportAt, focus,
 }) {
   const [showQuakes, setShowQuakes] = useState(true);
   const [showReports, setShowReports] = useState(true);
@@ -142,6 +153,7 @@ export default function QuakeMap({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
           maxZoom={19} />
         <FollowUser user={user} />
+        <FocusFlyer focus={focus} />
         <MapClicker active={pinMode} onPick={(loc) => { setPinMode(false); onReportAt?.(loc); }} />
         <Rectangle bounds={HL_BOUNDS} interactive={false}
           pathOptions={{ color: '#E0521B', weight: 2, dashArray: '6 5', fillColor: '#E0521B', fillOpacity: 0.05 }} />

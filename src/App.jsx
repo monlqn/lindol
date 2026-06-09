@@ -96,6 +96,11 @@ function MainApp() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [reportLoc, setReportLoc] = useState(null);
   const openReportAt = (loc) => { setReportLoc(loc); setSheetOpen(true); };
+  const [mapFocus, setMapFocus] = useState(null);
+  const locateQuake = (q) => {
+    setMapFocus({ lat: q.lat, lng: q.lng, t: Date.now() });
+    if (!twoPane) setTab('map');
+  };
   const [soundOn, setSoundOn] = useState(() => {
     try { return localStorage.getItem('lindol:alarm') === '1'; } catch { return false; }
   });
@@ -179,7 +184,7 @@ function MainApp() {
 
       {!twoPane && tab === 'map' ? (
         <div className="map-screen">
-          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} />
+          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} focus={mapFocus} />
         </div>
       ) : (
       <PullToRefresh className="scroll" key={tab} onRefresh={refresh}>
@@ -195,7 +200,7 @@ function MainApp() {
             <section className="reveal">
               <SectionLabel>Recent quakes · {all.length} in 7 days</SectionLabel>
               <p className="src-note">Showing <b>M2.0+</b> from USGS &amp; EMSC. PHIVOLCS records many more, smaller aftershocks (M1–2) that global sources don&rsquo;t publish.</p>
-              <QuakeList quakes={all} />
+              <QuakeList quakes={all} onLocate={locateQuake} />
             </section>
           </>
         )}
@@ -284,7 +289,7 @@ function MainApp() {
 
       {twoPane && (
         <div className="desk-right">
-          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} />
+          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} focus={mapFocus} />
         </div>
       )}
 
