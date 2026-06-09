@@ -58,28 +58,35 @@ function MapClicker({ active, onPick }) {
   return null;
 }
 
-// PHIVOLCS Active Fault overlay, rendered as a dynamic image layer (projection-matched
-// to Leaflet's Web Mercator). The raw geometry query is locked, but image export is open.
-const FAULT_URL = 'https://gisweb.phivolcs.dost.gov.ph/arcgis/rest/services/PHIVOLCSPublic/ActiveFault/MapServer/export';
+// PHIVOLCS overlays, rendered as dynamic image layers (projection-matched to Web Mercator).
+// The raw geometry query is locked, but image export is open.
+const ARCGIS = 'https://gisweb.phivolcs.dost.gov.ph/arcgis/rest/services/PHIVOLCSPublic';
+const FAULT_URL = `${ARCGIS}/ActiveFault/MapServer/export`;
+const HAZARDS = [
+  { key: 'shaking', label: 'Ground shaking', url: `${ARCGIS}/GroundShaking/MapServer/export` },
+  { key: 'liquefaction', label: 'Liquefaction', url: `${ARCGIS}/Liquefaction/MapServer/export` },
+  { key: 'tsunami', label: 'Tsunami', url: `${ARCGIS}/Tsunami/MapServer/export` },
+  { key: 'landslide', label: 'Landslide', url: `${ARCGIS}/EarthquakeInducedLandslide/MapServer/export` },
+];
+const HAZARD_MAP = Object.fromEntries(HAZARDS.map((h) => [h.key, h]));
 
-function FaultLayer({ show }) {
+function ArcgisOverlay({ url, opacity = 0.85 }) {
   const map = useMap();
   const currentRef = useRef(null);
   const pendingRef = useRef(null);
 
   const draw = () => {
-    if (!show) return;
     if (pendingRef.current) { map.removeLayer(pendingRef.current); pendingRef.current = null; }
     const b = map.getBounds();
     const size = map.getSize();
     const crs = map.options.crs;
     const sw = crs.project(b.getSouthWest());
     const ne = crs.project(b.getNorthEast());
-    const url = `${FAULT_URL}?bbox=${sw.x},${sw.y},${ne.x},${ne.y}&bboxSR=102100&imageSR=102100`
+    const u = `${url}?bbox=${sw.x},${sw.y},${ne.x},${ne.y}&bboxSR=102100&imageSR=102100`
       + `&size=${Math.round(size.x)},${Math.round(size.y)}&dpi=96&format=png32&transparent=true&f=image`;
-    const next = L.imageOverlay(url, b, { opacity: 0, interactive: false });
+    const next = L.imageOverlay(u, b, { opacity: 0, interactive: false });
     next.on('load', () => {           // swap only once the new image is ready (no blank gap)
-      next.setOpacity(0.85);
+      next.setOpacity(opacity);
       const prev = currentRef.current;
       currentRef.current = next;
       pendingRef.current = null;
@@ -92,13 +99,10 @@ function FaultLayer({ show }) {
 
   useMapEvents({ moveend: draw, zoomend: draw });
   useEffect(() => {
-    const clear = () => {
-      [currentRef, pendingRef].forEach((r) => { if (r.current) { map.removeLayer(r.current); r.current = null; } });
-    };
-    if (show) draw(); else clear();
-    return clear;
+    draw();
+    return () => { [currentRef, pendingRef].forEach((r) => { if (r.current) { map.removeLayer(r.current); r.current = null; } }); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [show]);
+  }, [url, opacity]);
   return null;
 }
 
@@ -120,6 +124,7 @@ export default function QuakeMap({
   const [showQuakes, setShowQuakes] = useState(true);
   const [showReports, setShowReports] = useState(true);
   const [showFaults, setShowFaults] = useState(false);
+  const [hazard, setHazard] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [catFilter, setCatFilter] = useState(() => new Set(CATEGORIES.map((c) => c.key)));
   const [hideResolved, setHideResolved] = useState(false);
@@ -192,6 +197,13 @@ export default function QuakeMap({
           <button className={`mf-line${hideResolved ? ' on' : ''}`} onClick={() => setHideResolved((h) => !h)}>
             {hideResolved ? '☑' : '☐'} Hide resolved reports
           </button>
+          <div className="mf-title">PHIVOLCS hazard layer</div>
+          <div className="mf-cats">
+            <button className={`mf-cat${!hazard ? ' on' : ''}`} onClick={() => setHazard(null)}>None</button>
+            {HAZARDS.map((h) => (
+              <button key={h.key} className={`mf-cat${hazard === h.key ? ' on' : ''}`} onClick={() => setHazard(h.key)}>{h.label}</button>
+            ))}
+          </div>
           <div className="mf-title">Jump to a city</div>
           <div className="mf-cities">
             {CITIES.map((ci) => (
@@ -211,7 +223,8 @@ export default function QuakeMap({
         <TileLayer key={dark ? 'dark' : 'light'} url={tileUrl}
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
           maxZoom={19} />
-        <FaultLayer show={showFaults} />
+        {hazard && HAZARD_MAP[hazard] && <ArcgisOverlay key={hazard} url={HAZARD_MAP[hazard].url} opacity={0.55} />}
+        {showFaults && <ArcgisOverlay url={FAULT_URL} opacity={0.85} />}
         <FollowUser user={user} />
         <FocusFlyer focus={focus} />
         {highlight && Number.isFinite(highlight.lat) && Number.isFinite(highlight.lng) && (
@@ -302,6 +315,7 @@ export default function QuakeMap({
         <span><i style={{ background: 'var(--c-help)' }} />Need help</span>
         <span><i style={{ background: 'var(--c-safe)' }} />Safe</span>
         {showFaults && <span><i style={{ background: '#B03030' }} />Active fault · PHIVOLCS</span>}
+        {hazard && HAZARD_MAP[hazard] && <span>⚠️ {HAZARD_MAP[hazard].label} hazard · PHIVOLCS</span>}
       </div>
     </div>
   );
