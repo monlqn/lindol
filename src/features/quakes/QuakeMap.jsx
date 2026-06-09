@@ -9,8 +9,16 @@ import { relativeTime, formatClock } from '../../lib/time.js';
 
 const CAT_LABEL = Object.fromEntries(CATEGORIES.map((c) => [c.key, c.label]));
 
-const epiIcon = L.divIcon({ className: '', iconSize: [20, 20], iconAnchor: [10, 10],
-  html: '<div class="epi"><div class="ring"></div><div class="core"></div></div>' });
+// The epicenter scales with its magnitude (so it's the biggest marker) and shows it.
+function epicenterIcon(mag) {
+  const core = Math.round(magRadius(mag) * 2 + 8);
+  const box = core + 6;
+  return L.divIcon({
+    className: '', iconSize: [box, box], iconAnchor: [box / 2, box / 2],
+    html: `<div class="epi" style="width:${box}px;height:${box}px"><div class="ring"></div>`
+      + `<div class="core" style="width:${core}px;height:${core}px;background:${magColor(mag)}">${mag.toFixed(1)}</div></div>`,
+  });
+}
 const youIcon = L.divIcon({ className: '', iconSize: [22, 22], iconAnchor: [11, 11],
   html: '<div class="youdot"><span class="youpulse"></span><span class="youcore"></span></div>' });
 const zoneLabelIcon = L.divIcon({ className: 'zone-label-wrap', iconSize: [190, 20], iconAnchor: [95, 10],
@@ -139,7 +147,7 @@ export default function QuakeMap({
           pathOptions={{ color: '#E0521B', weight: 2, dashArray: '6 5', fillColor: '#E0521B', fillOpacity: 0.05 }} />
         <Marker position={[HL.maxLat, (HL.minLng + HL.maxLng) / 2]} icon={zoneLabelIcon} interactive={false} />
         {showQuakes && mainshock && (
-          <Marker position={[mainshock.lat, mainshock.lng]} icon={epiIcon}>
+          <Marker position={[mainshock.lat, mainshock.lng]} icon={epicenterIcon(mainshock.mag)}>
             <Popup>
               <div className="pin-pop">
                 <span className="pp-mag">M{mainshock.mag.toFixed(1)}</span> · strongest
