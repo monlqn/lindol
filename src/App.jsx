@@ -199,7 +199,7 @@ function MainApp() {
             </section>
             <section className="reveal">
               <SectionLabel>Recent quakes · {all.length} in 7 days</SectionLabel>
-              <p className="src-note">Showing <b>M2.0+</b> from USGS &amp; EMSC. PHIVOLCS records many more, smaller aftershocks (M1–2) that global sources don&rsquo;t publish.</p>
+              <p className="src-note">Showing <b>M2.0+</b> from USGS &amp; EMSC. These global sources publish a few minutes after a quake and skip the smallest ones, so a very recent or weak quake may not appear yet. PHIVOLCS records many more but has no public live feed.</p>
               <QuakeList quakes={all} onLocate={locateOnMap} />
             </section>
           </>
