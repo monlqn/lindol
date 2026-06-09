@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Rectangle, AttributionControl, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, CircleMarker, Popup, Rectangle, AttributionControl, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { REGION } from '../../config.js';
 import { reportIcon } from '../reports/reportMarkers.js';
@@ -11,14 +11,23 @@ const CAT_LABEL = Object.fromEntries(CATEGORIES.map((c) => [c.key, c.label]));
 
 const epiIcon = L.divIcon({ className: '', iconSize: [20, 20], iconAnchor: [10, 10],
   html: '<div class="epi"><div class="ring"></div><div class="core"></div></div>' });
-const afterIcon = L.divIcon({ className: '', iconSize: [13, 13], iconAnchor: [6, 6],
-  html: '<div class="after"></div>' });
 const youIcon = L.divIcon({ className: '', iconSize: [22, 22], iconAnchor: [11, 11],
   html: '<div class="youdot"><span class="youpulse"></span><span class="youcore"></span></div>' });
 const zoneLabelIcon = L.divIcon({ className: 'zone-label-wrap', iconSize: [190, 20], iconAnchor: [95, 10],
   html: '<span class="zone-label">Active aftershock zone</span>' });
 const HL = REGION.highlight;
 const HL_BOUNDS = [[HL.minLat, HL.minLng], [HL.maxLat, HL.maxLng]];
+
+const CITIES = [
+  { name: 'Davao', c: [7.07, 125.61] },
+  { name: 'Gen. Santos', c: [6.11, 125.17] },
+  { name: 'Sarangani', c: [5.96, 125.20] },
+  { name: 'Cotabato', c: [7.22, 124.25] },
+  { name: 'Koronadal', c: [6.50, 124.85] },
+];
+
+function magColor(m) { return m >= 6 ? '#CC2A2A' : m >= 5 ? '#E0521B' : m >= 4 ? '#C08A1E' : '#9A5B16'; }
+function magRadius(m) { return Math.max(3.5, 3.5 + (m - 2.5) * 2.3); }
 
 const isRealFix = (u) => u && (u[0] !== REGION.defaultUser[0] || u[1] !== REGION.defaultUser[1]);
 
@@ -34,18 +43,28 @@ function FollowUser({ user }) {
   return null;
 }
 
-export default function QuakeMap({ mainshock, aftershocks = [], reports = [], user = REGION.defaultUser, fill = false }) {
+function MapClicker({ active, onPick }) {
+  useMapEvents({ click(e) { if (active) onPick([e.latlng.lat, e.latlng.lng]); } });
+  return null;
+}
+
+export default function QuakeMap({
+  mainshock, aftershocks = [], reports = [], user = REGION.defaultUser,
+  fill = false, dark = false, onReportAt,
+}) {
   const [showQuakes, setShowQuakes] = useState(true);
   const [showReports, setShowReports] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  const [catFilter, setCatFilter] = useState(() => new Set(CATEGORIES.map((c) => c.key)));
+  const [hideResolved, setHideResolved] = useState(false);
+  const [pinMode, setPinMode] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const mapRef = useRef(null);
-  const dark = typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark';
+
   const tileUrl = dark
     ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
     : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
 
-  // Leaflet must recompute its size when the container resizes (expand/collapse).
-  // Fire several times so it settles regardless of layout/transition timing.
   useEffect(() => {
     const m = mapRef.current;
     if (!m) return;
@@ -53,7 +72,6 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
     return () => ids.forEach(clearTimeout);
   }, [expanded]);
 
-  // Allow Esc to exit fullscreen.
   useEffect(() => {
     if (!expanded) return;
     const onKey = (e) => e.key === 'Escape' && setExpanded(false);
@@ -61,8 +79,18 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
     return () => window.removeEventListener('keydown', onKey);
   }, [expanded]);
 
+  const toggleCat = (k) => setCatFilter((prev) => {
+    const n = new Set(prev);
+    if (n.has(k)) n.delete(k); else n.add(k);
+    return n;
+  });
+
+  const visibleReports = reports.filter(
+    (r) => catFilter.has(r.category) && !(hideResolved && r.state === 'resolved'),
+  );
+
   return (
-    <div className={`mapwrap${fill ? ' mapwrap-fill' : ''}`}>
+    <div className={`mapwrap${fill ? ' mapwrap-fill' : ''}${pinMode ? ' pin-mode' : ''}`}>
       <div className="maptools">
         <div className={`chip${showQuakes ? ' on' : ''}`} onClick={() => setShowQuakes((v) => !v)}>
           <span className="sw" style={{ background: 'var(--ember)' }} />Quakes
@@ -70,17 +98,43 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
         <div className={`chip${showReports ? ' on' : ''}`} onClick={() => setShowReports((v) => !v)}>
           <span className="sw" style={{ background: 'var(--c-help)' }} />Reports
         </div>
+        <div className={`chip${showFilters ? ' on' : ''}`} onClick={() => setShowFilters((v) => !v)}>⚙ Filters</div>
         <span className="map-live"><span className="live-dot" />LIVE</span>
       </div>
+
+      {showFilters && (
+        <div className="map-filters">
+          <div className="mf-title">Show report types</div>
+          <div className="mf-cats">
+            {CATEGORIES.map((c) => (
+              <button key={c.key} className={`mf-cat${catFilter.has(c.key) ? ' on' : ''}`}
+                onClick={() => toggleCat(c.key)}>{c.icon} {c.label}</button>
+            ))}
+          </div>
+          <button className={`mf-line${hideResolved ? ' on' : ''}`} onClick={() => setHideResolved((h) => !h)}>
+            {hideResolved ? '☑' : '☐'} Hide resolved reports
+          </button>
+          <div className="mf-title">Jump to a city</div>
+          <div className="mf-cities">
+            {CITIES.map((ci) => (
+              <button key={ci.name} className="mf-city"
+                onClick={() => { mapRef.current?.flyTo(ci.c, 10); setShowFilters(false); }}>{ci.name}</button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {pinMode && <div className="pin-hint">📍 Tap the map where it happened</div>}
+
       <div className="map-canvas" style={{ height: fill ? '100%' : expanded ? '78vh' : 280, width: '100%' }}>
       <MapContainer ref={mapRef} center={REGION.center} zoom={7} zoomControl={false}
         attributionControl={false} style={{ height: '100%', width: '100%' }}>
         <AttributionControl position="topright" prefix={false} />
-        <TileLayer key={dark ? 'dark' : 'light'}
-          url={tileUrl}
+        <TileLayer key={dark ? 'dark' : 'light'} url={tileUrl}
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
           maxZoom={19} />
         <FollowUser user={user} />
+        <MapClicker active={pinMode} onPick={(loc) => { setPinMode(false); onReportAt?.(loc); }} />
         <Rectangle bounds={HL_BOUNDS} interactive={false}
           pathOptions={{ color: '#E0521B', weight: 2, dashArray: '6 5', fillColor: '#E0521B', fillOpacity: 0.05 }} />
         <Marker position={[HL.maxLat, (HL.minLng + HL.maxLng) / 2]} icon={zoneLabelIcon} interactive={false} />
@@ -97,7 +151,8 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
           </Marker>
         )}
         {showQuakes && aftershocks.map((q) => (
-          <Marker key={q.id} position={[q.lat, q.lng]} icon={afterIcon}>
+          <CircleMarker key={q.id} center={[q.lat, q.lng]} radius={magRadius(q.mag)}
+            pathOptions={{ color: '#fff', weight: 1.5, fillColor: magColor(q.mag), fillOpacity: 0.85 }}>
             <Popup>
               <div className="pin-pop">
                 <span className="pp-mag">M{q.mag.toFixed(1)}</span> aftershock
@@ -105,9 +160,9 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
                   {q.distanceKm != null ? ` · ≈ ${formatKm(q.distanceKm)} from you` : ''}</div>
               </div>
             </Popup>
-          </Marker>
+          </CircleMarker>
         ))}
-        {showReports && reports.map((r) => (
+        {showReports && visibleReports.map((r) => (
           <Marker key={r.id} position={[r.lat, r.lng]} icon={reportIcon(r.category, r.state === 'resolved')}>
             <Popup>
               <div className="pin-pop">
@@ -125,6 +180,11 @@ export default function QuakeMap({ mainshock, aftershocks = [], reports = [], us
       </MapContainer>
       </div>
 
+      {onReportAt && (
+        <button className={`map-pin${pinMode ? ' on' : ''}`} onClick={() => setPinMode((p) => !p)}>
+          {pinMode ? '✕ Cancel' : '📍 Report on map'}
+        </button>
+      )}
       {!fill && (
         <button className="map-btn map-expand" aria-label={expanded ? 'Exit fullscreen' : 'Expand map'}
           onClick={() => setExpanded((v) => !v)}>

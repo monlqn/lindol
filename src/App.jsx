@@ -92,6 +92,8 @@ function MainApp() {
   const twoPane = isWide && !forceMobile;
   const leftTab = tab === 'map' ? 'home' : tab;
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [reportLoc, setReportLoc] = useState(null);
+  const openReportAt = (loc) => { setReportLoc(loc); setSheetOpen(true); };
   const [soundOn, setSoundOn] = useState(() => {
     try { return localStorage.getItem('lindol:alarm') === '1'; } catch { return false; }
   });
@@ -175,7 +177,7 @@ function MainApp() {
 
       {!twoPane && tab === 'map' ? (
         <div className="map-screen">
-          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} />
+          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} />
         </div>
       ) : (
       <PullToRefresh className="scroll" key={tab} onRefresh={refresh}>
@@ -278,11 +280,11 @@ function MainApp() {
 
       {twoPane && (
         <div className="desk-right">
-          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} />
+          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} />
         </div>
       )}
 
-      <ReportSheet open={sheetOpen} onClose={() => setSheetOpen(false)} onSubmit={submit} onToast={showToast} />
+      <ReportSheet open={sheetOpen} onClose={() => { setSheetOpen(false); setReportLoc(null); }} onSubmit={submit} onToast={showToast} overrideLocation={reportLoc} />
       {toast && (
         <div className="toast show">
           <span className="tdot" style={{ background: toast.color || '#3F7D43' }} />

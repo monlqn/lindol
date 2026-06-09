@@ -8,7 +8,7 @@ const newId = () => crypto?.randomUUID?.() ?? `r-${Date.now()}-${Math.random().t
 const LABEL = Object.fromEntries(CATEGORIES.map((c) => [c.key, c.label]));
 
 // onSubmit(report) -> Promise<{ok, queued}>. report: {id, category, note, lat, lng, photoFile, deviceId}
-export default function ReportSheet({ open, onClose, onSubmit, onToast }) {
+export default function ReportSheet({ open, onClose, onSubmit, onToast, overrideLocation }) {
   const [cat, setCat] = useState(null);
   const [note, setNote] = useState('');
   const [photo, setPhoto] = useState(null);
@@ -23,13 +23,14 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast }) {
 
   useEffect(() => {
     if (!open) return;
+    if (overrideLocation) { setCoords(overrideLocation); setGeoState('ok'); return; }
     setGeoState('locating');
     navigator.geolocation?.getCurrentPosition(
       (p) => { setCoords([p.coords.latitude, p.coords.longitude]); setGeoState('ok'); },
       () => setGeoState('denied'),
       { enableHighAccuracy: true, timeout: 10000 }
     );
-  }, [open]);
+  }, [open, overrideLocation]);
 
   function reset() {
     setCat(null); setNote(''); setPhoto(null);
@@ -149,7 +150,9 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast }) {
           </svg>
           <span>
             {geoState === 'locating' && 'Locating you…'}
-            {geoState === 'ok' && coords && `GPS locked · ${coords[0].toFixed(3)}°, ${coords[1].toFixed(3)}°`}
+            {geoState === 'ok' && coords && (overrideLocation
+              ? `📍 Pinned on map · ${coords[0].toFixed(3)}, ${coords[1].toFixed(3)}`
+              : `GPS locked · ${coords[0].toFixed(3)}°, ${coords[1].toFixed(3)}°`)}
             {geoState === 'denied' && 'Location needed to report - enable GPS and reopen.'}
           </span>
         </div>

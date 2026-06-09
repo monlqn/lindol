@@ -214,7 +214,31 @@ section{padding:18px 16px}
   backdrop-filter:blur(6px); cursor:pointer; color:var(--ink-soft); user-select:none;
   display:inline-flex; align-items:center; gap:6px; transition:.15s}
 .chip .sw{width:9px;height:9px;border-radius:50%}
-.chip.on{background:var(--ink); color:var(--paper); border-color:var(--ink)}
+.chip.on{background:var(--ember); color:#fff; border-color:var(--ember)}
+.map-filters{position:absolute; z-index:600; top:52px; left:10px; width:min(280px, calc(100% - 20px));
+  background:var(--map-surface); backdrop-filter:blur(8px); border:1px solid var(--line-strong);
+  border-radius:12px; padding:12px; box-shadow:var(--shadow-md)}
+.mf-title{font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+  color:var(--ink-faint); font-family:var(--mono); margin:0 0 7px}
+.mf-cats{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px}
+.mf-cat{font-size:11.5px; font-weight:600; padding:6px 10px; border-radius:999px; cursor:pointer;
+  border:1px solid var(--line); background:var(--card); color:var(--ink-faint); opacity:.55; transition:.15s; font-family:inherit}
+.mf-cat.on{opacity:1; color:var(--ink); border-color:var(--ember)}
+.mf-line{display:block; width:100%; text-align:left; background:none; border:0; cursor:pointer;
+  font-family:inherit; font-size:12.5px; font-weight:600; color:var(--ink-soft); padding:4px 0 11px}
+.mf-line.on{color:var(--c-safe)}
+.mf-cities{display:flex; flex-wrap:wrap; gap:6px}
+.mf-city{font-size:11.5px; font-weight:600; padding:6px 11px; border-radius:8px; cursor:pointer;
+  border:1px solid var(--line-strong); background:var(--card); color:var(--ink-soft); font-family:inherit}
+.mf-city:hover{border-color:var(--ember); color:var(--ember-deep)}
+.map-pin{position:absolute; z-index:500; left:10px; bottom:74px; display:inline-flex; align-items:center; gap:6px;
+  background:var(--ember); color:#fff; border:0; border-radius:999px; padding:9px 14px; font-family:var(--font);
+  font-weight:700; font-size:12.5px; cursor:pointer; box-shadow:var(--shadow-md)}
+.map-pin.on{background:var(--ink); color:var(--paper)}
+.pin-hint{position:absolute; z-index:600; top:52px; left:50%; transform:translateX(-50%);
+  background:var(--ink); color:var(--paper); padding:7px 14px; border-radius:999px; font-size:12.5px;
+  font-weight:600; box-shadow:var(--shadow-md); white-space:nowrap}
+.mapwrap.pin-mode .leaflet-container{cursor:crosshair}
 
 /* leaflet report pins - clean teardrop with a white center dot */
 .rpin{width:30px; height:30px; border-radius:50% 50% 50% 0; transform:rotate(45deg);
