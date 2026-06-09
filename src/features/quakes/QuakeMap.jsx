@@ -64,11 +64,12 @@ const FAULT_URL = 'https://gisweb.phivolcs.dost.gov.ph/arcgis/rest/services/PHIV
 
 function FaultLayer({ show }) {
   const map = useMap();
-  const layerRef = useRef(null);
+  const currentRef = useRef(null);
+  const pendingRef = useRef(null);
 
   const draw = () => {
-    if (layerRef.current) { map.removeLayer(layerRef.current); layerRef.current = null; }
     if (!show) return;
+    if (pendingRef.current) { map.removeLayer(pendingRef.current); pendingRef.current = null; }
     const b = map.getBounds();
     const size = map.getSize();
     const crs = map.options.crs;
@@ -76,14 +77,26 @@ function FaultLayer({ show }) {
     const ne = crs.project(b.getNorthEast());
     const url = `${FAULT_URL}?bbox=${sw.x},${sw.y},${ne.x},${ne.y}&bboxSR=102100&imageSR=102100`
       + `&size=${Math.round(size.x)},${Math.round(size.y)}&dpi=96&format=png32&transparent=true&f=image`;
-    layerRef.current = L.imageOverlay(url, b, { opacity: 0.85, interactive: false });
-    layerRef.current.addTo(map);
+    const next = L.imageOverlay(url, b, { opacity: 0, interactive: false });
+    next.on('load', () => {           // swap only once the new image is ready (no blank gap)
+      next.setOpacity(0.85);
+      const prev = currentRef.current;
+      currentRef.current = next;
+      pendingRef.current = null;
+      if (prev && prev !== next) map.removeLayer(prev);
+    });
+    next.on('error', () => { if (pendingRef.current === next) pendingRef.current = null; map.removeLayer(next); });
+    pendingRef.current = next;
+    next.addTo(map);
   };
 
   useMapEvents({ moveend: draw, zoomend: draw });
   useEffect(() => {
-    draw();
-    return () => { if (layerRef.current) { map.removeLayer(layerRef.current); layerRef.current = null; } };
+    const clear = () => {
+      [currentRef, pendingRef].forEach((r) => { if (r.current) { map.removeLayer(r.current); r.current = null; } });
+    };
+    if (show) draw(); else clear();
+    return clear;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show]);
   return null;
@@ -269,12 +282,17 @@ export default function QuakeMap({
           )}
         </button>
       )}
-      <button className="map-btn map-recenter" aria-label="Center on my location"
-        onClick={() => mapRef.current?.flyTo(user, 12)}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="12" cy="12" r="3.2" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
-        </svg>
-      </button>
+      <div className="map-ctrls">
+        <button className="map-btn" aria-label="Zoom in" onClick={() => mapRef.current?.zoomIn()}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M12 5v14M5 12h14" /></svg>
+        </button>
+        <button className="map-btn" aria-label="Zoom out" onClick={() => mapRef.current?.zoomOut()}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M5 12h14" /></svg>
+        </button>
+        <button className="map-btn" aria-label="Center on my location" onClick={() => mapRef.current?.flyTo(user, 12)}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3.2" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3" /></svg>
+        </button>
+      </div>
 
       <div className="legend">
         <span><i style={{ background: 'var(--ember)' }} />Epicenter</span>

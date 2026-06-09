@@ -587,13 +587,12 @@ textarea:focus{outline:none; border-color:var(--ember)}
 .replay-tour:hover{border-color:var(--ember); color:var(--ember-deep)}
 
 /* ---------- map: recenter button + attribution ---------- */
-.map-btn{position:absolute; z-index:500; width:42px; height:42px; border-radius:50%;
-  border:1px solid var(--line-strong); background:var(--map-surface); backdrop-filter:blur(6px);
-  display:grid; place-items:center; cursor:pointer; color:var(--ink-soft); box-shadow:var(--shadow-md); transition:.15s}
+.map-ctrls{position:absolute; z-index:500; right:10px; bottom:74px; display:flex; flex-direction:column; gap:8px}
+.map-btn{width:42px; height:42px; border-radius:11px; border:1.5px solid var(--line-strong);
+  background:var(--card); display:grid; place-items:center; cursor:pointer; color:var(--ink);
+  box-shadow:var(--shadow-md); transition:.15s}
 .map-btn:hover{color:var(--ember-deep); border-color:var(--ember)}
 .map-btn:active{transform:scale(.94)}
-.map-expand{right:12px; bottom:14px}
-.map-recenter{right:12px; bottom:74px}
 .leaflet-control-attribution{font-size:8px !important; opacity:.55; padding:1px 6px !important;
   border-radius:6px 0 0 0; background:var(--map-surface) !important; color:var(--ink-faint) !important}
 .leaflet-control-attribution a{color:var(--ink-faint) !important; text-decoration:none}
