@@ -195,6 +195,7 @@ function MainApp() {
             <section className="reveal">
               <SectionLabel>Recent quakes · {all.length} in 7 days</SectionLabel>
               <QuakeList quakes={all} />
+              <p className="src-note">Showing M2.5+ from USGS &amp; EMSC. PHIVOLCS records many more, smaller aftershocks (M1–2) that global sources don&rsquo;t publish.</p>
             </section>
           </>
         )}
@@ -265,6 +266,7 @@ function MainApp() {
                 <ShareButton stats={{ count: all.length, latestMag: latest?.mag, latestPlace: latest?.place }} />
               </div>
             </section>
+            <a className="privacy-link" href="#privacy">🔒 Privacy Policy: how your data is handled</a>
             <button className="replay-tour" onClick={() => setOnboard('tour')}>↻ Replay the tutorial</button>
             <SupportCard />
             <footer className="credit">
