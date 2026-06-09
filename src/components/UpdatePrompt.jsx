@@ -16,10 +16,16 @@ export default function UpdatePrompt() {
 
   if (!needRefresh) return null;
 
+  const doUpdate = () => {
+    try { updateServiceWorker(true); } catch { /* ignore */ }
+    // The SW's controllerchange auto-reload doesn't always fire, so force it.
+    setTimeout(() => window.location.reload(), 1200);
+  };
+
   return (
     <div className="update-bar" role="status">
       <span>A new version of LINDOL is available.</span>
-      <button className="update-btn" onClick={() => updateServiceWorker(true)}>Update</button>
+      <button className="update-btn" onClick={doUpdate}>Update</button>
       <button className="update-x" onClick={() => setNeedRefresh(false)} aria-label="Dismiss">✕</button>
     </div>
   );
