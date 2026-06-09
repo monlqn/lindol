@@ -23,6 +23,8 @@ const youIcon = L.divIcon({ className: '', iconSize: [22, 22], iconAnchor: [11, 
   html: '<div class="youdot"><span class="youpulse"></span><span class="youcore"></span></div>' });
 const zoneLabelIcon = L.divIcon({ className: 'zone-label-wrap', iconSize: [190, 20], iconAnchor: [95, 10],
   html: '<span class="zone-label">Active aftershock zone</span>' });
+const focusIcon = L.divIcon({ className: '', iconSize: [48, 48], iconAnchor: [24, 24],
+  html: '<div class="focus-ring"></div>' });
 const HL = REGION.highlight;
 const HL_BOUNDS = [[HL.minLat, HL.minLng], [HL.maxLat, HL.maxLng]];
 
@@ -78,7 +80,16 @@ export default function QuakeMap({
   const [hideResolved, setHideResolved] = useState(false);
   const [pinMode, setPinMode] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [highlight, setHighlight] = useState(null);
   const mapRef = useRef(null);
+
+  // Briefly mark the tapped quake/report with a pulsing ring so it's easy to spot.
+  useEffect(() => {
+    if (!focus) return undefined;
+    setHighlight(focus);
+    const id = setTimeout(() => setHighlight(null), 4000);
+    return () => clearTimeout(id);
+  }, [focus?.t]);
 
   const tileUrl = dark
     ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
@@ -154,6 +165,9 @@ export default function QuakeMap({
           maxZoom={19} />
         <FollowUser user={user} />
         <FocusFlyer focus={focus} />
+        {highlight && Number.isFinite(highlight.lat) && Number.isFinite(highlight.lng) && (
+          <Marker position={[highlight.lat, highlight.lng]} icon={focusIcon} interactive={false} zIndexOffset={1000} />
+        )}
         <MapClicker active={pinMode} onPick={(loc) => { setPinMode(false); onReportAt?.(loc); }} />
         <Rectangle bounds={HL_BOUNDS} interactive={false}
           pathOptions={{ color: '#E0521B', weight: 2, dashArray: '6 5', fillColor: '#E0521B', fillOpacity: 0.05 }} />

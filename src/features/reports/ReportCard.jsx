@@ -42,7 +42,7 @@ function rememberFlagged(id) {
   } catch { /* ignore */ }
 }
 
-export default function ReportCard({ report, onFlag, onConfirm, onResolve, onEscalate, onVoteResolve, onOpenPhoto, highlight }) {
+export default function ReportCard({ report, onFlag, onConfirm, onResolve, onEscalate, onVoteResolve, onOpenPhoto, onLocate, highlight }) {
   const color = categoryColor(report.category);
   const label = LABEL[report.category] ?? 'Report';
   const state = report.state || 'open';
@@ -123,7 +123,12 @@ Live: ${window.location.origin}/r/${report.id}`;
         <span className="ig-avatar" style={{ background: color }}>{categoryIcon(report.category)}</span>
         <div className="ig-id">
           <span className="ig-name">{label}</span>
-          <span className="ig-loc">{report.lat.toFixed(3)}, {report.lng.toFixed(3)} · {formatKm(report.distanceKm ?? 0)} away</span>
+          <button className="ig-loc" onClick={() => onLocate?.(report)} title="Show on map">
+            {report.lat.toFixed(3)}, {report.lng.toFixed(3)} · {formatKm(report.distanceKm ?? 0)} away
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+              <path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z" /><circle cx="12" cy="10" r="2.5" />
+            </svg>
+          </button>
         </div>
         <div className="ig-meta">
           {state !== 'open' && (

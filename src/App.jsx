@@ -97,7 +97,7 @@ function MainApp() {
   const [reportLoc, setReportLoc] = useState(null);
   const openReportAt = (loc) => { setReportLoc(loc); setSheetOpen(true); };
   const [mapFocus, setMapFocus] = useState(null);
-  const locateQuake = (q) => {
+  const locateOnMap = (q) => {
     setMapFocus({ lat: q.lat, lng: q.lng, t: Date.now() });
     if (!twoPane) setTab('map');
   };
@@ -200,7 +200,7 @@ function MainApp() {
             <section className="reveal">
               <SectionLabel>Recent quakes · {all.length} in 7 days</SectionLabel>
               <p className="src-note">Showing <b>M2.0+</b> from USGS &amp; EMSC. PHIVOLCS records many more, smaller aftershocks (M1–2) that global sources don&rsquo;t publish.</p>
-              <QuakeList quakes={all} onLocate={locateQuake} />
+              <QuakeList quakes={all} onLocate={locateOnMap} />
             </section>
           </>
         )}
@@ -218,7 +218,8 @@ function MainApp() {
                 <span className="livetag"><span className="live-dot" />live</span>
               </div>
               <ReportFeed reports={reports} onFlag={flag} onConfirm={confirm} onResolve={resolve}
-                onEscalate={escalate} onVoteResolve={voteResolve} onOpenPhoto={setLightbox} focused={focusedReport} />
+                onEscalate={escalate} onVoteResolve={voteResolve} onOpenPhoto={setLightbox}
+                onLocate={locateOnMap} focused={focusedReport} />
             </section>
             <section className="reveal">
               <SectionLabel>Your impact &amp; community</SectionLabel>
