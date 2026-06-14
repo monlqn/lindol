@@ -9,11 +9,22 @@ export function sameQuake(a, b) {
   return haversineKm([a.lat, a.lng], [b.lat, b.lng]) <= 80;   // within 80 km
 }
 
-// USGS is the primary catalog; append EMSC events it doesn't already contain.
+export function srcOf(q) {
+  return q.source === 'phivolcs' ? 'PHIVOLCS' : q.source === 'emsc' ? 'EMSC' : 'USGS';
+}
+
+// The `primary` catalog wins on value (location/magnitude); duplicates from `extra` are not
+// re-listed, but the agencies that also reported the quake are consolidated into `sources` -
+// so the kept value stays authoritative while showing it's corroborated.
 export function mergeQuakes(primary = [], extra = []) {
-  const out = [...primary];
+  const out = primary.map((q) => ({ ...q, sources: q.sources ?? [srcOf(q)] }));
   for (const e of extra) {
-    if (!out.some((p) => p.id === e.id || sameQuake(p, e))) out.push(e);
+    const match = out.find((p) => p.id === e.id || sameQuake(p, e));
+    if (match) {
+      for (const s of (e.sources ?? [srcOf(e)])) if (!match.sources.includes(s)) match.sources.push(s);
+    } else {
+      out.push({ ...e, sources: e.sources ?? [srcOf(e)] });
+    }
   }
   return out;
 }

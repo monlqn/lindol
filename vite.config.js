@@ -33,6 +33,7 @@ export default defineConfig({
       },
       workbox: {
         importScripts: ['/push-sw.js'],
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/earthquake\.usgs\.gov\/.*/i,

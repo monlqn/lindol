@@ -82,6 +82,45 @@ export async function insertReport(client, { id, category, note, lat, lng, photo
   return normalizeRow(data);
 }
 
+function normalizeComment(c) {
+  return { id: c.id, nickname: c.nickname || 'Neighbour', body: c.body, createdAt: Date.parse(c.created_at) };
+}
+
+export async function fetchComments(client, reportId) {
+  const { data, error } = await client.from('report_comments')
+    .select('id,nickname,body,flag_count,created_at')
+    .eq('report_id', reportId)
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  return (data ?? []).filter((c) => (c.flag_count ?? 0) < 3).map(normalizeComment);
+}
+
+export async function addComment(client, reportId, deviceId, body, nickname) {
+  const { data, error } = await client.rpc('add_report_comment', {
+    p_report_id: reportId, p_device_id: deviceId, p_body: body, p_nickname: nickname || null,
+  });
+  if (error) throw error;
+  const c = Array.isArray(data) ? data[0] : data;
+  return c ? normalizeComment(c) : null;
+}
+
+export async function flagComment(client, commentId, deviceId) {
+  // One device = one flag, enforced server-side (comment_flags dedup).
+  const { error } = await client.rpc('flag_comment', { p_comment_id: commentId, p_device_id: deviceId });
+  if (error) throw error;
+}
+
+// Original poster attaches/updates a photo on their own report (device-gated server-side).
+export async function addReportPhoto(client, reportId, deviceId, photoFile) {
+  const blob = await compressImage(photoFile);
+  const url = await uploadPhoto(client, blob, reportId);
+  const { error } = await client.rpc('update_report_photo', {
+    p_report_id: reportId, p_device_id: deviceId, p_photo_url: url,
+  });
+  if (error) throw error;
+  return url;
+}
+
 export async function flagReport(client, rid, deviceId, reason) {
   // One device = one flag (server-enforced dedup); reason is stored when the 3-arg
   // RPC is deployed. If it isn't yet, fall back to the 2-arg deduped form.

@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { REGION } from './config.js';
+import { activeZone, pointInPolygon } from './lib/activeZone.js';
 import { subscribeToPush } from './lib/push.js';
 import { savePushSubscription } from './features/alerts/pushApi.js';
 import AlertBanner from './components/AlertBanner.jsx';
@@ -14,6 +16,9 @@ import QuakeList from './features/quakes/QuakeList.jsx';
 import SafetyPanel from './features/safety/SafetyPanel.jsx';
 import ReportSheet from './features/reports/ReportSheet.jsx';
 import ReportFeed from './features/reports/ReportFeed.jsx';
+import SituationUpdates from './components/SituationUpdates.jsx';
+import AboutQuake from './components/AboutQuake.jsx';
+import FeltAtYou from './components/FeltAtYou.jsx';
 import AdminPage from './features/admin/AdminPage.jsx';
 import IntroOverlay from './components/IntroOverlay.jsx';
 import Tour from './components/Tour.jsx';
@@ -29,6 +34,7 @@ import SupportCard from './components/SupportCard.jsx';
 import Community from './components/Community.jsx';
 import PrivacyPage from './features/legal/PrivacyPage.jsx';
 import { useQuakes } from './features/quakes/useQuakes.js';
+import { useShakemaps } from './features/quakes/useShakemaps.js';
 import { useReports } from './features/reports/useReports.js';
 import { useOnline } from './lib/useOnline.js';
 import { useGeolocation } from './lib/useGeolocation.js';
@@ -61,6 +67,16 @@ function MainApp() {
   const viewers = useViewerCount();
   const user = useGeolocation();
   const { latest, mainshock, aftershocks, all, status, updatedAt } = useQuakes(user);
+  const shakemaps = useShakemaps();
+  // The active-zone polygon (shared with the map) and a live count of quakes inside it.
+  const zone = useMemo(() => {
+    const center = mainshock ? [mainshock.lat, mainshock.lng] : REGION.center;
+    return activeZone(mainshock ? [mainshock, ...aftershocks] : aftershocks, center);
+  }, [aftershocks, mainshock]);
+  const zoneCount = useMemo(
+    () => (zone ? all.filter((q) => pointInPolygon([q.lat, q.lng], zone)).length : 0),
+    [all, zone],
+  );
   const [toast, showToast] = useToast();
   const [lightbox, setLightbox] = useState(null);
   useTick(30000);
@@ -98,7 +114,7 @@ function MainApp() {
   const openReportAt = (loc) => { setReportLoc(loc); setSheetOpen(true); };
   const [mapFocus, setMapFocus] = useState(null);
   const locateOnMap = (q) => {
-    setMapFocus({ lat: q.lat, lng: q.lng, t: Date.now() });
+    setMapFocus({ lat: q.lat, lng: q.lng, mag: q.mag, t: Date.now() });
     if (!twoPane) setTab('map');
   };
   const [soundOn, setSoundOn] = useState(() => {
@@ -184,7 +200,7 @@ function MainApp() {
 
       {!twoPane && tab === 'map' ? (
         <div className="map-screen">
-          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} focus={mapFocus} />
+          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} focus={mapFocus} zone={zone} />
         </div>
       ) : (
       <PullToRefresh className="scroll" key={tab} onRefresh={refresh}>
@@ -195,13 +211,25 @@ function MainApp() {
             {!online && <OfflineBanner updatedAt={updatedAt} />}
             <section className="reveal">
               <SectionLabel>Latest event{status === 'cached' ? ' · cached' : ''}</SectionLabel>
-              <QuakeHero quake={latest} />
+              <QuakeHero quake={latest} shakemaps={shakemaps} />
             </section>
+            {(user[0] !== REGION.defaultUser[0] || user[1] !== REGION.defaultUser[1]) && <FeltAtYou user={user} shakemaps={shakemaps} />}
+            {zoneCount > 0 && (
+              <button className="zone-stat reveal" onClick={() => setTab('map')}>
+                <span className="zs-num">{zoneCount}</span>
+                <span className="zs-text">
+                  <b>quakes in the Sarangani aftershock zone</b>
+                  <span className="zs-sub">M2.0+ · last 7 days · tap to view the zone on the map</span>
+                </span>
+              </button>
+            )}
             <section className="reveal">
               <SectionLabel>Recent quakes · {all.length} in 7 days</SectionLabel>
-              <p className="src-note">Showing <b>M2.0+</b> from USGS &amp; EMSC. These global sources publish a few minutes after a quake and skip the smallest ones, so a very recent or weak quake may not appear yet. PHIVOLCS records many more but has no public live feed.</p>
-              <QuakeList quakes={all} onLocate={locateOnMap} />
+              <p className="src-note">Showing <b>M2.0+</b> from <b>PHIVOLCS</b> (the local authority), with <b>USGS &amp; EMSC</b> as backup. PHIVOLCS records the small local aftershocks the global networks miss. Data can still lag a few minutes behind the actual quake, so if you feel shaking, don't wait - Drop, Cover, Hold On.</p>
+              <QuakeList quakes={all} onLocate={locateOnMap} shakemaps={shakemaps} />
             </section>
+            <AboutQuake />
+            <SituationUpdates />
           </>
         )}
 
@@ -219,7 +247,7 @@ function MainApp() {
               </div>
               <ReportFeed reports={reports} onFlag={flag} onConfirm={confirm} onResolve={resolve}
                 onEscalate={escalate} onVoteResolve={voteResolve} onOpenPhoto={setLightbox}
-                onLocate={locateOnMap} focused={focusedReport} />
+                onLocate={locateOnMap} focused={focusedReport} onStartReport={() => setSheetOpen(true)} />
             </section>
             <section className="reveal">
               <SectionLabel>Your impact &amp; community</SectionLabel>
@@ -276,9 +304,21 @@ function MainApp() {
             <button className="replay-tour" onClick={() => setOnboard('tour')}>↻ Replay the tutorial</button>
             <SupportCard />
             <footer className="credit">
-              Built by <a href="https://moncodes.com" target="_blank" rel="noopener noreferrer">moncodes.com</a>
-              <span aria-hidden="true"> · </span>
-              <a href="#privacy">Privacy</a>
+              <p className="credit-sources">
+                Quake data: <a href="https://earthquake.phivolcs.dost.gov.ph" target="_blank" rel="noopener noreferrer">PHIVOLCS</a>,
+                {' '}<a href="https://earthquake.usgs.gov" target="_blank" rel="noopener noreferrer">USGS</a>
+                {' & '}<a href="https://www.emsc-csem.org" target="_blank" rel="noopener noreferrer">EMSC</a>
+                <span aria-hidden="true"> · </span>
+                Hazard &amp; fault maps: <a href="https://www.phivolcs.dost.gov.ph" target="_blank" rel="noopener noreferrer">PHIVOLCS (DOST)</a>
+              </p>
+              <p className="credit-warn">⚠️ Not an official emergency service. In a life-threatening emergency, call <a href="tel:911">911</a>.</p>
+              <p className="credit-by">
+                An independent, non-commercial public-safety project
+                <span aria-hidden="true"> · </span>
+                Built by <a href="https://moncodes.com" target="_blank" rel="noopener noreferrer">moncodes</a>
+                <span aria-hidden="true"> · </span>
+                <a href="#privacy">Privacy Policy</a>
+              </p>
             </footer>
           </>
         )}
@@ -290,7 +330,7 @@ function MainApp() {
 
       {twoPane && (
         <div className="desk-right">
-          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} focus={mapFocus} />
+          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} focus={mapFocus} zone={zone} />
         </div>
       )}
 

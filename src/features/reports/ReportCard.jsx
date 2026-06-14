@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { categoryColor, categoryIcon, CATEGORIES } from './reportSchema.js';
 import { formatKm } from '../../lib/geo.js';
 import { relativeTime } from '../../lib/time.js';
 import SensitivePhoto from '../../components/SensitivePhoto.jsx';
+import ReportComments from './ReportComments.jsx';
 import { getShareImageFile } from '../../lib/share.js';
 import { renderReportCard } from '../../lib/reportCard.js';
+import { addReportPhoto } from './reportsApi.js';
+import { supabase } from '../../lib/supabase.js';
+import { getDeviceId } from '../../lib/device.js';
 import { HOTLINES } from '../../config.js';
 
 const EKEY = 'lindol:escalated';
@@ -52,6 +56,19 @@ export default function ReportCard({ report, onFlag, onConfirm, onResolve, onEsc
   const [confirmed, setConfirmed] = useState(() => listHas(CKEY, report.id));
   const [picking, setPicking] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [addedPhoto, setAddedPhoto] = useState(null);
+  const [addingPhoto, setAddingPhoto] = useState(false);
+  const photoInput = useRef(null);
+  const photo = addedPhoto || report.photoUrl;
+
+  const onAddPhoto = async (e) => {
+    const f = e.target.files?.[0];
+    if (!f || !supabase) return;
+    setAddingPhoto(true);
+    try { setAddedPhoto(await addReportPhoto(supabase, report.id, getDeviceId(), f)); }
+    catch { /* not owner / upload failed */ }
+    setAddingPhoto(false);
+  };
 
   const doConfirm = () => {
     if (confirmed || mine) return;     // can't confirm your own report, once per device
@@ -138,9 +155,22 @@ Live: ${window.location.origin}/r/${report.id}`;
         </div>
       </header>
 
-      {report.photoUrl
-        ? <div className="ig-photo"><SensitivePhoto url={report.photoUrl} sensitive={report.sensitive} onExpand={onOpenPhoto} /></div>
-        : <div className="ig-noimg" style={{ borderColor: color }}><span style={{ color }}>{label}</span></div>}
+      {photo
+        ? <div className="ig-photo"><SensitivePhoto url={photo} sensitive={report.sensitive} onExpand={onOpenPhoto} /></div>
+        : (
+          <div className="ig-noimg" style={{ borderColor: color }}>
+            <span style={{ color }}>{label}</span>
+            {mine && (
+              <>
+                <button className="ig-addphoto" onClick={() => photoInput.current?.click()} disabled={addingPhoto}>
+                  {addingPhoto ? 'Uploading…' : '📷 Add a photo'}
+                </button>
+                <input ref={photoInput} type="file" accept="image/*" capture="environment"
+                  style={{ display: 'none' }} onChange={onAddPhoto} />
+              </>
+            )}
+          </div>
+        )}
 
       <div className="ig-actions">
         <button className="ig-act" onClick={doShare} aria-label="Share this report">
@@ -207,6 +237,8 @@ Live: ${window.location.origin}/r/${report.id}`;
       {report.note && (
         <div className="ig-caption">{report.note}</div>
       )}
+
+      <ReportComments reportId={report.id} resolved={resolved} />
 
       {picking && !flagged && (
         <div className="flag-reasons">

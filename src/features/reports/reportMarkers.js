@@ -7,9 +7,9 @@ export function reportIcon(category, resolved = false) {
   const icon = resolved ? '✅' : categoryIcon(category);
   return L.divIcon({
     className: '',
-    iconSize: [34, 40],
-    iconAnchor: [17, 34],
-    popupAnchor: [0, -32],
+    iconSize: [34, 42],
+    iconAnchor: [17, 38],
+    popupAnchor: [0, -36],
     html: `<div class="rpin${resolved ? ' resolved' : ''}" style="background:${color}"><span class="rpin-i">${icon}</span></div>`,
   });
 }

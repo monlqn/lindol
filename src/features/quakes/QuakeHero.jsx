@@ -1,7 +1,19 @@
+import { useState } from 'react';
 import { formatKm } from '../../lib/geo.js';
 import { formatClock, relativeTime } from '../../lib/time.js';
+import { shareQuake } from '../../lib/quakeShare.js';
+import { mmiForQuake } from './useShakemaps.js';
+import { mmiRoman, mmiLabel, mmiColor } from '../../lib/intensity.js';
 
-export default function QuakeHero({ quake }) {
+export default function QuakeHero({ quake, shakemaps = [] }) {
+  const [sharing, setSharing] = useState(false);
+
+  const share = async () => {
+    setSharing(true);
+    await shareQuake(quake, mmiForQuake(quake, shakemaps));
+    setSharing(false);
+  };
+
   if (!quake) {
     return (
       <div className="quake-card"><div className="qc-top"><div className="qc-meta">
@@ -21,7 +33,9 @@ export default function QuakeHero({ quake }) {
         </div>
         <div className="qc-meta">
           <div className="qc-place">{quake.place}</div>
-          <div className="qc-sub">Source: USGS</div>
+          <div className="qc-sub">Source: {(quake.sources && quake.sources.length ? quake.sources : [quake.source === 'phivolcs' ? 'PHIVOLCS' : quake.source === 'emsc' ? 'EMSC' : 'USGS']).join(' · ')}</div>
+          {(() => { const mmi = mmiForQuake(quake, shakemaps); return mmi != null && mmi >= 2
+            ? <span className="qc-mmi" style={{ background: mmiColor(mmi) }}>Intensity {mmiRoman(mmi)} · {mmiLabel(mmi)}</span> : null; })()}
         </div>
       </div>
       <div className="qc-grid">
@@ -32,6 +46,9 @@ export default function QuakeHero({ quake }) {
         <div className="qc-cell"><div className="k">From you</div>
           <div className="v warn">≈ {formatKm(quake.distanceKm)}</div></div>
       </div>
+      <button className="qc-share" onClick={share} disabled={sharing}>
+        {sharing ? 'Preparing image…' : '📤 Share this quake'}
+      </button>
     </div>
   );
 }

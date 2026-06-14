@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { normalizeRow, fetchRecentReports, flagReport } from './reportsApi.js';
+import { normalizeRow, fetchRecentReports, flagReport, flagComment } from './reportsApi.js';
 
 describe('normalizeRow', () => {
   it('maps a db row to the Report shape', () => {
@@ -38,5 +38,13 @@ describe('flagReport', () => {
     const rpc = vi.fn().mockResolvedValue({ error: null });
     await flagReport({ rpc }, 'rid-1', 'dev-1');
     expect(rpc).toHaveBeenCalledWith('flag_report', { rid: 'rid-1', dev: 'dev-1', reason: null });
+  });
+});
+
+describe('flagComment', () => {
+  it('calls the flag_comment rpc with the device id', async () => {
+    const rpc = vi.fn().mockResolvedValue({ error: null });
+    await flagComment({ rpc }, 'cid-1', 'dev-1');
+    expect(rpc).toHaveBeenCalledWith('flag_comment', { p_comment_id: 'cid-1', p_device_id: 'dev-1' });
   });
 });

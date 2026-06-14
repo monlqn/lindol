@@ -122,7 +122,7 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast, override
     } catch { /* cancelled */ }
   }
 
-  const canSubmit = cat && coords && !busy;
+  const canSubmit = cat && coords && photo && !busy;
 
   return (
     <div className={`scrim${open ? ' open' : ''}`} onClick={(e) => e.target === e.currentTarget && close()}>
@@ -189,14 +189,15 @@ export default function ReportSheet({ open, onClose, onSubmit, onToast, override
               <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3l2-3h8l2 3h3a2 2 0 0 1 2 2z" />
               <circle cx="12" cy="13" r="4" />
             </svg>
-            <span>Tap to take a photo</span>
+            <span>Tap to take a photo · required</span>
           </div>
         )}
         <div className="cam-hint">Camera only · no gallery uploads - keeps reports trustworthy</div>
 
         <p className="post-note">By posting, your photo and exact location are shared publicly on the live map. Photos are automatically deleted after 14 days.</p>
         <button className="submit" disabled={!canSubmit} onClick={submit}>
-          {!cat ? 'Choose a category to continue' : !coords ? 'Waiting for location…' : busy ? 'Posting…' : 'Post report to the map'}
+          {!cat ? 'Choose a category to continue' : !coords ? 'Waiting for location…'
+            : !photo ? '📷 Add a photo to post' : busy ? 'Posting…' : 'Post report to the map'}
         </button>
         </>
         )}

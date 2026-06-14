@@ -27,4 +27,14 @@ describe('mergeQuakes', () => {
     expect(merged.map((q) => q.id)).toContain('emsc:new');
     expect(merged.map((q) => q.id)).not.toContain('emsc:dup');
   });
+
+  it('consolidates the reporting sources without changing the kept value', () => {
+    const phiv = [{ ...base, id: 'ph1', mag: 4.8, source: 'phivolcs' }];
+    const usgs = [{ ...base, id: 'us1', mag: 5.0 }];                          // dup, USGS
+    const emsc = [{ ...base, id: 'emsc:1', mag: 5.1, source: 'emsc' }];       // dup, EMSC
+    const merged = mergeQuakes(mergeQuakes(phiv, usgs), emsc);
+    expect(merged).toHaveLength(1);
+    expect(merged[0].mag).toBe(4.8);                  // PHIVOLCS value kept
+    expect(merged[0].sources.sort()).toEqual(['EMSC', 'PHIVOLCS', 'USGS']);
+  });
 });

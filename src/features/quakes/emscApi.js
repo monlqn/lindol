@@ -19,6 +19,33 @@ export function buildEmscUrl(region) {
   return `${BASE}?${p.toString()}`;
 }
 
+// EMSC real-time WebSocket endpoint - pushes new/updated quakes the instant they're detected.
+export const EMSC_WS_URL = 'wss://www.seismicportal.eu/standing_order/websocket';
+
+// Normalize a single EMSC WebSocket message ({ action, data: Feature }) into our Quake shape.
+// Same id scheme as parseEmscQuakes so a pushed event dedupes against the polled feed.
+export function parseEmscWsEvent(msg) {
+  const d = msg && msg.data;
+  if (!d || !d.properties) return null;
+  const pr = d.properties;
+  const coords = d.geometry?.coordinates ?? [];
+  const lat = Number(pr.lat ?? coords[1]);
+  const lng = Number(pr.lon ?? coords[0]);
+  const mag = Number(pr.mag);
+  const time = typeof pr.time === 'string' ? Date.parse(pr.time) : pr.time;
+  if (![lat, lng, mag, time].every(Number.isFinite)) return null;
+  return {
+    id: `emsc:${pr.unid || pr.source_id || d.id}`,
+    mag,
+    place: pr.flynn_region || pr.region || 'Unknown location',
+    time,
+    depthKm: coords[2] ?? pr.depth ?? null,
+    lat,
+    lng,
+    source: 'emsc',
+  };
+}
+
 // Normalize an EMSC GeoJSON FeatureCollection into the same Quake shape as USGS.
 export function parseEmscQuakes(geojson) {
   const features = geojson && Array.isArray(geojson.features) ? geojson.features : [];
