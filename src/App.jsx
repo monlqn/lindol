@@ -210,8 +210,8 @@ function MainApp() {
             <InstallPrompt />
             {!online && <OfflineBanner updatedAt={updatedAt} />}
             <section className="reveal">
-              <SectionLabel>Latest event{status === 'cached' ? ' · cached' : ''}</SectionLabel>
-              <QuakeHero quake={latest} shakemaps={shakemaps} />
+              <SectionLabel>Last major earthquake{status === 'cached' ? ' · cached' : ''}</SectionLabel>
+              <QuakeHero quake={mainshock} shakemaps={shakemaps} />
             </section>
             {(user[0] !== REGION.defaultUser[0] || user[1] !== REGION.defaultUser[1]) && <FeltAtYou user={user} shakemaps={shakemaps} />}
             {zoneCount > 0 && (
