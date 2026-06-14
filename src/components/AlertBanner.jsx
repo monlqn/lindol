@@ -14,7 +14,7 @@ export default function AlertBanner({ alert, onDismiss }) {
         <div className="ab-sub">{alert.place} · {formatClock(alert.time)}
           {alert.distanceKm != null ? ` · ≈ ${formatKm(alert.distanceKm)} from you` : ''}</div>
         <div className="ab-when">⏱ Detected {ago} via {src} — this <b>already happened</b> (after-the-fact alert, not a warning).</div>
-        <div className="ab-note">If shaking starts now (aftershock): Drop, Cover, Hold On.</div>
+        <div className="ab-note">If shaking starts now: Drop, Cover, Hold On.</div>
       </div>
       <button className="ab-close" onClick={onDismiss} aria-label="Dismiss">✕</button>
     </div>

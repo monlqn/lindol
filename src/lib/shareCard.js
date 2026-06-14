@@ -1,6 +1,8 @@
 // Render a clean, CURRENT share card (1080×1080) on a canvas and return it as a File
 // to attach to a Web Share. Shows live data (quake count + latest event) so every
 // share looks fresh. Returns null on any failure so callers fall back to the static banner.
+import { REGION } from '../config.js';
+
 function roundRect(cx, x, y, w, h, r) {
   cx.beginPath();
   cx.moveTo(x + r, y);
@@ -56,7 +58,7 @@ export async function renderShareCard({ count = 0, latestMag = null, latestPlace
     cx.font = font(800, 168); cx.fillStyle = '#E0521B';
     cx.fillText(String(count), M, wy + 320);
     cx.font = font(600, 35); cx.fillStyle = '#E7DFD2';
-    cx.fillText('earthquakes tracked · last 7 days', M, wy + 372);
+    cx.fillText(`earthquakes tracked · last ${REGION.windowDays} days`, M, wy + 372);
 
     if (latestMag != null && Number.isFinite(Number(latestMag))) {
       cx.font = font(700, 40); cx.fillStyle = '#F4EEE3';

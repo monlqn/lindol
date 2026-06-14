@@ -4,6 +4,7 @@ import { formatClock, relativeTime } from '../../lib/time.js';
 import { shareQuake } from '../../lib/quakeShare.js';
 import { mmiForQuake } from './useShakemaps.js';
 import { mmiRoman, mmiLabel, mmiColor } from '../../lib/intensity.js';
+import { REGION } from '../../config.js';
 
 export default function QuakeHero({ quake, shakemaps = [] }) {
   const [sharing, setSharing] = useState(false);
@@ -18,7 +19,7 @@ export default function QuakeHero({ quake, shakemaps = [] }) {
     return (
       <div className="quake-card"><div className="qc-top"><div className="qc-meta">
         <div className="qc-place">No recent quakes</div>
-        <div className="qc-sub">No events ≥ M2.5 in the last 7 days.</div>
+        <div className="qc-sub">No events ≥ M2.5 in the last {REGION.windowDays} days.</div>
       </div></div></div>
     );
   }

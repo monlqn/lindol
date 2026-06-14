@@ -1,4 +1,5 @@
 import Seismograph from './Seismograph.jsx';
+import { REGION } from '../config.js';
 
 export default function Masthead({ quakes = [] }) {
   return (
@@ -10,7 +11,7 @@ export default function Masthead({ quakes = [] }) {
         <div className="tagline">Southern Mindanao · live earthquake watch</div>
       </div>
       <Seismograph quakes={quakes} />
-      <div className="seismo-cap">{quakes.length} quakes · last 7 days · USGS</div>
+      <div className="seismo-cap">{quakes.length} quakes · last {REGION.windowDays} days · USGS</div>
     </header>
   );
 }
