@@ -153,7 +153,7 @@ function FocusFlyer({ focus }) {
 }
 
 export default function QuakeMap({
-  mainshock, aftershocks = [], reports = [], user = REGION.defaultUser,
+  mainshock, aftershocks = [], other = [], reports = [], user = REGION.defaultUser,
   fill = false, dark = false, onReportAt, focus, zone = null,
 }) {
   const [showQuakes, setShowQuakes] = useState(true);
@@ -434,6 +434,22 @@ export default function QuakeMap({
         {live && showQuakes && aftershocks.filter((q) => q.mag >= 4.5).map((q) => (
           <Circle key={`felt-${q.id}`} center={[q.lat, q.lng]} radius={feltRadiusM(q.mag)} interactive={false}
             pathOptions={{ color: magColor(q.mag), weight: 1, opacity: 0.3, fill: false }} />
+        ))}
+        {/* Other PH quakes outside the Sarangani sequence: shown with neutral labels (never
+            called "aftershock"), distinguished by a dashed outline. Live only. */}
+        {live && showQuakes && other.map((q) => (
+          <CircleMarker key={`other-${q.id}`} center={[q.lat, q.lng]} radius={dotRadius(q.mag, zoom)}
+            eventHandlers={{ click: () => showFelt(q) }}
+            pathOptions={{ color: 'rgba(18,14,10,0.55)', weight: 1, dashArray: '2 3',
+              fillColor: magColor(q.mag), fillOpacity: 0.5 }}>
+            <Popup>
+              <div className="pin-pop">
+                <span className="pp-mag">M{q.mag.toFixed(1)}</span> earthquake
+                <div className="pp-sub">{q.place}<br />{relativeTime(q.time)}
+                  {q.distanceKm != null ? ` · ≈ ${formatKm(q.distanceKm)} from you` : ''}</div>
+              </div>
+            </Popup>
+          </CircleMarker>
         ))}
         {live && showQuakes && mainshock && (
           <>
