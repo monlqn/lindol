@@ -6,6 +6,8 @@ import { mergeQuakes } from './quakeMerge.js';
 import { cacheGet, cacheSet } from '../../lib/cache.js';
 import { haversineKm } from '../../lib/geo.js';
 import { REGION } from '../../config.js';
+import { SARANGANI_SEQUENCE, classifyQuakes } from './sequences.js';
+import snapshot from './snapshots/sarangani-2026-06.json';
 
 const CACHE_KEY = 'quakes';
 const CACHE_KEY_PHIV = 'quakes_phivolcs';
@@ -22,7 +24,7 @@ function enrich(quakes, user) {
 // it fails the app falls back to USGS/EMSC and never breaks.
 export function useQuakes(user = REGION.defaultUser) {
   const [state, setState] = useState({
-    all: [], latest: null, mainshock: null, aftershocks: [], status: 'loading', updatedAt: null,
+    all: [], latest: null, mainshock: null, aftershocks: [], other: [], status: 'loading', updatedAt: null,
   });
   const usgsRef = useRef([]);
   const emscRef = useRef([]);
@@ -34,20 +36,24 @@ export function useQuakes(user = REGION.defaultUser) {
 
     function recommit(status, updatedAt) {
       if (cancelled) return;
-      // PHIVOLCS first so it wins on duplicates (its local location + magnitude are authoritative);
-      // EMSC WebSocket pushes are merged last so a just-detected quake shows instantly.
-      const merged = mergeQuakes(
+      // PHIVOLCS first so it wins on duplicates; EMSC WebSocket pushes merged last (instant).
+      const live = mergeQuakes(
         mergeQuakes(mergeQuakes(phivRef.current, usgsRef.current), emscRef.current),
         wsRef.current,
       );
-      const enriched = enrich(merged, user);
-      const byMag = [...enriched].sort((a, b) => b.mag - a.mag);
+      // Merge the durable week-1 snapshot (keeps perishable PHIVOLCS data after it ages off the
+      // live bulletin), then the static mainshock anchor (so the M7.8 can never disappear).
+      const withSnapshot = mergeQuakes(live, snapshot);
+      const withAnchor = mergeQuakes(withSnapshot, [SARANGANI_SEQUENCE.mainshock]);
+      const enriched = enrich(withAnchor, user);
+      const { mainshock, aftershocks, other } = classifyQuakes(enriched, SARANGANI_SEQUENCE);
       const byTime = [...enriched].sort((a, b) => b.time - a.time);
       setState((s) => ({
         all: enriched,
         latest: byTime[0] ?? null,
-        mainshock: byMag[0] ?? null,
-        aftershocks: byMag.slice(1),
+        mainshock,
+        aftershocks,
+        other,
         status: enriched.length ? (status ?? s.status) : 'empty',
         updatedAt: updatedAt ?? s.updatedAt,
       }));
