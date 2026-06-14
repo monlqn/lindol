@@ -10,7 +10,9 @@ export const REGION = {
   alertMinMag: 4.5,
   // Only quakes within this many km of the user trigger an alert ("near you").
   alertRadiusKm: 300,
-  windowDays: 7,
+  // The anchor + snapshot guarantee the sequence survives; the live window just keeps recent
+  // activity rich. ~30 days comfortably covers the active sequence.
+  windowDays: 30,
 };
 
 // Hardest-hit areas, shown as clearly-labelled situation markers on the map (NOT citizen
