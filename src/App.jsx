@@ -66,7 +66,7 @@ function MainApp() {
   const online = useOnline();
   const viewers = useViewerCount();
   const user = useGeolocation();
-  const { latest, mainshock, aftershocks, all, status, updatedAt } = useQuakes(user);
+  const { latest, mainshock, aftershocks, other, all, status, updatedAt } = useQuakes(user);
   const shakemaps = useShakemaps();
   // The active-zone polygon (shared with the map) and a live count of quakes inside it.
   const zone = useMemo(() => {
@@ -200,7 +200,7 @@ function MainApp() {
 
       {!twoPane && tab === 'map' ? (
         <div className="map-screen">
-          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} focus={mapFocus} zone={zone} />
+          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} other={other} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} focus={mapFocus} zone={zone} />
         </div>
       ) : (
       <PullToRefresh className="scroll" key={tab} onRefresh={refresh}>
@@ -219,13 +219,13 @@ function MainApp() {
                 <span className="zs-num">{zoneCount}</span>
                 <span className="zs-text">
                   <b>quakes in the Sarangani aftershock zone</b>
-                  <span className="zs-sub">M2.0+ · last 7 days · tap to view the zone on the map</span>
+                  <span className="zs-sub">M2.0+ · last {REGION.windowDays} days · tap to view the zone on the map</span>
                 </span>
               </button>
             )}
             <section className="reveal">
-              <SectionLabel>Recent quakes · {all.length} in 7 days</SectionLabel>
-              <p className="src-note">Showing <b>M2.0+</b> from <b>PHIVOLCS</b> (the local authority), with <b>USGS &amp; EMSC</b> as backup. PHIVOLCS records the small local aftershocks the global networks miss. Data can still lag a few minutes behind the actual quake, so if you feel shaking, don't wait - Drop, Cover, Hold On.</p>
+              <SectionLabel>Recent quakes · {all.length} in {REGION.windowDays} days</SectionLabel>
+              <p className="src-note">Showing <b>M2.0+</b> earthquakes across the Philippines from <b>PHIVOLCS</b> (the local authority), with <b>USGS &amp; EMSC</b> as backup. The active Sarangani sequence is highlighted on the map. Data can lag a few minutes behind the actual quake, so if you feel shaking, don't wait. Drop, Cover, Hold On.</p>
               <QuakeList quakes={all} onLocate={locateOnMap} shakemaps={shakemaps} />
             </section>
             <AboutQuake />
@@ -330,7 +330,7 @@ function MainApp() {
 
       {twoPane && (
         <div className="desk-right">
-          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} focus={mapFocus} zone={zone} />
+          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} other={other} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} focus={mapFocus} zone={zone} />
         </div>
       )}
 
