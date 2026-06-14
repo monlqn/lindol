@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { getShareImageFile } from '../lib/share.js';
 import { renderShareCard } from '../lib/shareCard.js';
 
-const SHARE_TITLE = 'LINDOL - Southern Mindanao Live Earthquake Watch';
-const SHARE_TEXT = 'Live earthquakes, aftershocks & safety for Southern Mindanao. Stay informed:';
+const SHARE_TITLE = 'LINDOL - Philippines Live Earthquake Watch';
+const SHARE_TEXT = 'Live earthquakes and safety for the Philippines. Stay informed:';
 
 export default function ShareButton({ stats }) {
   const [open, setOpen] = useState(false);

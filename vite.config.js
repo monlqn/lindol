@@ -16,9 +16,9 @@ export default defineConfig({
       registerType: 'prompt',
       includeAssets: ['icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'og-image.png'],
       manifest: {
-        name: 'LINDOL — Southern Mindanao Earthquake Watch',
+        name: 'LINDOL - Philippines Earthquake Watch',
         short_name: 'LINDOL',
-        description: 'Live earthquake info, aftershocks, and safety guidance for southern Mindanao.',
+        description: 'Live earthquake info and safety guidance for the Philippines.',
         theme_color: '#14110E',
         background_color: '#EFEAE0',
         display: 'standalone',

@@ -52,7 +52,7 @@ export async function renderShareCard({ count = 0, latestMag = null, latestPlace
 
     // tagline
     cx.font = font(600, 39); cx.fillStyle = '#B6AC9C';
-    cx.fillText('Southern Mindanao · Live Earthquake Watch', M, wy + 74);
+    cx.fillText('Philippines · Live Earthquake Watch', M, wy + 74);
 
     // live stat
     cx.font = font(800, 168); cx.fillStyle = '#E0521B';

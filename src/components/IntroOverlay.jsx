@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 const SLIDES = [
   { icon: '🌋', title: 'Welcome to LINDOL',
-    body: "The Philippines' live earthquake watch, focused on the Southern Mindanao aftershocks. Free, no sign-up, works offline." },
+    body: "The Philippines' live earthquake watch, with the active Sarangani sequence highlighted. Free, no sign-up, works offline." },
   { icon: '📍', title: "See what's happening",
     body: 'A live map of real quakes (USGS), a loud alarm for strong quakes near you, and a safety guide that works with no signal.' },
   { icon: '🤝', title: 'Report and verify, together',
