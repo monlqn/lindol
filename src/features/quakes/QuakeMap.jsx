@@ -56,7 +56,6 @@ function magColor(m) {
 // Power curve so magnitude differences read clearly: M7.8 (~27) towers over M5 (~12) and M2 (~3).
 function magRadius(m) { return Math.max(3, 1.5 * Math.pow(Math.max(m - 1, 0.5), 1.5)); }
 // Recency as light: fresh quakes glow + stay saturated; older ones settle into calm dots.
-const glowFor = (ageH) => Math.max(0, 1 - ageH / 36);                 // glow fades over ~1.5 days
 const coreFor = (ageH) => 0.55 + 0.4 * Math.max(0, 1 - ageH / 168);  // 0.55 -> 0.95 over 7 days
 // Dot size scales with zoom: same magnitude looks smaller when zoomed out, bigger when zoomed in.
 function dotRadius(m, zoom) {
@@ -231,9 +230,10 @@ export default function QuakeMap({
   const [playing, setPlaying] = useState(false);
   const mainShownAtRef = useRef(0); // real-time stamp when the mainshock appears (drives its shockwave)
   const timeline = useMemo(() => {
-    const ts = (mainshock ? [mainshock, ...aftershocks] : aftershocks).map((q) => q.time).filter(Number.isFinite);
+    const all = mainshock ? [mainshock, ...aftershocks, ...other] : [...aftershocks, ...other];
+    const ts = all.map((q) => q.time).filter(Number.isFinite);
     return ts.length ? { min: Math.min(...ts), max: Math.max(...ts) } : null;
-  }, [aftershocks, mainshock]);
+  }, [aftershocks, other, mainshock]);
   const startReplay = () => { if (timeline) { mainShownAtRef.current = 0; setReplayT(timeline.min); setPlaying(true); } };
   const exitReplay = () => { mainShownAtRef.current = 0; setPlaying(false); setReplayT(null); };
   const togglePlay = () => {
@@ -262,6 +262,11 @@ export default function QuakeMap({
   const live = replayT == null;
   const refTime = live ? Date.now() : replayT;
   const shownAfter = live ? aftershocks : aftershocks.filter((q) => q.time <= replayT);
+  const shownOther = live ? other : other.filter((q) => q.time <= replayT);
+  // Replay sweeps the whole country: the dots and wave layers cover the sequence AND every other
+  // nationwide quake. (Live keeps them separate so the sequence stays visually distinct.)
+  const replayQuakes = live ? shownAfter : [...shownAfter, ...shownOther];
+  const afterIds = useMemo(() => new Set(aftershocks.map((q) => q.id)), [aftershocks]);
   const mainVisible = mainshock && (live || mainshock.time <= replayT);
   // Stamp the moment the mainshock first appears during replay - its shockwave animates off this.
   useEffect(() => {
@@ -279,24 +284,25 @@ export default function QuakeMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showHeat, shownAfter, other, mainshock, live ? false : shownAfter.length]);
 
-  // Core dots, memoised so playback frames don't re-style every marker (the cause of the jank).
-  // Live: recency-lit (rare re-renders). Replay: static style - only the wave layers animate, and
-  // this list rebuilds only when a new quake appears (shownAfter.length changes), not every frame.
+  // Core dots: clean solid discs (the calmer "replay" look), sized by magnitude and gently lit by
+  // recency. No glow halo - it just blurred the dense aftershock cluster into one blob. Memoised so
+  // playback frames don't re-style every marker. In replay this sweeps the whole country (sequence +
+  // nationwide); LOD thinning is live-only so the replay shows every quake.
   const coreDots = useMemo(() => {
     if (!showQuakes) return null;
-    const floor = magFloorForZoom(zoom);
+    const floor = live ? magFloorForZoom(zoom) : 0;
     const cut = refTime - RECENT_DOT_MS;
-    return shownAfter.filter((q) => q.mag >= floor || q.time >= cut).map((q) => {
+    return replayQuakes.filter((q) => q.mag >= floor || q.time >= cut).map((q) => {
       const ageH = (refTime - q.time) / 3600000;
       const op = live ? coreFor(ageH) : 0.65;
-      const rad = live ? dotRadius(q.mag, zoom) * (1 + 0.5 * glowFor(ageH)) : dotRadius(q.mag, zoom);
+      const isAfter = afterIds.has(q.id);
       return (
-        <CircleMarker key={q.id} center={[q.lat, q.lng]} radius={rad}
+        <CircleMarker key={q.id} center={[q.lat, q.lng]} radius={dotRadius(q.mag, zoom)}
           eventHandlers={{ click: () => showFelt(q) }}
-          pathOptions={{ color: 'rgba(18,14,10,0.5)', weight: live ? 1 : 0, stroke: live, fillColor: magColor(q.mag), fillOpacity: op }}>
+          pathOptions={{ stroke: false, weight: 0, fillColor: magColor(q.mag), fillOpacity: op }}>
           <Popup>
             <div className="pin-pop">
-              <span className="pp-mag">M{q.mag.toFixed(1)}</span> aftershock
+              <span className="pp-mag">M{q.mag.toFixed(1)}</span> {isAfter ? 'aftershock' : 'earthquake'}
               <div className="pp-sub">{q.place}<br />{relativeTime(q.time)}
                 {q.distanceKm != null ? ` · ≈ ${formatKm(q.distanceKm)} from you` : ''}</div>
             </div>
@@ -305,14 +311,14 @@ export default function QuakeMap({
       );
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showQuakes, zoom, live, live ? refTime : shownAfter.length]);
+  }, [showQuakes, zoom, live, afterIds, live ? refTime : replayQuakes.length]);
 
   // Replay: significant quakes leave a faint felt footprint after their wave, so the shaken
   // area visibly accumulates as the sequence plays. Memoised - rebuilds only when one is added.
-  const bigShownCount = !live && showQuakes ? shownAfter.filter((q) => q.mag >= 5).length : 0;
+  const bigShownCount = !live && showQuakes ? replayQuakes.filter((q) => q.mag >= 5).length : 0;
   const feltFootprints = useMemo(() => {
     if (live || !showQuakes) return null;
-    const big = shownAfter.filter((q) => q.mag >= 5);
+    const big = replayQuakes.filter((q) => q.mag >= 5);
     const items = mainVisible ? [mainshock, ...big] : big;
     return items.map((q) => (
       <Circle key={`fp-${q.id ?? 'main'}`} center={[q.lat, q.lng]} radius={feltRadiusM(q.mag)} interactive={false}
@@ -534,20 +540,11 @@ export default function QuakeMap({
             </Popup>
           </Marker>
         )}
-        {/* glow layer (live only): every dot gets a soft halo (so it's luminous, not a flat disc),
-            brighter for recent quakes. In replay the expanding waves carry the energy instead. */}
-        {live && showQuakes && shownAfter.filter((q) => q.mag >= magFloorForZoom(zoom) || q.time >= refTime - RECENT_DOT_MS).map((q) => {
-          const g = glowFor((refTime - q.time) / 3600000);
-          return (
-            <CircleMarker key={`glow-${q.id}`} center={[q.lat, q.lng]} radius={dotRadius(q.mag, zoom) * (1.9 + 0.5 * g)}
-              interactive={false} pathOptions={{ stroke: false, fillColor: magColor(q.mag), fillOpacity: 0.12 + 0.26 * g }} />
-          );
-        })}
         {/* lasting footprints of the biggest quakes (replay) */}
         {feltFootprints}
         {/* Each quake is a RIPPLE seen from orbit: a bright point that erupts outward to its felt
-            radius while its centre hollows and fades - then dissipates. (replay only) */}
-        {!live && showQuakes && shownAfter.filter((q) => q.mag >= 2.5).map((q) => {
+            radius while its centre hollows and fades - then dissipates. (replay only, nationwide) */}
+        {!live && showQuakes && replayQuakes.filter((q) => q.mag >= 2.5).map((q) => {
           const ageH = (refTime - q.time) / 3600000;
           if (ageH < 0 || ageH > 16) return null;
           const p = ageH / 16;
@@ -643,7 +640,7 @@ export default function QuakeMap({
               aria-label="Scrub the earthquake timeline" />
             <div className="replay-meta">
               <span className="replay-time">{new Date(replayT).toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
-              <span className="replay-count">{shownAfter.length + (mainVisible ? 1 : 0)} quakes</span>
+              <span className="replay-count">{replayQuakes.length + (mainVisible ? 1 : 0)} quakes</span>
             </div>
           </div>
           <button className="replay-close" onClick={exitReplay} aria-label="Exit replay">✕</button>
