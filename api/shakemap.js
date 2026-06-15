@@ -1,21 +1,28 @@
-// Real shaking-intensity contours (USGS ShakeMap MMI) for the strongest recent significant
-// Philippine quake. Intensity = how hard the ground actually shook at each location (modeled
-// from the fault, depth and soil) - the authoritative version of our estimated felt circles.
-// ShakeMaps exist only for significant events, so this covers the mainshock, not small aftershocks.
+// Real shaking-intensity contours (USGS ShakeMap MMI) for the LATEST significant Philippine quake.
+// Intensity = how hard the ground actually shook at each location (modeled from the fault, depth and
+// soil) - the authoritative version of our estimated felt circles. ShakeMaps exist only for
+// significant events (~M5.5+), so this follows the most recent one with a ShakeMap, not the all-time
+// strongest (which would pin the overlay to the M7.8 mainshock long after newer quakes).
 const REGION_Q = 'minlatitude=3&maxlatitude=12&minlongitude=120&maxlongitude=128';
 
-async function topEventWithShakemap() {
+// From newest-first candidates, take the most recent that actually has a ShakeMap product (newer
+// quakes may not have one generated yet); fall back to the most recent event. Bounded to 6 newest.
+export function pickShakemapEvent(features = []) {
+  const feats = (features || []).slice(0, 6);
+  return feats.find((f) => (f.properties?.types || '').includes('shakemap')) || feats[0] || null;
+}
+
+async function latestEventWithShakemap() {
   const start = new Date(Date.now() - 21 * 86400000).toISOString();
   const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start}`
-    + `&minmagnitude=5.5&${REGION_Q}&orderby=magnitude`;
+    + `&minmagnitude=5.5&${REGION_Q}&orderby=time`;
   const j = await (await fetch(url)).json();
-  const feats = (j.features || []).slice(0, 6);
-  return feats.find((f) => (f.properties?.types || '').includes('shakemap')) || feats[0] || null;
+  return pickShakemapEvent(j.features);
 }
 
 export default async function handler(req, res) {
   try {
-    const f = await topEventWithShakemap();
+    const f = await latestEventWithShakemap();
     if (!f) {
       res.setHeader('Cache-Control', 'public, s-maxage=600');
       return res.status(200).json({ event: null, contours: [] });
