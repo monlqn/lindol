@@ -77,8 +77,9 @@ async function fetchEmsc(): Promise<Q[]> {
     return (j.features ?? []).map((f: any) => {
       const pr = f.properties ?? {};
       const c = f.geometry?.coordinates ?? [];
+      const rawId = pr.unid ?? pr.source_id ?? f.id;
       return {
-        id: `emsc:${pr.unid ?? pr.source_id ?? f.id}`,
+        id: rawId ? `emsc:${rawId}` : "",
         time: typeof pr.time === "string" ? Date.parse(pr.time) : pr.time,
         mag: pr.mag, place: pr.flynn_region ?? "Philippines", lat: c[1] ?? pr.lat, lng: c[0] ?? pr.lon, depthKm: Number.isFinite(c[2]) ? c[2] : null, source: "EMSC",
       };
