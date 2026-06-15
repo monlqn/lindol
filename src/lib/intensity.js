@@ -49,17 +49,32 @@ export function mmiColor(m) {
     : m >= 5 ? '#bbff4a' : m >= 4 ? '#7cffc7' : m >= 3 ? '#80ffff' : '#90f2ff';
 }
 
-// The PHIVOLCS-reported intensity at the town nearest the user, for the strongest event that has
-// per-town reports (the mainshock). Returns { mmi, place, distanceKm, mag } or null.
-export function nearestTownIntensity(user, events, maxKm = 90) {
+// The PHIVOLCS-reported intensity at the town nearest the user, for the MOST RECENT event that
+// actually shook their area (a felt report within maxKm), within maxAgeMs. We prefer recency over
+// magnitude so today's nearby quake is shown rather than the week-old mainshock; if nothing recent
+// reached the user the card hides (honest "no significant shaking near you lately").
+// Returns { mmi, place, distanceKm, mag, time } or null.
+export function nearestTownIntensity(user, events, { maxKm = 90, maxAgeMs = 72 * 3600000, now = Date.now() } = {}) {
   if (!Array.isArray(user) || !Array.isArray(events)) return null;
-  const withReports = events.filter((e) => e.reports && e.reports.length);
-  if (!withReports.length) return null;
-  const ev = withReports.reduce((a, b) => (b.mag > a.mag ? b : a)); // strongest = mainshock
-  let best = null;
-  for (const r of ev.reports) {
-    const d = haversineKm(user, [r.lat, r.lng]);
-    if (d <= maxKm && (!best || d < best.distanceKm)) best = { mmi: r.mmi, place: r.place, distanceKm: d, mag: ev.mag };
+  const candidates = [];
+  for (const e of events) {
+    if (!e || !Array.isArray(e.reports) || !e.reports.length) continue;
+    if (Number.isFinite(e.time) && e.time < now - maxAgeMs) continue; // too old to count as "now"
+    let nearest = null;
+    for (const r of e.reports) {
+      const d = haversineKm(user, [r.lat, r.lng]);
+      if (d <= maxKm && (!nearest || d < nearest.distanceKm)) {
+        nearest = { mmi: r.mmi, place: r.place, distanceKm: d, mag: e.mag, time: e.time };
+      }
+    }
+    if (nearest) candidates.push(nearest);
   }
-  return best;
+  if (!candidates.length) return null;
+  // Most recent felt event wins; fall back to the stronger one when times are equal/missing.
+  return candidates.reduce((a, b) => {
+    const at = Number.isFinite(a.time) ? a.time : -Infinity;
+    const bt = Number.isFinite(b.time) ? b.time : -Infinity;
+    if (bt !== at) return bt > at ? b : a;
+    return b.mag > a.mag ? b : a;
+  });
 }

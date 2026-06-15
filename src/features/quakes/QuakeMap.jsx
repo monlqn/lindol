@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, CircleMarker, Circle, Polyline, Popup, Rectangle, Polygon, AttributionControl, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
+import 'leaflet.heat';
 import { REGION, AFFECTED_AREAS } from '../../config.js';
 import { activeZone } from '../../lib/activeZone.js';
+import { magFloorForZoom } from './mapDetail.js';
 import { reportIcon } from '../reports/reportMarkers.js';
 import { categoryColor, categoryIcon, CATEGORIES } from '../reports/reportSchema.js';
 import { formatKm } from '../../lib/geo.js';
@@ -141,6 +143,29 @@ function ArcgisOverlay({ url, opacity = 0.85 }) {
   return null;
 }
 
+// Quakes newer than this stay on the map even below the zoom magnitude floor, so fresh activity
+// is never hidden by the level-of-detail thinning.
+const RECENT_DOT_MS = 48 * 3600000;
+
+// Optional density heatmap of the swarm: shows where activity concentrates at a glance, without the
+// overlap of thousands of discrete dots. Weighted by magnitude. Toggled from the Layers panel.
+function HeatLayer({ points, show }) {
+  const map = useMap();
+  const ref = useRef(null);
+  useEffect(() => {
+    if (ref.current) { map.removeLayer(ref.current); ref.current = null; }
+    if (!show || !points.length) return undefined;
+    const layer = L.heatLayer(points, {
+      radius: 24, blur: 18, minOpacity: 0.25, maxZoom: 12,
+      gradient: { 0.15: 'rgba(228,200,74,0.65)', 0.4: '#F2B01E', 0.6: '#F5851B', 0.8: '#F0461E', 1: '#D81E34' },
+    });
+    layer.addTo(map);
+    ref.current = layer;
+    return () => { if (ref.current) { map.removeLayer(ref.current); ref.current = null; } };
+  }, [show, points, map]);
+  return null;
+}
+
 // Flies the map to a focus point (e.g., a quake tapped in the list).
 function FocusFlyer({ focus }) {
   const map = useMap();
@@ -175,6 +200,7 @@ export default function QuakeMap({
     if (!showIntensity || intensity) return;
     fetch('/api/shakemap').then((r) => r.json()).then(setIntensity).catch(() => {});
   }, [showIntensity, intensity]);
+  const [showHeat, setShowHeat] = useState(false);
   const [hazard, setHazard] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [catFilter, setCatFilter] = useState(() => new Set(CATEGORIES.map((c) => c.key)));
@@ -242,12 +268,25 @@ export default function QuakeMap({
     if (!live && mainVisible && !mainShownAtRef.current) mainShownAtRef.current = Date.now();
   }, [live, mainVisible]);
 
+  // Heatmap points: the FULL swarm (not thinned by zoom) weighted by magnitude, so the density view
+  // shows every quake's contribution. Only built when the layer is on.
+  const heatPoints = useMemo(() => {
+    if (!showHeat) return [];
+    const all = mainshock ? [mainshock, ...shownAfter, ...other] : [...shownAfter, ...other];
+    return all
+      .filter((q) => Number.isFinite(q.lat) && Number.isFinite(q.lng) && Number.isFinite(q.mag))
+      .map((q) => [q.lat, q.lng, Math.max(0.15, Math.min(1, (q.mag - 2) / 5))]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showHeat, shownAfter, other, mainshock, live ? false : shownAfter.length]);
+
   // Core dots, memoised so playback frames don't re-style every marker (the cause of the jank).
   // Live: recency-lit (rare re-renders). Replay: static style - only the wave layers animate, and
   // this list rebuilds only when a new quake appears (shownAfter.length changes), not every frame.
   const coreDots = useMemo(() => {
     if (!showQuakes) return null;
-    return shownAfter.map((q) => {
+    const floor = magFloorForZoom(zoom);
+    const cut = refTime - RECENT_DOT_MS;
+    return shownAfter.filter((q) => q.mag >= floor || q.time >= cut).map((q) => {
       const ageH = (refTime - q.time) / 3600000;
       const op = live ? coreFor(ageH) : 0.65;
       const rad = live ? dotRadius(q.mag, zoom) * (1 + 0.5 * glowFor(ageH)) : dotRadius(q.mag, zoom);
@@ -363,6 +402,7 @@ export default function QuakeMap({
           <div className="mf-cats">
             <button className={`mf-cat${showFaults ? ' on' : ''}`} onClick={() => setShowFaults((v) => !v)}>🟥 Active faults</button>
             <button className={`mf-cat${showIntensity ? ' on' : ''}`} onClick={() => setShowIntensity((v) => !v)}>🌈 Shaking intensity</button>
+            <button className={`mf-cat${showHeat ? ' on' : ''}`} onClick={() => setShowHeat((v) => !v)}>🔥 Activity heatmap</button>
           </div>
           <div className="mf-cats">
             <button className={`mf-cat${!hazard ? ' on' : ''}`} onClick={() => setHazard(null)}>No hazard map</button>
@@ -412,6 +452,7 @@ export default function QuakeMap({
         )}
         {hazard && HAZARD_MAP[hazard] && <ArcgisOverlay key={hazard} url={HAZARD_MAP[hazard].url} opacity={0.55} />}
         {showFaults && <ArcgisOverlay url={FAULT_URL} opacity={0.85} />}
+        <HeatLayer points={heatPoints} show={showHeat && showQuakes} />
         <FollowUser user={user} />
         <FocusFlyer focus={focus} />
         <ZoomWatcher onZoom={setZoom} />
@@ -437,7 +478,7 @@ export default function QuakeMap({
         ))}
         {/* Other PH quakes outside the Sarangani sequence: shown with neutral labels (never
             called "aftershock"), distinguished by a dashed outline. Live only. */}
-        {live && showQuakes && other.map((q) => (
+        {live && showQuakes && other.filter((q) => q.mag >= magFloorForZoom(zoom) || q.time >= Date.now() - RECENT_DOT_MS).map((q) => (
           <CircleMarker key={`other-${q.id}`} center={[q.lat, q.lng]} radius={dotRadius(q.mag, zoom)}
             eventHandlers={{ click: () => showFelt(q) }}
             pathOptions={{ color: 'rgba(18,14,10,0.55)', weight: 1, dashArray: '2 3',
@@ -495,7 +536,7 @@ export default function QuakeMap({
         )}
         {/* glow layer (live only): every dot gets a soft halo (so it's luminous, not a flat disc),
             brighter for recent quakes. In replay the expanding waves carry the energy instead. */}
-        {live && showQuakes && shownAfter.map((q) => {
+        {live && showQuakes && shownAfter.filter((q) => q.mag >= magFloorForZoom(zoom) || q.time >= refTime - RECENT_DOT_MS).map((q) => {
           const g = glowFor((refTime - q.time) / 3600000);
           return (
             <CircleMarker key={`glow-${q.id}`} center={[q.lat, q.lng]} radius={dotRadius(q.mag, zoom) * (1.9 + 0.5 * g)}
@@ -617,6 +658,8 @@ export default function QuakeMap({
         <span><i style={{ background: 'var(--c-help)' }} />Need help</span>
         <span><i style={{ background: 'var(--c-safe)' }} />Safe</span>
         <span>◯ Est. felt area · inner = stronger</span>
+        {live && magFloorForZoom(zoom) >= 2.5 && <span>🔍 Zoom in for smaller quakes</span>}
+        {showHeat && <span>🔥 Activity density</span>}
         {showIntensity && <span>🌈 Shaking intensity (MMI) · USGS</span>}
         {AFFECTED_AREAS.length > 0 && <span>⚠ Hard-hit area · news</span>}
         {showFaults && <span><i style={{ background: '#B03030' }} />Active fault · PHIVOLCS</span>}
