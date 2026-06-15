@@ -49,12 +49,27 @@ export function mmiColor(m) {
     : m >= 5 ? '#bbff4a' : m >= 4 ? '#7cffc7' : m >= 3 ? '#80ffff' : '#90f2ff';
 }
 
+// How recent an intensity reading has to be to count as "now" for the felt-at-you card. Beyond
+// this the week-old mainshock would otherwise keep showing as present-tense shaking.
+export const FELT_WINDOW_MS = 72 * 3600000; // 3 days
+
+// Modeled shaking (USGS ShakeMap) intensity at the user, but ONLY if the event is recent. The
+// /api/shakemap endpoint returns the STRONGEST event in the window (the M7.8 mainshock), so without
+// this recency gate a week-old reading shows as "Intensity V at your location". Returns
+// { mmi, mag } when a recent shakemap covers the user at MMI >= 2, else null.
+export function modeledIntensityAtUser(user, sm, { now = Date.now(), maxAgeMs = FELT_WINDOW_MS } = {}) {
+  if (!sm || !sm.event || !Array.isArray(sm.contours) || !sm.contours.length) return null;
+  if (Number.isFinite(sm.event.time) && now - sm.event.time > maxAgeMs) return null; // stale
+  const mmi = intensityAt(user, sm.contours);
+  return mmi >= 2 ? { mmi, mag: sm.event.mag } : null;
+}
+
 // The PHIVOLCS-reported intensity at the town nearest the user, for the MOST RECENT event that
 // actually shook their area (a felt report within maxKm), within maxAgeMs. We prefer recency over
 // magnitude so today's nearby quake is shown rather than the week-old mainshock; if nothing recent
 // reached the user the card hides (honest "no significant shaking near you lately").
 // Returns { mmi, place, distanceKm, mag, time } or null.
-export function nearestTownIntensity(user, events, { maxKm = 90, maxAgeMs = 72 * 3600000, now = Date.now() } = {}) {
+export function nearestTownIntensity(user, events, { maxKm = 90, maxAgeMs = FELT_WINDOW_MS, now = Date.now() } = {}) {
   if (!Array.isArray(user) || !Array.isArray(events)) return null;
   const candidates = [];
   for (const e of events) {

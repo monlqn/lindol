@@ -1,5 +1,5 @@
 import { useShakemap } from '../features/quakes/useShakemap.js';
-import { intensityAt, nearestTownIntensity, mmiRoman, mmiLabel, mmiColor } from '../lib/intensity.js';
+import { modeledIntensityAtUser, nearestTownIntensity, mmiRoman, mmiLabel, mmiColor } from '../lib/intensity.js';
 
 function Card({ mmi, head, sub }) {
   const col = mmiColor(mmi);
@@ -28,14 +28,14 @@ export default function FeltAtYou({ user, shakemaps = [] }) {
     );
   }
 
-  if (sm?.event && sm.contours?.length) {
-    const mmi = intensityAt(user, sm.contours);
-    if (mmi >= 2) {
-      return (
-        <Card mmi={mmi} head="at your location"
-          sub={`from the M${sm.event.mag.toFixed(1)}. Modelled shaking (USGS ShakeMap).`} />
-      );
-    }
+  // Modeled shaking only counts if it's from a recent event - the /api/shakemap endpoint returns the
+  // strongest event (the week-old M7.8 mainshock), which must not show as present-tense "at your location".
+  const modeled = modeledIntensityAtUser(user, sm);
+  if (modeled) {
+    return (
+      <Card mmi={modeled.mmi} head="at your location"
+        sub={`from the M${modeled.mag.toFixed(1)}. Modelled shaking (USGS ShakeMap).`} />
+    );
   }
   return null;
 }
