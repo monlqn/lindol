@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sameQuake, mergeQuakes } from './quakeMerge.js';
+import { sameQuake, mergeQuakes, mergeFreshest } from './quakeMerge.js';
 
 const base = { id: 'us1', mag: 5.0, time: 1_000_000, lat: 7.0, lng: 126.0 };
 
@@ -36,5 +36,31 @@ describe('mergeQuakes', () => {
     expect(merged).toHaveLength(1);
     expect(merged[0].mag).toBe(4.8);                  // PHIVOLCS value kept
     expect(merged[0].sources.sort()).toEqual(['EMSC', 'PHIVOLCS', 'USGS']);
+  });
+});
+
+describe('mergeFreshest', () => {
+  const prelim = { id: 'emsc:1', mag: 4.2, time: 1000, lat: 7, lng: 126, updatedAt: 1000 };
+  const revised = { id: 'emsc:1', mag: 6.2, time: 1000, lat: 7, lng: 126, updatedAt: 9000 };
+
+  it('keeps the most recently updated record for the same event id', () => {
+    const out = mergeFreshest([prelim], [revised]);
+    expect(out).toHaveLength(1);
+    expect(out[0].mag).toBe(6.2);
+  });
+
+  it('keeps the revised record regardless of which list it arrives in', () => {
+    expect(mergeFreshest([revised], [prelim])[0].mag).toBe(6.2);
+  });
+
+  it('unions distinct events', () => {
+    const other = { id: 'emsc:2', mag: 5, time: 2000, lat: 6, lng: 125, updatedAt: 2000 };
+    expect(mergeFreshest([prelim], [other])).toHaveLength(2);
+  });
+
+  it('falls back to time when updatedAt is absent', () => {
+    const a = { id: 'emsc:3', mag: 4.0, time: 1000, lat: 7, lng: 126 };
+    const b = { id: 'emsc:3', mag: 5.5, time: 2000, lat: 7, lng: 126 };
+    expect(mergeFreshest([a], [b])[0].mag).toBe(5.5);
   });
 });

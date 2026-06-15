@@ -39,6 +39,9 @@ export function parseEmscWsEvent(msg) {
     mag,
     place: pr.flynn_region || pr.region || 'Unknown location',
     time,
+    // When EMSC revises a solution it keeps the same unid but bumps lastupdate. Carrying it lets a
+    // revised push supersede a stale preliminary on merge instead of being dropped as a duplicate.
+    updatedAt: pr.lastupdate ? Date.parse(pr.lastupdate) : time,
     depthKm: coords[2] ?? pr.depth ?? null,
     lat,
     lng,
@@ -54,11 +57,13 @@ export function parseEmscQuakes(geojson) {
     .map((f) => {
       const pr = f.properties;
       const coords = f.geometry?.coordinates ?? [];
+      const time = typeof pr.time === 'string' ? Date.parse(pr.time) : pr.time;
       return {
         id: `emsc:${pr.unid || pr.source_id || f.id}`,
         mag: pr.mag,
         place: pr.flynn_region || pr.region || 'Unknown location',
-        time: typeof pr.time === 'string' ? Date.parse(pr.time) : pr.time,
+        time,
+        updatedAt: pr.lastupdate ? Date.parse(pr.lastupdate) : time,
         depthKm: coords[2] ?? pr.depth ?? null,
         lat: coords[1] ?? pr.lat,
         lng: coords[0] ?? pr.lon,

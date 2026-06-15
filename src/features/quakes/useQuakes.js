@@ -2,7 +2,8 @@ import { useEffect, useState, useRef } from 'react';
 import { buildUsgsUrl, parseQuakes } from './quakeApi.js';
 import { buildEmscUrl, parseEmscQuakes, parseEmscWsEvent, EMSC_WS_URL } from './emscApi.js';
 import { buildPhivolcsUrl, parsePhivolcsQuakes } from './phivolcsApi.js';
-import { mergeQuakes } from './quakeMerge.js';
+import { mergeQuakes, mergeFreshest } from './quakeMerge.js';
+import { latestMajor } from './latestMajor.js';
 import { cacheGet, cacheSet } from '../../lib/cache.js';
 import { haversineKm } from '../../lib/geo.js';
 import { REGION } from '../../config.js';
@@ -24,7 +25,7 @@ function enrich(quakes, user) {
 // it fails the app falls back to USGS/EMSC and never breaks.
 export function useQuakes(user = REGION.defaultUser) {
   const [state, setState] = useState({
-    all: [], latest: null, mainshock: null, aftershocks: [], other: [], status: 'loading', updatedAt: null,
+    all: [], latest: null, latestMajor: null, mainshock: null, aftershocks: [], other: [], status: 'loading', updatedAt: null,
   });
   const usgsRef = useRef([]);
   const emscRef = useRef([]);
@@ -36,11 +37,11 @@ export function useQuakes(user = REGION.defaultUser) {
 
     function recommit(status, updatedAt) {
       if (cancelled) return;
-      // PHIVOLCS first so it wins on duplicates; EMSC WebSocket pushes merged last (instant).
-      const live = mergeQuakes(
-        mergeQuakes(mergeQuakes(phivRef.current, usgsRef.current), emscRef.current),
-        wsRef.current,
-      );
+      // Collapse the two EMSC streams first, keeping the freshest record per event so a revised
+      // magnitude pushed over the WebSocket beats a stale preliminary from the lagging REST poll.
+      // Then merge PHIVOLCS first so it still wins on duplicates as the local authority.
+      const emscLive = mergeFreshest(wsRef.current, emscRef.current);
+      const live = mergeQuakes(mergeQuakes(phivRef.current, usgsRef.current), emscLive);
       // Merge the durable week-1 snapshot (keeps perishable PHIVOLCS data after it ages off the
       // live bulletin), then the static mainshock anchor (so the M7.8 can never disappear).
       const withSnapshot = mergeQuakes(live, snapshot);
@@ -51,6 +52,7 @@ export function useQuakes(user = REGION.defaultUser) {
       setState((s) => ({
         all: enriched,
         latest: byTime[0] ?? null,
+        latestMajor: latestMajor(byTime, REGION.majorMinMag),
         mainshock,
         aftershocks,
         other,
@@ -113,11 +115,16 @@ export function useQuakes(user = REGION.defaultUser) {
     // of waiting up to a minute for the next poll. Filtered to our region; the polls are the backstop.
     let ws = null;
     let wsRetry = null;
+    let lastBeat = 0; // last time the socket opened or delivered a frame; drives the liveness check
     function connectWs() {
       if (cancelled || typeof WebSocket === 'undefined') return;
+      clearTimeout(wsRetry);
       try {
         ws = new WebSocket(EMSC_WS_URL);
+        lastBeat = Date.now();
+        ws.onopen = () => { lastBeat = Date.now(); };
         ws.onmessage = (ev) => {
+          lastBeat = Date.now();
           let q;
           try { q = parseEmscWsEvent(JSON.parse(ev.data)); } catch { return; }
           if (!q) return;
@@ -130,9 +137,22 @@ export function useQuakes(user = REGION.defaultUser) {
             .slice(0, 200);
           recommit('live', Date.now());
         };
-        ws.onclose = () => { if (!cancelled) { wsRetry = setTimeout(connectWs, 8000); } };
+        ws.onclose = () => { if (!cancelled) { clearTimeout(wsRetry); wsRetry = setTimeout(connectWs, 8000); } };
         ws.onerror = () => { try { ws.close(); } catch { /* ignore */ } };
       } catch { /* WebSocket unavailable - polls cover it */ }
+    }
+
+    // Liveness watchdog: a silently-dropped socket (phone sleep, network switch) may never fire
+    // onclose, stranding the app on the slower 60s REST poll. Recycle the connection if it isn't
+    // OPEN, or if it's gone quiet long enough to likely be half-open. The 60s polls are the backstop.
+    function checkWs() {
+      if (cancelled || typeof WebSocket === 'undefined') return;
+      const state = ws ? ws.readyState : WebSocket.CLOSED;
+      const quiet = Date.now() - lastBeat > 5 * 60000;
+      if (state === WebSocket.CLOSED || state === WebSocket.CLOSING || (state === WebSocket.OPEN && quiet)) {
+        try { if (ws) { ws.onclose = null; ws.close(); } } catch { /* ignore */ }
+        connectWs();
+      }
     }
 
     loadUsgs();
@@ -140,9 +160,11 @@ export function useQuakes(user = REGION.defaultUser) {
     loadPhivolcs();
     connectWs();
     const poll = setInterval(() => { loadUsgs(); loadEmsc(); loadPhivolcs(); }, 60000);
+    const wsHealth = setInterval(checkWs, 30000);
     return () => {
       cancelled = true;
       clearInterval(poll);
+      clearInterval(wsHealth);
       clearTimeout(wsRetry);
       try { if (ws) { ws.onclose = null; ws.close(); } } catch { /* ignore */ }
     };

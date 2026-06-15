@@ -16,6 +16,9 @@ export function feltRadiusKm(mag) {
 
 export function useQuakeAlerts(quakes, soundOn, user = REGION.defaultUser) {
   const seen = useRef(new Set());
+  // The physical quakes we've already alarmed for, matched by sameQuake so the same event can't
+  // re-alarm when the merged feed swaps which source represents it (PHIVOLCS superseding EMSC).
+  const alerted = useRef([]);
   // Recency window: a quake older than this won't alarm on open. Generous enough that opening
   // the app a few minutes after feeling a quake (once the source has published it) still alerts.
   const since = useRef(Date.now() - 10 * 60000);
@@ -27,8 +30,10 @@ export function useQuakeAlerts(quakes, soundOn, user = REGION.defaultUser) {
       const d = q.distanceKm ?? haversineKm(user, [q.lat, q.lng]);
       return d <= feltRadiusKm(q.mag);
     });
-    const fresh = detectNewAlerts(near, seen.current, REGION.alertMinMag, since.current);
+    const fresh = detectNewAlerts(near, seen.current, REGION.alertMinMag, since.current, alerted.current);
     if (fresh.length) {
+      alerted.current.push(...fresh);
+      if (alerted.current.length > 300) alerted.current.splice(0, alerted.current.length - 300);
       const newest = fresh.reduce((a, b) => (b.time > a.time ? b : a));
       setAlert(newest);
       if (soundOn) startAlarm();   // loops until dismissed

@@ -8,6 +8,9 @@ export const REGION = {
   highlight: { minLat: 4.8, maxLat: 7.2, minLng: 124.0, maxLng: 126.4 },
   minMagnitude: 2.0,
   alertMinMag: 4.5,
+  // The "Last major earthquake" headline shows the most recent quake at/above this magnitude.
+  // Lower it to surface strong (M5+) events; the pinned M7.8 still shows until something newer hits.
+  majorMinMag: 6.0,
   // Only quakes within this many km of the user trigger an alert ("near you").
   alertRadiusKm: 300,
   // The anchor + snapshot guarantee the sequence survives; the live window just keeps recent

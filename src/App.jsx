@@ -66,7 +66,7 @@ function MainApp() {
   const online = useOnline();
   const viewers = useViewerCount();
   const user = useGeolocation();
-  const { latest, mainshock, aftershocks, other, all, status, updatedAt } = useQuakes(user);
+  const { latest, latestMajor, mainshock, aftershocks, other, all, status, updatedAt } = useQuakes(user);
   const shakemaps = useShakemaps();
   // The active-zone polygon (shared with the map) and a live count of quakes inside it.
   const zone = useMemo(() => {
@@ -211,7 +211,7 @@ function MainApp() {
             {!online && <OfflineBanner updatedAt={updatedAt} />}
             <section className="reveal">
               <SectionLabel>Last major earthquake{status === 'cached' ? ' · cached' : ''}</SectionLabel>
-              <QuakeHero quake={mainshock} shakemaps={shakemaps} />
+              <QuakeHero quake={latestMajor ?? mainshock} shakemaps={shakemaps} />
             </section>
             {(user[0] !== REGION.defaultUser[0] || user[1] !== REGION.defaultUser[1]) && <FeltAtYou user={user} shakemaps={shakemaps} />}
             {zoneCount > 0 && (

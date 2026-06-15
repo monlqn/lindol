@@ -13,6 +13,20 @@ export function srcOf(q) {
   return q.source === 'phivolcs' ? 'PHIVOLCS' : q.source === 'emsc' ? 'EMSC' : 'USGS';
 }
 
+// Combine two catalogs from the SAME source (e.g. the EMSC realtime WebSocket and the slower REST
+// poll), keeping the most recently updated record per event id so a revised magnitude/location
+// supersedes a stale preliminary instead of the lagging poll silently winning. Falls back to the
+// origin time when updatedAt is absent.
+export function mergeFreshest(a = [], b = []) {
+  const byId = new Map();
+  for (const q of [...a, ...b]) {
+    if (!q) continue;
+    const prev = byId.get(q.id);
+    if (!prev || (q.updatedAt ?? q.time) >= (prev.updatedAt ?? prev.time)) byId.set(q.id, q);
+  }
+  return [...byId.values()];
+}
+
 // The `primary` catalog wins on value (location/magnitude); duplicates from `extra` are not
 // re-listed, but the agencies that also reported the quake are consolidated into `sources` -
 // so the kept value stays authoritative while showing it's corroborated.
