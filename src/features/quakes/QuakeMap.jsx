@@ -532,7 +532,7 @@ export default function QuakeMap({
             </Popup>
           </CircleMarker>
         ))}
-        {live && showQuakes && mainshock && (
+        {live && showQuakes && mainshock && timeOk(mainshock) && (
           <>
             <Circle center={[mainshock.lat, mainshock.lng]} radius={feltRadiusM(mainshock.mag)} interactive={false}
               pathOptions={{ color: '#CC2A2A', weight: 2, opacity: 0.55, fillColor: '#CC2A2A', fillOpacity: 0.04 }} />
@@ -560,7 +560,7 @@ export default function QuakeMap({
             </>
           );
         })()}
-        {showQuakes && mainVisible && (
+        {showQuakes && mainVisible && timeOk(mainshock) && (
           <Marker position={[mainshock.lat, mainshock.lng]} icon={epicenterIcon(mainshock.mag, zoom)}
             eventHandlers={{ click: () => showFelt(mainshock) }}>
             <Popup>
