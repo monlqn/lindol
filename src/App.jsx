@@ -219,7 +219,7 @@ function MainApp() {
       <PullToRefresh className="scroll" key={tab} onRefresh={refresh}>
         {tab === 'home' && (
           <>
-            <Masthead quakes={mainQuakes} />
+            <Masthead quakes={all} />
             <InstallPrompt />
             {!online && <OfflineBanner updatedAt={updatedAt} />}
             <section className="reveal">
@@ -237,7 +237,7 @@ function MainApp() {
               </button>
             )}
             <section className="reveal">
-              <SectionLabel>Recent quakes · {mainCount} in {REGION.windowDays} days{microCount > 0 ? ` · +${microCount} micro` : ''}</SectionLabel>
+              <SectionLabel>Recent quakes · {all.length} in {REGION.windowDays} days{microCount > 0 ? ` · ${microCount} micro` : ''}</SectionLabel>
               <p className="src-note">Showing <b>M2.0+</b> earthquakes across the Philippines from <b>PHIVOLCS</b> (the local authority), with <b>USGS &amp; EMSC</b> as backup, plus recent <b>micro quakes</b> under M2.0 (PHIVOLCS only, instrument-detected, not felt). The active Sarangani sequence is highlighted on the map. Data can lag a few minutes behind the actual quake, so if you feel shaking, don't wait. Drop, Cover, Hold On.</p>
               <QuakeList quakes={all} onLocate={locateOnMap} shakemaps={shakemaps} />
             </section>
