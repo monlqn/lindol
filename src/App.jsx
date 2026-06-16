@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
 import { REGION } from './config.js';
 import { activeZone, pointInPolygon } from './lib/activeZone.js';
 import { subscribeToPush } from './lib/push.js';
@@ -47,6 +47,8 @@ import { HOTLINES } from './config.js';
 import { useTheme } from './lib/useTheme.js';
 import ToggleRow from './components/ToggleRow.jsx';
 
+const MapboxPoc = lazy(() => import('./features/mapbox/MapboxPoc.jsx'));
+
 function useToast() {
   const [toast, setToast] = useState(null);
   const show = (msg, color) => { setToast({ msg, color }); setTimeout(() => setToast(null), 2600); };
@@ -62,6 +64,7 @@ export default function App() {
   }, []);
   if (route === '#admin') return <AdminPage />;
   if (route === '#privacy') return <PrivacyPage />;
+  if (route === '#mapbox') return <Suspense fallback={null}><MapboxPoc /></Suspense>;
   return <MainApp />;
 }
 
