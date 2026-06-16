@@ -19,4 +19,10 @@ describe('magFloorForZoom', () => {
   it('never returns a negative floor', () => {
     expect(magFloorForZoom(20)).toBeGreaterThanOrEqual(0);
   });
+
+  it('reveals micro quakes (M1.0-2.0) only at high zoom', () => {
+    expect(magFloorForZoom(8)).toBeGreaterThan(2.0);       // hidden when zoomed out
+    expect(magFloorForZoom(11)).toBeLessThanOrEqual(2.0);  // at the feed minimum
+    expect(magFloorForZoom(13)).toBeLessThanOrEqual(1.0);  // micro fully revealed
+  });
 });

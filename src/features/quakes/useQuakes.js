@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { buildUsgsUrl, parseQuakes } from './quakeApi.js';
 import { buildEmscUrl, parseEmscQuakes, parseEmscWsEvent, EMSC_WS_URL } from './emscApi.js';
-import { buildPhivolcsUrl, parsePhivolcsQuakes } from './phivolcsApi.js';
+import { buildPhivolcsUrl, buildPhivolcsMicroUrl, parsePhivolcsQuakes } from './phivolcsApi.js';
 import { mergeQuakes, mergeFreshest } from './quakeMerge.js';
 import { latestMajor } from './latestMajor.js';
 import { cacheGet, cacheSet } from '../../lib/cache.js';
@@ -12,6 +12,7 @@ import snapshot from './snapshots/sarangani-2026-06.json';
 
 const CACHE_KEY = 'quakes';
 const CACHE_KEY_PHIV = 'quakes_phivolcs';
+const CACHE_KEY_PHIV_MICRO = 'quakes_phivolcs_micro';
 
 function enrich(quakes, user) {
   return quakes.map((q) => ({ ...q, distanceKm: haversineKm(user, [q.lat, q.lng]) }));
@@ -30,6 +31,7 @@ export function useQuakes(user = REGION.defaultUser) {
   const usgsRef = useRef([]);
   const emscRef = useRef([]);
   const phivRef = useRef([]);
+  const phivMicroRef = useRef([]); // separate short-window sub-M2.0 micro fetch (PHIVOLCS-only)
   const wsRef = useRef([]); // EMSC WebSocket pushes - newest events, shown instantly
 
   useEffect(() => {
@@ -41,7 +43,10 @@ export function useQuakes(user = REGION.defaultUser) {
       // magnitude pushed over the WebSocket beats a stale preliminary from the lagging REST poll.
       // Then merge PHIVOLCS first so it still wins on duplicates as the local authority.
       const emscLive = mergeFreshest(wsRef.current, emscRef.current);
-      const live = mergeQuakes(mergeQuakes(phivRef.current, usgsRef.current), emscLive);
+      // Fold the micro feed into PHIVOLCS first: its M2.0+ rows are exact id-duplicates of the main
+      // feed (dedup cleanly), so only the genuinely-new sub-M2.0 events are added.
+      const phiv = mergeQuakes(phivRef.current, phivMicroRef.current);
+      const live = mergeQuakes(mergeQuakes(phiv, usgsRef.current), emscLive);
       // Merge the durable week-1 snapshot (keeps perishable PHIVOLCS data after it ages off the
       // live bulletin), then the static mainshock anchor (so the M7.8 can never disappear).
       const withSnapshot = mergeQuakes(live, snapshot);
@@ -111,6 +116,24 @@ export function useQuakes(user = REGION.defaultUser) {
       }
     }
 
+    // Supplementary: recent sub-M2.0 micro quakes (PHIVOLCS-only, short window). Never breaks the
+    // app - on failure we keep the last good copy and the main feeds carry on.
+    async function loadPhivolcsMicro() {
+      try {
+        const res = await fetch(buildPhivolcsMicroUrl(REGION));
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const quakes = parsePhivolcsQuakes(await res.json());
+        if (quakes.length) {
+          cacheSet(CACHE_KEY_PHIV_MICRO, quakes, Date.now());
+          phivMicroRef.current = quakes;
+          recommit();
+        }
+      } catch {
+        const cached = cacheGet(CACHE_KEY_PHIV_MICRO);
+        if (cached && !phivMicroRef.current.length) { phivMicroRef.current = cached.value; recommit(); }
+      }
+    }
+
     // EMSC real-time WebSocket: push new significant quakes the instant they're detected, instead
     // of waiting up to a minute for the next poll. Filtered to our region; the polls are the backstop.
     let ws = null;
@@ -158,8 +181,9 @@ export function useQuakes(user = REGION.defaultUser) {
     loadUsgs();
     loadEmsc();
     loadPhivolcs();
+    loadPhivolcsMicro();
     connectWs();
-    const poll = setInterval(() => { loadUsgs(); loadEmsc(); loadPhivolcs(); }, 60000);
+    const poll = setInterval(() => { loadUsgs(); loadEmsc(); loadPhivolcs(); loadPhivolcsMicro(); }, 60000);
     const wsHealth = setInterval(checkWs, 30000);
     return () => {
       cancelled = true;

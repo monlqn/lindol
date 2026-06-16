@@ -34,6 +34,7 @@ import SupportCard from './components/SupportCard.jsx';
 import Community from './components/Community.jsx';
 import PrivacyPage from './features/legal/PrivacyPage.jsx';
 import { useQuakes } from './features/quakes/useQuakes.js';
+import { splitMicro } from './features/quakes/micro.js';
 import { useShakemaps } from './features/quakes/useShakemaps.js';
 import { useReports } from './features/reports/useReports.js';
 import { useOnline } from './lib/useOnline.js';
@@ -67,6 +68,10 @@ function MainApp() {
   const viewers = useViewerCount();
   const user = useGeolocation();
   const { latest, latestMajor, mainshock, aftershocks, other, all, status, updatedAt } = useQuakes(user);
+  // Sub-M2.0 micro quakes are included in `all` (list + map), but headline counts split them out so
+  // the "N in 30 days" figure stays the honest M2.0+ catalog (micro is only a recent 3-day window).
+  const { microCount, mainCount } = splitMicro(all);
+  const mainQuakes = useMemo(() => all.filter((q) => q.mag >= REGION.minMagnitude), [all]);
   const shakemaps = useShakemaps();
   // The active-zone polygon (shared with the map) and a live count of quakes inside it.
   const zone = useMemo(() => {
@@ -74,8 +79,8 @@ function MainApp() {
     return activeZone(mainshock ? [mainshock, ...aftershocks] : aftershocks, center);
   }, [aftershocks, mainshock]);
   const zoneCount = useMemo(
-    () => (zone ? all.filter((q) => pointInPolygon([q.lat, q.lng], zone)).length : 0),
-    [all, zone],
+    () => (zone ? mainQuakes.filter((q) => pointInPolygon([q.lat, q.lng], zone)).length : 0),
+    [mainQuakes, zone],
   );
   const [toast, showToast] = useToast();
   const [lightbox, setLightbox] = useState(null);
@@ -206,7 +211,7 @@ function MainApp() {
       <PullToRefresh className="scroll" key={tab} onRefresh={refresh}>
         {tab === 'home' && (
           <>
-            <Masthead quakes={all} />
+            <Masthead quakes={mainQuakes} />
             <InstallPrompt />
             {!online && <OfflineBanner updatedAt={updatedAt} />}
             <section className="reveal">
@@ -224,8 +229,8 @@ function MainApp() {
               </button>
             )}
             <section className="reveal">
-              <SectionLabel>Recent quakes · {all.length} in {REGION.windowDays} days</SectionLabel>
-              <p className="src-note">Showing <b>M2.0+</b> earthquakes across the Philippines from <b>PHIVOLCS</b> (the local authority), with <b>USGS &amp; EMSC</b> as backup. The active Sarangani sequence is highlighted on the map. Data can lag a few minutes behind the actual quake, so if you feel shaking, don't wait. Drop, Cover, Hold On.</p>
+              <SectionLabel>Recent quakes · {mainCount} in {REGION.windowDays} days{microCount > 0 ? ` · +${microCount} micro` : ''}</SectionLabel>
+              <p className="src-note">Showing <b>M2.0+</b> earthquakes across the Philippines from <b>PHIVOLCS</b> (the local authority), with <b>USGS &amp; EMSC</b> as backup, plus recent <b>micro quakes</b> under M2.0 (PHIVOLCS only, instrument-detected, not felt). The active Sarangani sequence is highlighted on the map. Data can lag a few minutes behind the actual quake, so if you feel shaking, don't wait. Drop, Cover, Hold On.</p>
               <QuakeList quakes={all} onLocate={locateOnMap} shakemaps={shakemaps} />
             </section>
             <AboutQuake />

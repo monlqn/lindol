@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parseBulletin } from '../../../api/phivolcs.js';
-import { buildPhivolcsUrl, parsePhivolcsQuakes } from './phivolcsApi.js';
+import { buildPhivolcsUrl, buildPhivolcsMicroUrl, parsePhivolcsQuakes } from './phivolcsApi.js';
 
 const SAMPLE = `
 <table>
@@ -46,6 +46,12 @@ describe('buildPhivolcsUrl', () => {
   it('passes the region window + magnitude floor', () => {
     const url = buildPhivolcsUrl({ windowDays: 7, minMagnitude: 2 });
     expect(url).toBe('/api/phivolcs?days=7&min=2');
+  });
+});
+
+describe('buildPhivolcsMicroUrl', () => {
+  it('fetches a short window down to the micro floor, separate from the main feed', () => {
+    expect(buildPhivolcsMicroUrl({ microWindowDays: 3, microMinMag: 1 })).toBe('/api/phivolcs?days=3&min=1');
   });
 });
 

@@ -5,6 +5,7 @@ import 'leaflet.heat';
 import { REGION, AFFECTED_AREAS } from '../../config.js';
 import { activeZone } from '../../lib/activeZone.js';
 import { magFloorForZoom } from './mapDetail.js';
+import { isMicro } from './micro.js';
 import { reportIcon } from '../reports/reportMarkers.js';
 import { categoryColor, categoryIcon, CATEGORIES } from '../reports/reportSchema.js';
 import { formatKm } from '../../lib/geo.js';
@@ -51,7 +52,8 @@ const CITIES = [
 
 // Luminous warm ramp: gold (small) -> orange -> hot crimson (large). Reads clearly on satellite.
 function magColor(m) {
-  return m >= 6 ? '#D81E34' : m >= 5 ? '#F0461E' : m >= 4 ? '#F5851B' : m >= 3 ? '#F2B01E' : '#E4C84A';
+  return m >= 6 ? '#D81E34' : m >= 5 ? '#F0461E' : m >= 4 ? '#F5851B'
+    : m >= 3 ? '#F2B01E' : m >= 2 ? '#E4C84A' : '#C9C3A0'; // <2.0 micro = muted sand
 }
 // Power curve so magnitude differences read clearly: M7.8 (~27) towers over M5 (~12) and M2 (~3).
 function magRadius(m) { return Math.max(3, 1.5 * Math.pow(Math.max(m - 1, 0.5), 1.5)); }
@@ -60,7 +62,10 @@ const coreFor = (ageH) => 0.55 + 0.4 * Math.max(0, 1 - ageH / 168);  // 0.55 -> 
 // Dot size scales with zoom: same magnitude looks smaller when zoomed out, bigger when zoomed in.
 function dotRadius(m, zoom) {
   const f = Math.pow(1.4, zoom - 7); // 1x at the default zoom (7)
-  return Math.max(2, Math.min(magRadius(m) * f, magRadius(m) * 3.5));
+  // Micro quakes (<M2.0) get a tiny fixed base so they read clearly smaller than M2.0+ (whose
+  // magRadius floors at 3); everything else keeps its power-curve size.
+  const base = m < REGION.minMagnitude ? 1.4 : magRadius(m);
+  return Math.max(m < REGION.minMagnitude ? 1 : 2, Math.min(base * f, base * 3.5));
 }
 // Approximate radius of perceptible shaking (metres) for the general public - a zoom-aware "felt
 // area". Capped at 450 km so even an M7.8 doesn't overstate reach (e.g. into the Visayas).
@@ -200,6 +205,8 @@ export default function QuakeMap({
     fetch('/api/shakemap').then((r) => r.json()).then(setIntensity).catch(() => {});
   }, [showIntensity, intensity]);
   const [showHeat, setShowHeat] = useState(false);
+  const [showMicro, setShowMicro] = useState(false); // opt-in sub-M2.0 micro quakes (off by default)
+  const [timeWindow, setTimeWindow] = useState(null); // null = full window; else ms (e.g. 24h, 7d)
   const [hazard, setHazard] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [catFilter, setCatFilter] = useState(() => new Set(CATEGORIES.map((c) => c.key)));
@@ -267,6 +274,10 @@ export default function QuakeMap({
   // nationwide quake. (Live keeps them separate so the sequence stays visually distinct.)
   const replayQuakes = live ? shownAfter : [...shownAfter, ...shownOther];
   const afterIds = useMemo(() => new Set(aftershocks.map((q) => q.id)), [aftershocks]);
+  // Render filters shared across the dot layers: micro quakes only when opted in; the time-window
+  // selector (live only - replay has its own clock).
+  const microOk = (q) => showMicro || !isMicro(q);
+  const timeOk = (q) => !live || !timeWindow || q.time >= Date.now() - timeWindow;
   const mainVisible = mainshock && (live || mainshock.time <= replayT);
   // Stamp the moment the mainshock first appears during replay - its shockwave animates off this.
   useEffect(() => {
@@ -279,7 +290,7 @@ export default function QuakeMap({
     if (!showHeat) return [];
     const all = mainshock ? [mainshock, ...shownAfter, ...other] : [...shownAfter, ...other];
     return all
-      .filter((q) => Number.isFinite(q.lat) && Number.isFinite(q.lng) && Number.isFinite(q.mag))
+      .filter((q) => Number.isFinite(q.lat) && Number.isFinite(q.lng) && Number.isFinite(q.mag) && q.mag >= REGION.minMagnitude)
       .map((q) => [q.lat, q.lng, Math.max(0.15, Math.min(1, (q.mag - 2) / 5))]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showHeat, shownAfter, other, mainshock, live ? false : shownAfter.length]);
@@ -292,10 +303,14 @@ export default function QuakeMap({
     if (!showQuakes) return null;
     const floor = live ? magFloorForZoom(zoom) : 0;
     const cut = refTime - RECENT_DOT_MS;
-    return replayQuakes.filter((q) => q.mag >= floor || q.time >= cut).map((q) => {
-      const ageH = (refTime - q.time) / 3600000;
-      const op = live ? coreFor(ageH) : 0.65;
-      const isAfter = afterIds.has(q.id);
+    // Recency override (always-show fresh) applies to M2.0+ only, so micro strictly obey the zoom
+    // floor and stay hidden until you zoom in, even when the toggle is on.
+    return replayQuakes
+      .filter((q) => microOk(q) && timeOk(q) && (q.mag >= floor || (q.time >= cut && q.mag >= REGION.minMagnitude)))
+      .map((q) => {
+        const ageH = (refTime - q.time) / 3600000;
+        const op = (live ? coreFor(ageH) : 0.65) * (isMicro(q) ? 0.5 : 1);
+        const isAfter = afterIds.has(q.id);
       return (
         <CircleMarker key={q.id} center={[q.lat, q.lng]} radius={dotRadius(q.mag, zoom)}
           eventHandlers={{ click: () => showFelt(q) }}
@@ -311,7 +326,7 @@ export default function QuakeMap({
       );
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showQuakes, zoom, live, afterIds, live ? refTime : replayQuakes.length]);
+  }, [showQuakes, zoom, live, afterIds, showMicro, timeWindow, live ? refTime : replayQuakes.length]);
 
   // Replay: significant quakes leave a faint felt footprint after their wave, so the shaken
   // area visibly accumulates as the sequence plays. Memoised - rebuilds only when one is added.
@@ -409,6 +424,14 @@ export default function QuakeMap({
             <button className={`mf-cat${showFaults ? ' on' : ''}`} onClick={() => setShowFaults((v) => !v)}>🟥 Active faults</button>
             <button className={`mf-cat${showIntensity ? ' on' : ''}`} onClick={() => setShowIntensity((v) => !v)}>🌈 Shaking intensity</button>
             <button className={`mf-cat${showHeat ? ' on' : ''}`} onClick={() => setShowHeat((v) => !v)}>🔥 Activity heatmap</button>
+            <button className={`mf-cat${showMicro ? ' on' : ''}`} onClick={() => setShowMicro((v) => !v)}>• Micro &lt;M2.0</button>
+          </div>
+
+          <div className="mf-title">Time window</div>
+          <div className="mf-cats">
+            <button className={`mf-cat${timeWindow === 86400000 ? ' on' : ''}`} onClick={() => setTimeWindow(86400000)}>24h</button>
+            <button className={`mf-cat${timeWindow === 7 * 86400000 ? ' on' : ''}`} onClick={() => setTimeWindow(7 * 86400000)}>7 days</button>
+            <button className={`mf-cat${!timeWindow ? ' on' : ''}`} onClick={() => setTimeWindow(null)}>All ({REGION.windowDays}d)</button>
           </div>
           <div className="mf-cats">
             <button className={`mf-cat${!hazard ? ' on' : ''}`} onClick={() => setHazard(null)}>No hazard map</button>
@@ -484,7 +507,7 @@ export default function QuakeMap({
         ))}
         {/* Other PH quakes outside the Sarangani sequence: shown with neutral labels (never
             called "aftershock"), distinguished by a dashed outline. Live only. */}
-        {live && showQuakes && other.filter((q) => q.mag >= magFloorForZoom(zoom) || q.time >= Date.now() - RECENT_DOT_MS).map((q) => (
+        {live && showQuakes && other.filter((q) => microOk(q) && timeOk(q) && (q.mag >= magFloorForZoom(zoom) || (q.time >= Date.now() - RECENT_DOT_MS && q.mag >= REGION.minMagnitude))).map((q) => (
           <CircleMarker key={`other-${q.id}`} center={[q.lat, q.lng]} radius={dotRadius(q.mag, zoom)}
             eventHandlers={{ click: () => showFelt(q) }}
             pathOptions={{ color: 'rgba(18,14,10,0.55)', weight: 1, dashArray: '2 3',
@@ -656,6 +679,8 @@ export default function QuakeMap({
         <span><i style={{ background: 'var(--c-safe)' }} />Safe</span>
         <span>◯ Est. felt area · inner = stronger</span>
         {live && magFloorForZoom(zoom) >= 2.5 && <span>🔍 Zoom in for smaller quakes</span>}
+        {showMicro && <span><i style={{ background: '#C9C3A0' }} />Micro &lt;M2.0 · PHIVOLCS · zoom in</span>}
+        {live && timeWindow && <span>⏱ Last {timeWindow === 86400000 ? '24h' : '7 days'}</span>}
         {showHeat && <span>🔥 Activity density</span>}
         {showIntensity && <span>🌈 Shaking intensity (MMI) · USGS</span>}
         {AFFECTED_AREAS.length > 0 && <span>⚠ Hard-hit area · news</span>}

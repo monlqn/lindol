@@ -19,7 +19,7 @@ export default function QuakeHero({ quake, shakemaps = [] }) {
     return (
       <div className="quake-card"><div className="qc-top"><div className="qc-meta">
         <div className="qc-place">No recent quakes</div>
-        <div className="qc-sub">No events ≥ M2.5 in the last {REGION.windowDays} days.</div>
+        <div className="qc-sub">No recent quakes in the last {REGION.windowDays} days.</div>
       </div></div></div>
     );
   }

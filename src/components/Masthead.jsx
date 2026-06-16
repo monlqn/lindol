@@ -11,7 +11,7 @@ export default function Masthead({ quakes = [] }) {
         <div className="tagline">Philippines · live earthquake watch</div>
       </div>
       <Seismograph quakes={quakes} />
-      <div className="seismo-cap">{quakes.length} quakes · last {REGION.windowDays} days · USGS</div>
+      <div className="seismo-cap">{quakes.length} quakes · last {REGION.windowDays} days · PHIVOLCS · USGS · EMSC</div>
     </header>
   );
 }

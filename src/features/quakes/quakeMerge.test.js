@@ -28,6 +28,17 @@ describe('mergeQuakes', () => {
     expect(merged.map((q) => q.id)).not.toContain('emsc:dup');
   });
 
+  it('dedups a micro-feed row that repeats a main-feed quake by id, keeping micro-only rows', () => {
+    const main = [{ id: 'phivolcs:1:5:125', mag: 2.6, time: 1, lat: 5, lng: 125 }];
+    const micro = [
+      { id: 'phivolcs:1:5:125', mag: 2.6, time: 1, lat: 5, lng: 125 },  // exact dup of main (overlap band)
+      { id: 'phivolcs:2:6:126', mag: 1.4, time: 2, lat: 6, lng: 126 },  // micro-only, far away -> survives
+    ];
+    const merged = mergeQuakes(main, micro);
+    expect(merged).toHaveLength(2);
+    expect(merged.map((q) => q.mag).sort()).toEqual([1.4, 2.6]);
+  });
+
   it('consolidates the reporting sources without changing the kept value', () => {
     const phiv = [{ ...base, id: 'ph1', mag: 4.8, source: 'phivolcs' }];
     const usgs = [{ ...base, id: 'us1', mag: 5.0 }];                          // dup, USGS

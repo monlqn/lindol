@@ -11,6 +11,11 @@ export const REGION = {
   // The "Last major earthquake" headline shows the most recent quake at/above this magnitude.
   // Lower it to surface strong (M5+) events; the pinned M7.8 still shows until something newer hits.
   majorMinMag: 6.0,
+  // Sub-M2.0 "micro" quakes (PHIVOLCS-only, instrument-detected, not felt). Fetched in a separate
+  // short window so the high-volume low-mag bulletin stays under the 600-record scrape cap. Shown
+  // as an opt-in map layer + in the list/counts; never alarm (that floor is alertMinMag).
+  microMinMag: 1.0,
+  microWindowDays: 3,
   // Only quakes within this many km of the user trigger an alert ("near you").
   alertRadiusKm: 300,
   // The anchor + snapshot guarantee the sequence survives; the live window just keeps recent
