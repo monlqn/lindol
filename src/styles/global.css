@@ -234,6 +234,8 @@ section{padding:18px 16px}
   max-height:calc(100% - 20px); overflow-y:auto; background:var(--map-surface); backdrop-filter:blur(8px);
   border:1px solid var(--line-strong); border-radius:12px; padding:34px 12px 12px; box-shadow:var(--shadow-md)}
 .map-filters .mf-title:not(:first-of-type){margin-top:13px; border-top:1px solid var(--line); padding-top:11px}
+/* command-center: layer controls docked open on the desktop two-pane (no toggle button needed) */
+.map-filters.docked{padding-top:12px}
 .mf-close{position:absolute; top:7px; right:7px; width:26px; height:26px; border-radius:8px;
   border:1px solid var(--line); background:var(--card); color:var(--ink-soft); cursor:pointer;
   font-size:13px; line-height:1; display:grid; place-items:center}

@@ -183,7 +183,7 @@ function FocusFlyer({ focus }) {
 
 export default function QuakeMap({
   mainshock, aftershocks = [], other = [], reports = [], user = REGION.defaultUser,
-  fill = false, dark = false, onReportAt, focus, zone = null,
+  fill = false, dark = false, onReportAt, focus, zone = null, docked = false,
 }) {
   const [showQuakes, setShowQuakes] = useState(true);
   const [showReports, setShowReports] = useState(true);
@@ -398,20 +398,31 @@ export default function QuakeMap({
 
   return (
     <div className={`mapwrap${fill ? ' mapwrap-fill' : ''}${pinMode ? ' pin-mode' : ''}`}>
-      <div className="maptools">
-        <div className={`chip${showQuakes ? ' on' : ''}`} onClick={() => setShowQuakes((v) => !v)}>
-          <span className="sw" style={{ background: 'var(--ember)' }} />Quakes
+      {!docked && (
+        <div className="maptools">
+          <div className={`chip${showQuakes ? ' on' : ''}`} onClick={() => setShowQuakes((v) => !v)}>
+            <span className="sw" style={{ background: 'var(--ember)' }} />Quakes
+          </div>
+          <div className={`chip${showReports ? ' on' : ''}`} onClick={() => setShowReports((v) => !v)}>
+            <span className="sw" style={{ background: 'var(--c-help)' }} />Reports
+          </div>
+          <div className={`chip${showFilters ? ' on' : ''}`} onClick={() => setShowFilters((v) => !v)}>⚙ Layers</div>
         </div>
-        <div className={`chip${showReports ? ' on' : ''}`} onClick={() => setShowReports((v) => !v)}>
-          <span className="sw" style={{ background: 'var(--c-help)' }} />Reports
-        </div>
-        <div className={`chip${showFilters ? ' on' : ''}`} onClick={() => setShowFilters((v) => !v)}>⚙ Layers</div>
-      </div>
+      )}
       <span className="map-live"><span className="live-dot" />LIVE</span>
 
-      {showFilters && (
-        <div className="map-filters">
-          <button className="mf-close" onClick={() => setShowFilters(false)} aria-label="Close">✕</button>
+      {(docked || showFilters) && (
+        <div className={`map-filters${docked ? ' docked' : ''}`}>
+          {!docked && <button className="mf-close" onClick={() => setShowFilters(false)} aria-label="Close">✕</button>}
+          {docked && (
+            <>
+              <div className="mf-title">Show on map</div>
+              <div className="mf-cats">
+                <button className={`mf-cat${showQuakes ? ' on' : ''}`} onClick={() => setShowQuakes((v) => !v)}>● Quakes</button>
+                <button className={`mf-cat${showReports ? ' on' : ''}`} onClick={() => setShowReports((v) => !v)}>● Reports</button>
+              </div>
+            </>
+          )}
 
           <div className="mf-title">Basemap</div>
           <div className="mf-cats">

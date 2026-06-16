@@ -335,7 +335,7 @@ function MainApp() {
 
       {twoPane && (
         <div className="desk-right">
-          <QuakeMap fill mainshock={mainshock} aftershocks={aftershocks} other={other} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} focus={mapFocus} zone={zone} />
+          <QuakeMap fill docked mainshock={mainshock} aftershocks={aftershocks} other={other} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} focus={mapFocus} zone={zone} />
         </div>
       )}
 
