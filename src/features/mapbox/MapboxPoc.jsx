@@ -79,7 +79,7 @@ export default function MapboxPoc() {
     <div style={{ position: 'fixed', inset: 0, background: '#0b1622' }}>
       <div ref={elRef} style={{ position: 'absolute', inset: 0 }} />
       <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 5, display: 'flex', gap: 8, alignItems: 'center',
-        background: 'rgba(20,17,14,.82)', color: '#fff', padding: '8px 12px', borderRadius: 10, font: '600 12.5px system-ui', backdropFilter: 'blur(6px)' }}>
+        background: 'rgba(20,17,14,.82)', color: '#fff', padding: '8px 12px', borderRadius: 10, font: '600 12.5px var(--font)', backdropFilter: 'blur(6px)' }}>
         <a href="#" style={{ color: '#F5851B', textDecoration: 'none' }}>← LINDOL</a>
         <span style={{ opacity: 0.55 }}>|</span>
         <span>Mapbox GL preview · drag to pan, right-drag to rotate/tilt</span>

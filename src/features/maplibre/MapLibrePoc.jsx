@@ -96,7 +96,7 @@ function addOverlays(map, all) {
 
 const S = {
   bar: { position: 'absolute', top: 12, left: 12, zIndex: 5, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', maxWidth: 'calc(100% - 24px)',
-    background: 'rgba(20,17,14,.82)', color: '#fff', padding: '8px 12px', borderRadius: 10, font: '600 12.5px system-ui', backdropFilter: 'blur(6px)' },
+    background: 'rgba(20,17,14,.82)', color: '#fff', padding: '8px 12px', borderRadius: 10, font: '600 12.5px var(--font)', backdropFilter: 'blur(6px)' },
   back: { color: '#F5851B', textDecoration: 'none' },
   sep: { opacity: 0.4 },
   label: { opacity: 0.85 },

@@ -70,7 +70,7 @@ function Shell({ children }) {
 }
 
 const F = {
-  shell: { position: 'fixed', inset: 0, display: 'grid', placeItems: 'center', background: '#0b1622', color: '#fff', fontFamily: 'system-ui, sans-serif', padding: 24 },
+  shell: { position: 'fixed', inset: 0, display: 'grid', placeItems: 'center', background: '#0b1622', color: '#fff', fontFamily: 'var(--font)', padding: 24 },
   form: { width: 320, display: 'flex', flexDirection: 'column', gap: 10 },
   brand: { fontSize: 20, fontWeight: 800 },
   sub: { fontSize: 12.5, color: '#9fb0c0', marginBottom: 6 },
