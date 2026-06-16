@@ -109,7 +109,7 @@ const TRENCH_BOUNDS = [[2, 116], [22, 128]];
 // Restyle the raw PHIVOLCS line into a clean teal via ArcGIS dynamicLayers (supportsDynamicLayers).
 const TRENCH_STYLE = JSON.stringify([{
   id: 0, source: { type: 'mapLayer', mapLayerId: 0 },
-  drawingInfo: { renderer: { type: 'simple', symbol: { type: 'esriSLS', style: 'esriSLSSolid', color: [31, 182, 201, 255], width: 2.5 } } },
+  drawingInfo: { renderer: { type: 'simple', symbol: { type: 'esriSLS', style: 'esriSLSSolid', color: [31, 182, 201, 255], width: 4 } } },
 }]);
 const HAZARDS = [
   { key: 'shaking', label: 'Ground shaking', url: `${ARCGIS}/GroundShaking/MapServer/export` },
@@ -190,8 +190,11 @@ function TrenchOverlay({ show }) {
     const sw = crs.project(L.latLng(TRENCH_BOUNDS[0][0], TRENCH_BOUNDS[0][1]));
     const ne = crs.project(L.latLng(TRENCH_BOUNDS[1][0], TRENCH_BOUNDS[1][1]));
     const mw = Math.abs(ne.x - sw.x), mh = Math.abs(ne.y - sw.y);
-    let W = 1500, H = Math.round(W * (mh / mw));
-    if (H > 2000) { H = 2000; W = Math.round(H * (mw / mh)); } // keep mercator aspect, bound the size
+    // Max out resolution (server cap 4096) on the long side, preserving mercator aspect, so the line
+    // stays crisp when Leaflet scales the one image. The PH bbox is tall, so height usually leads.
+    const aspect = mh / mw;
+    const W = aspect >= 1 ? Math.round(4000 / aspect) : 4000;
+    const H = aspect >= 1 ? 4000 : Math.round(4000 * aspect);
     const url = `${TRENCH_URL}?bbox=${sw.x},${sw.y},${ne.x},${ne.y}&bboxSR=102100&imageSR=102100`
       + `&size=${W},${H}&dpi=96&format=png32&transparent=true&f=image&dynamicLayers=${encodeURIComponent(TRENCH_STYLE)}`;
     const layer = L.imageOverlay(url, TRENCH_BOUNDS, { opacity: 0.95, interactive: false, className: 'trench-overlay' });
