@@ -103,6 +103,7 @@ function MapClicker({ active, onPick }) {
 // The raw geometry query is locked, but image export is open.
 const ARCGIS = 'https://gisweb.phivolcs.dost.gov.ph/arcgis/rest/services/PHIVOLCSPublic';
 const FAULT_URL = `${ARCGIS}/ActiveFault/MapServer/export`;
+const TRENCH_URL = `${ARCGIS}/Trenches/MapServer/export`; // Philippine trenches (subduction zones)
 const HAZARDS = [
   { key: 'shaking', label: 'Ground shaking', url: `${ARCGIS}/GroundShaking/MapServer/export` },
   { key: 'liquefaction', label: 'Liquefaction', url: `${ARCGIS}/Liquefaction/MapServer/export` },
@@ -188,6 +189,7 @@ export default function QuakeMap({
   const [showQuakes, setShowQuakes] = useState(true);
   const [showReports, setShowReports] = useState(true);
   const [showFaults, setShowFaults] = useState(false);
+  const [showTrenches, setShowTrenches] = useState(false);
   // Satellite hybrid is the default basemap (richer + shows real terrain); remembered per device.
   const [satellite, setSatellite] = useState(() => {
     try { return localStorage.getItem('lindol:satellite') !== '0'; } catch { return true; }
@@ -433,6 +435,7 @@ export default function QuakeMap({
           <div className="mf-title">Overlays</div>
           <div className="mf-cats">
             <button className={`mf-cat${showFaults ? ' on' : ''}`} onClick={() => setShowFaults((v) => !v)}>🟥 Active faults</button>
+            <button className={`mf-cat${showTrenches ? ' on' : ''}`} onClick={() => setShowTrenches((v) => !v)}>🟪 Trenches</button>
             <button className={`mf-cat${showIntensity ? ' on' : ''}`} onClick={() => setShowIntensity((v) => !v)}>🌈 Shaking intensity</button>
             <button className={`mf-cat${showHeat ? ' on' : ''}`} onClick={() => setShowHeat((v) => !v)}>🔥 Activity heatmap</button>
             <button className={`mf-cat${showMicro ? ' on' : ''}`} onClick={() => setShowMicro((v) => !v)}>• Micro &lt;M2.0</button>
@@ -492,6 +495,7 @@ export default function QuakeMap({
         )}
         {hazard && HAZARD_MAP[hazard] && <ArcgisOverlay key={hazard} url={HAZARD_MAP[hazard].url} opacity={0.55} />}
         {showFaults && <ArcgisOverlay url={FAULT_URL} opacity={0.85} />}
+        {showTrenches && <ArcgisOverlay url={TRENCH_URL} opacity={0.9} />}
         <HeatLayer points={heatPoints} show={showHeat && showQuakes} />
         <FollowUser user={user} />
         <FocusFlyer focus={focus} />
@@ -702,6 +706,7 @@ export default function QuakeMap({
         {showIntensity && <span>🌈 Shaking intensity (MMI) · USGS</span>}
         {AFFECTED_AREAS.length > 0 && <span>⚠ Hard-hit area · news</span>}
         {showFaults && <span><i style={{ background: '#B03030' }} />Active fault · PHIVOLCS</span>}
+        {showTrenches && <span><i style={{ background: '#9C3AAE' }} />Trench · PHIVOLCS</span>}
         {hazard && HAZARD_MAP[hazard] && <span>⚠️ {HAZARD_MAP[hazard].label} hazard · PHIVOLCS</span>}
       </div>
     </div>
