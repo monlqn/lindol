@@ -34,4 +34,11 @@ describe('parseQuakes', () => {
     expect(parseQuakes(null)).toEqual([]);
     expect(parseQuakes({})).toEqual([]);
   });
+  it('drops features with non-finite coordinates or time (no NaN into the feed)', () => {
+    const out = parseQuakes({ features: [
+      { id: 'noGeom', properties: { mag: 5, place: 'x', time: 1 } }, // missing geometry -> lat/lng undefined
+      { id: 'noTime', properties: { mag: 5, place: 'x', time: null }, geometry: { coordinates: [126, 7, 5] } },
+    ] });
+    expect(out).toHaveLength(0);
+  });
 });

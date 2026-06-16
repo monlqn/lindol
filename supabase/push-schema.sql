@@ -12,6 +12,11 @@ create policy "anon update own" on public.push_subscriptions
 
 create table if not exists public.alert_state (
   id int primary key default 1,
-  last_quake_time bigint not null default 0
+  last_quake_time bigint not null default 0,
+  -- Ids already pushed (most recent ~300), so a quake revised up past the alert threshold within the
+  -- grace window isn't re-pushed and isn't suppressed by the time watermark alone.
+  pushed_ids jsonb not null default '[]'::jsonb
 );
 insert into public.alert_state (id, last_quake_time) values (1, 0) on conflict do nothing;
+-- Migration for existing deployments:
+alter table public.alert_state add column if not exists pushed_ids jsonb not null default '[]'::jsonb;

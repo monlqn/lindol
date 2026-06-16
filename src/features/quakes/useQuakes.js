@@ -43,10 +43,11 @@ export function useQuakes(user = REGION.defaultUser) {
       // magnitude pushed over the WebSocket beats a stale preliminary from the lagging REST poll.
       // Then merge PHIVOLCS first so it still wins on duplicates as the local authority.
       const emscLive = mergeFreshest(wsRef.current, emscRef.current);
-      // Fold the micro feed into PHIVOLCS first: its M2.0+ rows are exact id-duplicates of the main
-      // feed (dedup cleanly), so only the genuinely-new sub-M2.0 events are added.
-      const phiv = mergeQuakes(phivRef.current, phivMicroRef.current);
-      const live = mergeQuakes(mergeQuakes(phiv, usgsRef.current), emscLive);
+      // Build the full M2.0+ feed first (PHIVOLCS authority, then USGS/EMSC), THEN union the micro
+      // feed in last as `extra`. Merging micro last means a sub-M2.0 micro can never absorb a real
+      // M2.0+ event via sameQuake; only genuinely-new micro events are added.
+      const live0 = mergeQuakes(mergeQuakes(phivRef.current, usgsRef.current), emscLive);
+      const live = mergeQuakes(live0, phivMicroRef.current);
       // Merge the durable week-1 snapshot (keeps perishable PHIVOLCS data after it ages off the
       // live bulletin), then the static mainshock anchor (so the M7.8 can never disappear).
       const withSnapshot = mergeQuakes(live, snapshot);

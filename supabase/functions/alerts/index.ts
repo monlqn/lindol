@@ -138,12 +138,17 @@ Deno.serve(async (req) => {
     const merged: Q[] = [...phiv];
     for (const u of [...usgs, ...emsc]) if (!merged.some((m) => sameQuake(m, u))) merged.push(u);
 
-    const { data: state } = await sb.from("alert_state").select("last_quake_time").eq("id", 1).single();
+    const { data: state } = await sb.from("alert_state").select("last_quake_time, pushed_ids").eq("id", 1).single();
     const last = state?.last_quake_time ?? 0;
+    const pushed = new Set<string>(Array.isArray(state?.pushed_ids) ? state.pushed_ids : []);
 
-    // Watermark tracks ALERT-eligible events only, so archiving small M2.0 quakes can never advance
-    // it past a slightly-late-published M4.5 and suppress that alert.
-    const fresh = merged.filter((q) => q.mag >= ALERT_MIN && q.time > last).sort((a, b) => a.time - b.time);
+    // Look back a grace window and dedup by id (not just the time watermark), so a quake first seen
+    // below M4.5 and later revised UP past the threshold still alerts (its origin time is older than
+    // the watermark, but its id was never pushed). The watermark alone would suppress it.
+    const GRACE_MS = 20 * 60_000;
+    const fresh = merged
+      .filter((q) => q.mag >= ALERT_MIN && q.time > last - GRACE_MS && !pushed.has(q.id))
+      .sort((a, b) => a.time - b.time);
     if (fresh.length === 0) {
       return json({ ok: true, sent: 0, archived, note: "no new alertable quakes", sources: { phivolcs: phiv.length, usgs: usgs.length, emsc: emsc.length } });
     }
@@ -161,8 +166,10 @@ Deno.serve(async (req) => {
         url: "https://lindol.app/",
       });
       for (const s of subs ?? []) {
-        if (s.lat != null && s.lng != null && q.lat != null &&
-            haversineKm(s.lat, s.lng, q.lat, q.lng) > feltRadiusKm(q.mag)) continue;
+        // Skip subscribers with no stored location: we can't say "near you", and broadcasting every
+        // nationwide M4.5+ to them would be misleading + spammy.
+        if (s.lat == null || s.lng == null) continue;
+        if (q.lat != null && haversineKm(s.lat, s.lng, q.lat, q.lng) > feltRadiusKm(q.mag)) continue;
         try {
           await webpush.sendNotification(
             { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
@@ -176,7 +183,11 @@ Deno.serve(async (req) => {
         }
       }
     }
-    await sb.from("alert_state").update({ last_quake_time: maxTime }).eq("id", 1);
+    // Record the ids we processed this run (cap to the most recent 300) so they aren't re-pushed,
+    // and advance the watermark.
+    for (const q of fresh) pushed.add(q.id);
+    const pushedIds = Array.from(pushed).slice(-300);
+    await sb.from("alert_state").update({ last_quake_time: maxTime, pushed_ids: pushedIds }).eq("id", 1);
     return json({ ok: true, quakes: fresh.length, archived, sources: { phivolcs: phiv.length, usgs: usgs.length, emsc: emsc.length }, sent });
   } catch (e: any) {
     return json({ error: String(e?.message || e) }, 500);

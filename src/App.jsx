@@ -67,11 +67,13 @@ function MainApp() {
   const online = useOnline();
   const viewers = useViewerCount();
   const user = useGeolocation();
-  const { latest, latestMajor, mainshock, aftershocks, other, all, status, updatedAt } = useQuakes(user);
+  const { latestMajor, mainshock, aftershocks, other, all, status, updatedAt } = useQuakes(user);
   // Sub-M2.0 micro quakes are included in `all` (list + map), but headline counts split them out so
   // the "N in 30 days" figure stays the honest M2.0+ catalog (micro is only a recent 3-day window).
   const { microCount, mainCount } = splitMicro(all);
   const mainQuakes = useMemo(() => all.filter((q) => q.mag >= REGION.minMagnitude), [all]);
+  // Most recent M2.0+ event, for the share card (which is labelled "M2.0+ ... last 30 days").
+  const latestMain = useMemo(() => mainQuakes.reduce((a, b) => (a && a.time >= b.time ? a : b), null), [mainQuakes]);
   const shakemaps = useShakemaps();
   // The active-zone polygon (shared with the map) and a live count of quakes inside it.
   const zone = useMemo(() => {
@@ -302,7 +304,7 @@ function MainApp() {
               <SectionLabel>Help others stay safe</SectionLabel>
               <div className="share-cta">
                 <p>Know someone in the area? Share LINDOL so they get live earthquake info and safety guidance - even offline.</p>
-                <ShareButton stats={{ count: all.length, latestMag: latest?.mag, latestPlace: latest?.place }} />
+                <ShareButton stats={{ count: mainCount, latestMag: latestMain?.mag, latestPlace: latestMain?.place }} />
               </div>
             </section>
             <a className="privacy-link" href="#privacy">🔒 Privacy Policy: how your data is handled</a>

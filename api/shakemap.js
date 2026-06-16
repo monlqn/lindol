@@ -3,7 +3,9 @@
 // soil) - the authoritative version of our estimated felt circles. ShakeMaps exist only for
 // significant events (~M5.5+), so this follows the most recent one with a ShakeMap, not the all-time
 // strongest (which would pin the overlay to the M7.8 mainshock long after newer quakes).
-const REGION_Q = 'minlatitude=3&maxlatitude=12&minlongitude=120&maxlongitude=128';
+// National bbox, mirroring REGION.bbox in src/config.js so the intensity overlay covers the same
+// area as the feed (not just Mindanao - Luzon/Visayas significant quakes need ShakeMaps too).
+const REGION_Q = 'minlatitude=4.5&maxlatitude=21.5&minlongitude=116&maxlongitude=127';
 
 // From newest-first candidates, take the most recent that actually has a ShakeMap product (newer
 // quakes may not have one generated yet); fall back to the most recent event. Bounded to 6 newest.

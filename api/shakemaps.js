@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   try {
     const start = new Date(Date.now() - 21 * 86400000).toISOString();
     const url = `https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${start}`
-      + '&minmagnitude=5&minlatitude=3&maxlatitude=12&minlongitude=120&maxlongitude=128&orderby=time';
+      + '&minmagnitude=5&minlatitude=4.5&maxlatitude=21.5&minlongitude=116&maxlongitude=127&orderby=time'; // national bbox (mirrors REGION.bbox)
     const j = await fetch(url).then((r) => r.json());
     const events = (j.features ?? [])
       // Prefer instrumental intensity (mmi); fall back to community "Did You Feel It" (cdi).

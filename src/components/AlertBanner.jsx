@@ -13,7 +13,7 @@ export default function AlertBanner({ alert, onDismiss }) {
         <div className="ab-title">M{alert.mag.toFixed(1)} earthquake near you</div>
         <div className="ab-sub">{alert.place} · {formatClock(alert.time)}
           {alert.distanceKm != null ? ` · ≈ ${formatKm(alert.distanceKm)} from you` : ''}</div>
-        <div className="ab-when">⏱ Detected {ago} via {src} — this <b>already happened</b> (after-the-fact alert, not a warning).</div>
+        <div className="ab-when">⏱ Detected {ago} via {src}. This <b>already happened</b> (after-the-fact alert, not a warning).</div>
         <div className="ab-note">If shaking starts now: Drop, Cover, Hold On.</div>
       </div>
       <button className="ab-close" onClick={onDismiss} aria-label="Dismiss">✕</button>

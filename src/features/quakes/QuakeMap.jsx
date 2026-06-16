@@ -326,7 +326,7 @@ export default function QuakeMap({
       );
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showQuakes, zoom, live, afterIds, showMicro, timeWindow, live ? refTime : replayQuakes.length]);
+  }, [showQuakes, zoom, live, afterIds, showMicro, timeWindow, live ? Math.floor(refTime / 60000) : replayQuakes.length]);
 
   // Replay: significant quakes leave a faint felt footprint after their wave, so the shaken
   // area visibly accumulates as the sequence plays. Memoised - rebuilds only when one is added.
@@ -512,7 +512,7 @@ export default function QuakeMap({
             pathOptions={{ color: c.color, weight: 2.5, opacity: 0.9 }} />
         )))}
         {/* Estimated felt areas (magnitude-based). Hidden during replay to keep the animation clean. */}
-        {live && showQuakes && aftershocks.filter((q) => q.mag >= 4.5).map((q) => (
+        {live && showQuakes && aftershocks.filter((q) => q.mag >= 4.5 && timeOk(q)).map((q) => (
           <Circle key={`felt-${q.id}`} center={[q.lat, q.lng]} radius={feltRadiusM(q.mag)} interactive={false}
             pathOptions={{ color: magColor(q.mag), weight: 1, opacity: 0.3, fill: false }} />
         ))}

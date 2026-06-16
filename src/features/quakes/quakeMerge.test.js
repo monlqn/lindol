@@ -28,6 +28,16 @@ describe('mergeQuakes', () => {
     expect(merged.map((q) => q.id)).not.toContain('emsc:dup');
   });
 
+  it('a micro extra cannot displace a real M2.0+ primary event it collides with', () => {
+    // Regression: micro must be merged as `extra`, never as primary, or sameQuake lets a tiny
+    // PHIVOLCS micro absorb a genuine USGS/EMSC event in the same swarm.
+    const real = [{ id: 'usgs:1', mag: 2.6, time: 1000, lat: 5, lng: 125 }];
+    const micro = [{ id: 'phivolcs:x', mag: 1.5, time: 1050, lat: 5.0, lng: 125.0 }]; // within 90s/80km/1.2mag
+    const merged = mergeQuakes(real, micro);
+    expect(merged).toHaveLength(1);
+    expect(merged[0].mag).toBe(2.6); // real event kept; micro absorbed, not the other way around
+  });
+
   it('dedups a micro-feed row that repeats a main-feed quake by id, keeping micro-only rows', () => {
     const main = [{ id: 'phivolcs:1:5:125', mag: 2.6, time: 1, lat: 5, lng: 125 }];
     const micro = [

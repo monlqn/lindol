@@ -30,5 +30,7 @@ export function parseQuakes(geojson) {
       depthKm: f.geometry?.coordinates?.[2] ?? null,
       lat: f.geometry?.coordinates?.[1],
       lng: f.geometry?.coordinates?.[0],
-    }));
+    }))
+    // Mirror the EMSC/PHIVOLCS parsers: never let NaN/undefined coords or time into the merged feed.
+    .filter((q) => Number.isFinite(q.lat) && Number.isFinite(q.lng) && Number.isFinite(q.time) && Number.isFinite(q.mag));
 }
