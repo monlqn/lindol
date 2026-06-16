@@ -49,6 +49,7 @@ import ToggleRow from './components/ToggleRow.jsx';
 
 const MapboxPoc = lazy(() => import('./features/mapbox/MapboxPoc.jsx'));
 const CommandPage = lazy(() => import('./features/command/CommandPage.jsx'));
+const MapLibrePoc = lazy(() => import('./features/maplibre/MapLibrePoc.jsx'));
 
 function useToast() {
   const [toast, setToast] = useState(null);
@@ -67,6 +68,7 @@ export default function App() {
   if (route === '#privacy') return <PrivacyPage />;
   if (route === '#mapbox') return <Suspense fallback={null}><MapboxPoc /></Suspense>;
   if (route === '#command') return <Suspense fallback={null}><CommandPage /></Suspense>;
+  if (route === '#maplibre') return <Suspense fallback={null}><MapLibrePoc /></Suspense>;
   return <MainApp />;
 }
 
