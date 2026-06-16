@@ -143,6 +143,8 @@ section{padding:18px 16px}
 /* ---------- map ---------- */
 .mapwrap{position:relative; border:1px solid var(--line); border-radius:var(--r);
   overflow:hidden; box-shadow:var(--shadow-sm)}
+/* trench overlay: a soft glow on the teal lines so they read as a crafted layer, not a flat raster */
+.trench-overlay{filter:drop-shadow(0 0 2px rgba(31,182,201,.55))}
 .legend{position:absolute; z-index:500; bottom:10px; left:10px; right:10px;
   display:flex; flex-wrap:wrap; gap:6px 12px; padding:8px 11px; border-radius:10px;
   background:var(--map-surface); backdrop-filter:blur(6px); border:1px solid var(--line);

@@ -104,6 +104,13 @@ function MapClicker({ active, onPick }) {
 const ARCGIS = 'https://gisweb.phivolcs.dost.gov.ph/arcgis/rest/services/PHIVOLCSPublic';
 const FAULT_URL = `${ARCGIS}/ActiveFault/MapServer/export`;
 const TRENCH_URL = `${ARCGIS}/Trenches/MapServer/export`; // Philippine trenches (subduction zones)
+// Trenches are a fixed national feature: bounds for a single full-PH image (no per-move re-fetch).
+const TRENCH_BOUNDS = [[2, 116], [22, 128]];
+// Restyle the raw PHIVOLCS line into a clean teal via ArcGIS dynamicLayers (supportsDynamicLayers).
+const TRENCH_STYLE = JSON.stringify([{
+  id: 0, source: { type: 'mapLayer', mapLayerId: 0 },
+  drawingInfo: { renderer: { type: 'simple', symbol: { type: 'esriSLS', style: 'esriSLSSolid', color: [31, 182, 201, 255], width: 2.5 } } },
+}]);
 const HAZARDS = [
   { key: 'shaking', label: 'Ground shaking', url: `${ARCGIS}/GroundShaking/MapServer/export` },
   { key: 'liquefaction', label: 'Liquefaction', url: `${ARCGIS}/Liquefaction/MapServer/export` },
@@ -168,6 +175,30 @@ function HeatLayer({ points, show }) {
     ref.current = layer;
     return () => { if (ref.current) { map.removeLayer(ref.current); ref.current = null; } };
   }, [show, points, map]);
+  return null;
+}
+
+// Trenches overlay: one high-res image for the whole country, positioned at a fixed extent so
+// Leaflet scales it on zoom/pan instead of re-fetching per view (that re-fetch is what lagged).
+function TrenchOverlay({ show }) {
+  const map = useMap();
+  const ref = useRef(null);
+  useEffect(() => {
+    if (ref.current) { map.removeLayer(ref.current); ref.current = null; }
+    if (!show) return undefined;
+    const crs = map.options.crs;
+    const sw = crs.project(L.latLng(TRENCH_BOUNDS[0][0], TRENCH_BOUNDS[0][1]));
+    const ne = crs.project(L.latLng(TRENCH_BOUNDS[1][0], TRENCH_BOUNDS[1][1]));
+    const mw = Math.abs(ne.x - sw.x), mh = Math.abs(ne.y - sw.y);
+    let W = 1500, H = Math.round(W * (mh / mw));
+    if (H > 2000) { H = 2000; W = Math.round(H * (mw / mh)); } // keep mercator aspect, bound the size
+    const url = `${TRENCH_URL}?bbox=${sw.x},${sw.y},${ne.x},${ne.y}&bboxSR=102100&imageSR=102100`
+      + `&size=${W},${H}&dpi=96&format=png32&transparent=true&f=image&dynamicLayers=${encodeURIComponent(TRENCH_STYLE)}`;
+    const layer = L.imageOverlay(url, TRENCH_BOUNDS, { opacity: 0.95, interactive: false, className: 'trench-overlay' });
+    layer.addTo(map);
+    ref.current = layer;
+    return () => { if (ref.current) { map.removeLayer(ref.current); ref.current = null; } };
+  }, [show, map]);
   return null;
 }
 
@@ -435,7 +466,7 @@ export default function QuakeMap({
           <div className="mf-title">Overlays</div>
           <div className="mf-cats">
             <button className={`mf-cat${showFaults ? ' on' : ''}`} onClick={() => setShowFaults((v) => !v)}>🟥 Active faults</button>
-            <button className={`mf-cat${showTrenches ? ' on' : ''}`} onClick={() => setShowTrenches((v) => !v)}>🟪 Trenches</button>
+            <button className={`mf-cat${showTrenches ? ' on' : ''}`} onClick={() => setShowTrenches((v) => !v)}>🟦 Trenches</button>
             <button className={`mf-cat${showIntensity ? ' on' : ''}`} onClick={() => setShowIntensity((v) => !v)}>🌈 Shaking intensity</button>
             <button className={`mf-cat${showHeat ? ' on' : ''}`} onClick={() => setShowHeat((v) => !v)}>🔥 Activity heatmap</button>
             <button className={`mf-cat${showMicro ? ' on' : ''}`} onClick={() => setShowMicro((v) => !v)}>• Micro &lt;M2.0</button>
@@ -495,7 +526,7 @@ export default function QuakeMap({
         )}
         {hazard && HAZARD_MAP[hazard] && <ArcgisOverlay key={hazard} url={HAZARD_MAP[hazard].url} opacity={0.55} />}
         {showFaults && <ArcgisOverlay url={FAULT_URL} opacity={0.85} />}
-        {showTrenches && <ArcgisOverlay url={TRENCH_URL} opacity={0.9} />}
+        <TrenchOverlay show={showTrenches} />
         <HeatLayer points={heatPoints} show={showHeat && showQuakes} />
         <FollowUser user={user} />
         <FocusFlyer focus={focus} />
@@ -706,7 +737,7 @@ export default function QuakeMap({
         {showIntensity && <span>🌈 Shaking intensity (MMI) · USGS</span>}
         {AFFECTED_AREAS.length > 0 && <span>⚠ Hard-hit area · news</span>}
         {showFaults && <span><i style={{ background: '#B03030' }} />Active fault · PHIVOLCS</span>}
-        {showTrenches && <span><i style={{ background: '#9C3AAE' }} />Trench · PHIVOLCS</span>}
+        {showTrenches && <span><i style={{ background: '#1FB6C9' }} />Trench · PHIVOLCS</span>}
         {hazard && HAZARD_MAP[hazard] && <span>⚠️ {HAZARD_MAP[hazard].label} hazard · PHIVOLCS</span>}
       </div>
     </div>
