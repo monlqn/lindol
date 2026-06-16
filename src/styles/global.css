@@ -257,6 +257,11 @@ section{padding:18px 16px}
   background:var(--ember); color:#fff; border:0; border-radius:999px; padding:9px 14px; font-family:var(--font);
   font-weight:700; font-size:12.5px; cursor:pointer; box-shadow:var(--shadow-md)}
 .map-pin.on{background:var(--ink); color:var(--paper)}
+/* floating "report what you see" FAB on the desktop command-center map (the nav "+" lives here now) */
+.map-report-fab{position:absolute; z-index:500; left:50%; transform:translateX(-50%); bottom:72px;
+  width:54px; height:54px; border-radius:50%; background:var(--ember); color:#fff; border:0;
+  display:grid; place-items:center; cursor:pointer; box-shadow:var(--shadow-md); transition:.15s}
+.map-report-fab:hover{background:var(--ember-deep)}
 .pin-hint{position:absolute; z-index:600; top:52px; left:50%; transform:translateX(-50%);
   background:var(--ink); color:var(--paper); padding:7px 14px; border-radius:999px; font-size:12.5px;
   font-weight:600; box-shadow:var(--shadow-md); white-space:nowrap}

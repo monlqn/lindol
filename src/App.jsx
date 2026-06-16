@@ -332,12 +332,12 @@ function MainApp() {
       </PullToRefresh>
       )}
 
-      <BottomNav active={tab} onChange={setTab} onReport={() => setSheetOpen(true)} pulseReport={tourReport} hideMap={twoPane} />
+      <BottomNav active={tab} onChange={setTab} onReport={() => setSheetOpen(true)} pulseReport={tourReport} hideMap={twoPane} hideReport={twoPane} />
       </div>
 
       {twoPane && (
         <div className="desk-right">
-          <QuakeMap fill docked mainshock={mainshock} aftershocks={aftershocks} other={other} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} focus={mapFocus} zone={zone} />
+          <QuakeMap fill docked mainshock={mainshock} aftershocks={aftershocks} other={other} reports={reports} user={user} dark={theme === 'dark'} onReportAt={openReportAt} onReport={() => setSheetOpen(true)} focus={mapFocus} zone={zone} />
         </div>
       )}
 
