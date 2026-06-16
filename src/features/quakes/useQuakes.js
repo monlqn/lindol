@@ -6,6 +6,7 @@ import { mergeQuakes, mergeFreshest } from './quakeMerge.js';
 import { latestMajor } from './latestMajor.js';
 import { cacheGet, cacheSet } from '../../lib/cache.js';
 import { haversineKm } from '../../lib/geo.js';
+import { isLocated } from '../../lib/useGeolocation.js';
 import { REGION } from '../../config.js';
 import { SARANGANI_SEQUENCE, classifyQuakes } from './sequences.js';
 import snapshot from './snapshots/sarangani-2026-06.json';
@@ -14,8 +15,11 @@ const CACHE_KEY = 'quakes';
 const CACHE_KEY_PHIV = 'quakes_phivolcs';
 const CACHE_KEY_PHIV_MICRO = 'quakes_phivolcs_micro';
 
+// distanceKm is the "from you" distance - only meaningful once we have a REAL fix. Without one we
+// leave it null so the UI hides "from you" instead of showing a distance from the regional default.
 function enrich(quakes, user) {
-  return quakes.map((q) => ({ ...q, distanceKm: haversineKm(user, [q.lat, q.lng]) }));
+  const located = isLocated(user);
+  return quakes.map((q) => ({ ...q, distanceKm: located ? haversineKm(user, [q.lat, q.lng]) : null }));
 }
 
 // Returns { all, latest, mainshock, aftershocks, status, updatedAt }

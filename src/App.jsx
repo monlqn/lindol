@@ -38,7 +38,9 @@ import { splitMicro } from './features/quakes/micro.js';
 import { useShakemaps } from './features/quakes/useShakemaps.js';
 import { useReports } from './features/reports/useReports.js';
 import { useOnline } from './lib/useOnline.js';
-import { useGeolocation } from './lib/useGeolocation.js';
+import { useGeolocation, isLocated } from './lib/useGeolocation.js';
+import { haversineKm } from './lib/geo.js';
+import { SARANGANI_SEQUENCE } from './features/quakes/sequences.js';
 import { useQuakeAlerts } from './features/alerts/useQuakeAlerts.js';
 import { arm, startAlarm, stopAlarm } from './lib/alarm.js';
 import { HOTLINES } from './config.js';
@@ -84,6 +86,10 @@ function MainApp() {
     () => (zone ? mainQuakes.filter((q) => pointInPolygon([q.lat, q.lng], zone)).length : 0),
     [mainQuakes, zone],
   );
+  // The Sarangani zone stat is local to Southern Mindanao. On the national app, only surface it to
+  // users near the sequence (or before we know where they are); a located user far away (e.g. Luzon)
+  // shouldn't get a Mindanao-specific headline.
+  const nearZone = !isLocated(user) || haversineKm(user, SARANGANI_SEQUENCE.center) <= 400;
   const [toast, showToast] = useToast();
   const [lightbox, setLightbox] = useState(null);
   useTick(30000);
@@ -220,8 +226,8 @@ function MainApp() {
               <SectionLabel>Last major earthquake{status === 'cached' ? ' · cached' : ''}</SectionLabel>
               <QuakeHero quake={latestMajor ?? mainshock} shakemaps={shakemaps} />
             </section>
-            {(user[0] !== REGION.defaultUser[0] || user[1] !== REGION.defaultUser[1]) && <FeltAtYou user={user} shakemaps={shakemaps} />}
-            {zoneCount > 0 && (
+            {isLocated(user) && <FeltAtYou user={user} shakemaps={shakemaps} />}
+            {zoneCount > 0 && nearZone && (
               <button className="zone-stat reveal" onClick={() => setTab('map')}>
                 <span className="zs-num">{zoneCount}</span>
                 <span className="zs-text">

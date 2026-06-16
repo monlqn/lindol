@@ -44,8 +44,10 @@ export default function QuakeHero({ quake, shakemaps = [] }) {
           <div className="v">{formatClock(quake.time)}<span style={{ color: 'var(--ink-faint)' }}> · {relativeTime(quake.time)}</span></div></div>
         <div className="qc-cell"><div className="k">Depth</div>
           <div className="v">{quake.depthKm != null ? `${Math.round(quake.depthKm)} km` : '-'}</div></div>
-        <div className="qc-cell"><div className="k">From you</div>
-          <div className="v warn">≈ {formatKm(quake.distanceKm)}</div></div>
+        {quake.distanceKm != null && (
+          <div className="qc-cell"><div className="k">From you</div>
+            <div className="v warn">≈ {formatKm(quake.distanceKm)}</div></div>
+        )}
       </div>
       <button className="qc-share" onClick={share} disabled={sharing}>
         {sharing ? 'Preparing image…' : '📤 Share this quake'}

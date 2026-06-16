@@ -128,7 +128,7 @@ section{padding:18px 16px}
 .qc-place{font-family:var(--font); font-weight:700; font-size:18px;
   line-height:1.15; letter-spacing:-.01em}
 .qc-sub{font-size:12.5px; color:var(--ink-soft); margin-top:3px}
-.qc-grid{display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--line)}
+.qc-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(70px, 1fr)); border-top:1px solid var(--line)}
 .qc-cell{padding:10px 12px; border-right:1px solid var(--line)}
 .qc-cell:last-child{border-right:0}
 .qc-cell .k{font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint);
@@ -687,6 +687,12 @@ textarea:focus{outline:none; border-color:var(--ember)}
 .qsrc.phiv{background:var(--ember-wash); color:var(--ember-deep)}
 .qmmi{display:inline-block; margin-left:6px; padding:1px 6px; border-radius:6px; font-size:9.5px;
   font-weight:800; letter-spacing:.02em; color:#161616; vertical-align:middle}
+/* micro quakes (<M2.0): instrument-only, not felt. Subordinate so the real felt quakes scan first. */
+.qrow.micro{opacity:.62}
+.qrow.micro .qmag{min-width:34px; height:34px; font-size:13px; align-self:center}
+.qmicro{display:inline-block; margin-left:6px; padding:1px 6px; border-radius:6px; font-size:9px;
+  font-weight:700; letter-spacing:.05em; text-transform:uppercase; background:var(--line);
+  color:var(--ink-faint); vertical-align:middle}
 .qc-mmi{display:inline-block; margin-top:6px; padding:3px 9px; border-radius:7px; font-size:11px;
   font-weight:800; color:#161616; font-family:var(--mono)}
 

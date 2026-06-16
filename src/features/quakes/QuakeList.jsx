@@ -4,9 +4,10 @@ import { relativeTime, formatClock } from '../../lib/time.js';
 import { shareQuake } from '../../lib/quakeShare.js';
 import { mmiForQuake } from './useShakemaps.js';
 import { mmiRoman, mmiColor } from '../../lib/intensity.js';
+import { isMicro } from './micro.js';
 
 function magColor(m) {
-  return m >= 6 ? '#CC2A2A' : m >= 5 ? '#E0521B' : m >= 4 ? '#C08A1E' : '#9A5B16';
+  return m >= 6 ? '#CC2A2A' : m >= 5 ? '#E0521B' : m >= 4 ? '#C08A1E' : m >= 2 ? '#9A5B16' : '#BCAE86';
 }
 
 function sourceLabel(s) {
@@ -33,7 +34,7 @@ export default function QuakeList({ quakes, limit = 12, step = 20, onLocate, sha
   return (
     <div className="qlist">
       {rows.map((q) => (
-        <div className="qrow" key={q.id}>
+        <div className={`qrow${isMicro(q) ? ' micro' : ''}`} key={q.id}>
           <button className="qrow-go" onClick={() => onLocate?.(q)} title="Show on map">
             <span className="qmag" style={{ background: magColor(q.mag) }}>{q.mag.toFixed(1)}</span>
             <div className="qrow-main">
@@ -42,6 +43,7 @@ export default function QuakeList({ quakes, limit = 12, step = 20, onLocate, sha
                 {formatClock(q.time)} · {relativeTime(q.time)}
                 {q.distanceKm != null ? ` · ≈ ${formatKm(q.distanceKm)}` : ''}
                 <span className={`qsrc${(q.sources?.[0] || sourceLabel(q.source)) === 'PHIVOLCS' ? ' phiv' : ''}`} title={(q.sources || [sourceLabel(q.source)]).join(' · ')}>{sourceTag(q)}</span>
+                {isMicro(q) && <span className="qmicro" title="Below M2.0 - instrument-detected, not felt">micro</span>}
                 {(() => { const mmi = mmiForQuake(q, shakemaps); return mmi != null && mmi >= 2
                   ? <span className="qmmi" style={{ background: mmiColor(mmi) }} title={`Max shaking intensity ${mmiRoman(mmi)} (USGS)`}>Int. {mmiRoman(mmi)}</span> : null; })()}
               </div>
