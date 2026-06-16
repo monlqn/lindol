@@ -41,6 +41,10 @@ const HL_BOUNDS = [[HL.minLat, HL.minLng], [HL.maxLat, HL.maxLng]];
 const SAT_URL = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 const SAT_ROADS = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}';
 const SAT_LABELS = 'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}';
+// Esri Ocean basemap: seafloor bathymetry (trenches read as deep-blue troughs) + a reference
+// layer that labels them ("Philippine Trench", "Manila Trench", ...). Native tiles to z13.
+const OCEAN_BASE = 'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}';
+const OCEAN_REF = 'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}';
 
 const CITIES = [
   { name: 'Davao', c: [7.07, 125.61] },
@@ -225,14 +229,13 @@ export default function QuakeMap({
   const [showFaults, setShowFaults] = useState(false);
   const [showTrenches, setShowTrenches] = useState(false);
   // Satellite hybrid is the default basemap (richer + shows real terrain); remembered per device.
-  const [satellite, setSatellite] = useState(() => {
-    try { return localStorage.getItem('lindol:satellite') !== '0'; } catch { return true; }
+  const [basemap, setBasemap] = useState(() => {
+    try { return localStorage.getItem('lindol:basemap') || (localStorage.getItem('lindol:satellite') === '0' ? 'map' : 'satellite'); } catch { return 'satellite'; }
   });
-  const toggleSatellite = () => setSatellite((v) => {
-    const n = !v;
-    try { localStorage.setItem('lindol:satellite', n ? '1' : '0'); } catch { /* ignore */ }
-    return n;
-  });
+  const pickBasemap = (b) => {
+    setBasemap(b);
+    try { localStorage.setItem('lindol:basemap', b); } catch { /* ignore */ }
+  };
   // Real USGS ShakeMap intensity contours (lazy-loaded the first time the layer is turned on).
   const [showIntensity, setShowIntensity] = useState(false);
   const [intensity, setIntensity] = useState(null);
@@ -462,8 +465,9 @@ export default function QuakeMap({
 
           <div className="mf-title">Basemap</div>
           <div className="mf-cats">
-            <button className={`mf-cat${!satellite ? ' on' : ''}`} onClick={() => { if (satellite) toggleSatellite(); }}>🗺 Map</button>
-            <button className={`mf-cat${satellite ? ' on' : ''}`} onClick={() => { if (!satellite) toggleSatellite(); }}>🛰 Satellite</button>
+            <button className={`mf-cat${basemap === 'map' ? ' on' : ''}`} onClick={() => pickBasemap('map')}>🗺 Map</button>
+            <button className={`mf-cat${basemap === 'satellite' ? ' on' : ''}`} onClick={() => pickBasemap('satellite')}>🛰 Satellite</button>
+            <button className={`mf-cat${basemap === 'ocean' ? ' on' : ''}`} onClick={() => pickBasemap('ocean')}>🌊 Ocean</button>
           </div>
 
           <div className="mf-title">Overlays</div>
@@ -515,12 +519,18 @@ export default function QuakeMap({
       <MapContainer ref={mapRef} center={REGION.center} zoom={7} zoomControl={false} preferCanvas
         attributionControl={false} style={{ height: '100%', width: '100%' }}>
         <AttributionControl position="topright" prefix={false} />
-        {satellite ? (
+        {basemap === 'satellite' ? (
           <>
             <TileLayer key="sat" url={SAT_URL} maxZoom={18}
               attribution='Imagery &copy; <a href="https://www.esri.com">Esri</a>, Maxar, Earthstar Geographics' />
             <TileLayer key="sat-roads" url={SAT_ROADS} maxZoom={18} />
             <TileLayer key="sat-labels" url={SAT_LABELS} maxZoom={18} />
+          </>
+        ) : basemap === 'ocean' ? (
+          <>
+            <TileLayer key="ocean-base" url={OCEAN_BASE} maxNativeZoom={13} maxZoom={18}
+              attribution='Bathymetry &copy; <a href="https://www.esri.com">Esri</a>, GEBCO, NOAA, National Geographic' />
+            <TileLayer key="ocean-ref" url={OCEAN_REF} maxNativeZoom={13} maxZoom={18} />
           </>
         ) : (
         <TileLayer key={dark ? 'dark' : 'light'} url={tileUrl}
