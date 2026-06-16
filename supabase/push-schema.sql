@@ -5,8 +5,11 @@ create table if not exists public.push_subscriptions (
   created_at timestamptz not null default now()
 );
 alter table public.push_subscriptions enable row level security;
+-- Idempotent: drop-then-create so the whole file is safe to re-run.
+drop policy if exists "anon subscribe" on public.push_subscriptions;
 create policy "anon subscribe" on public.push_subscriptions
   for insert to anon with check (true);
+drop policy if exists "anon update own" on public.push_subscriptions;
 create policy "anon update own" on public.push_subscriptions
   for update to anon using (true) with check (true);
 
